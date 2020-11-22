@@ -87,6 +87,8 @@ void Model::BindData()
 
 void Model::Draw()
 {
+	if (vertices.size() < 1 || VBO == 0)
+		std::cout << "ERROR:MODEL::NO DATA "<< std::endl;
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);

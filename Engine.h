@@ -49,6 +49,7 @@ protected:
 	/// </summary>
 	void renderFrame();
 
+	Model* model;
 public:
 	/// <summary>
 	/// Process input

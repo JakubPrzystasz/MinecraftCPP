@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <vector>
+#include <iostream>
 
 struct Vertex {
 	glm::vec3 Position;
@@ -17,7 +18,7 @@ public:
 	Model();
 	Model(Model* model);
 
-	GLuint VBO, VAO, EBO;
+	GLuint VBO = 0, VAO, EBO;
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
 

@@ -8,12 +8,18 @@ Texture::Texture(std::string fileNamePath)
 	glGenTextures(1, &id);
 	glBindTexture(target, id);
 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);	// set texture wrapping to GL_REPEAT (default wrapping method)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
+	// set texture filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMin);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMag);
+
 	if (!LoadResource()) {
 		glTexImage2D(target, 0, GL_RGB, GetWith(), GetHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)data);
 		glGenerateMipmap(target);
 	}
 	else {
-		std::cout << "UNABLE TO READ TEXTURE" << std::endl;
+		std::cout << "ERROR::TEXTURE::UNABLE TO READ TEXTURE" << std::endl;
 		return;
 	}
 
@@ -31,7 +37,7 @@ Texture::~Texture()
 void Texture::Bind(GLenum index)
 {
 	this->index = index;
-	glActiveTexture(index);
+	glActiveTexture(GL_TEXTURE0+index);
 	glBindTexture(target, id);
 }
 

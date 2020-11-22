@@ -19,8 +19,68 @@ void Engine::updateWindow()
 
 void Engine::renderFrame()
 {
+
+	unsigned int texture1, texture2;
+	// texture 1
+	// ---------
+	glGenTextures(1, &texture1);
+	glBindTexture(GL_TEXTURE_2D, texture1);
+	// set the texture wrapping parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// set texture filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load image, create texture and generate mipmaps
+	int width, height, nrChannels;
+	stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
+	// The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
+	unsigned char* data = stbi_load("Textures/container.jpg", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+	// texture 2
+	// ---------
+	glGenTextures(1, &texture2);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+	// set the texture wrapping parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// set texture filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load image, create texture and generate mipmaps
+	data = stbi_load("Textures/awesomeface.png", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		// note that the awesomeface.png has transparency and thus an alpha channel, so make sure to tell OpenGL the data type is of GL_RGBA
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+
 	///Manage rendering single frame
-	
+	ShadingProgram* shader = rs->GetShadingProgram("test");
+	shader->Use();
+	shader->SetData("texture1", 0);
+	shader->SetData("texture2", 1);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture1);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+
+	model->Draw();
 }
 
 void Engine::InitializeWindow(GLuint width, GLuint height, const std::string title)
@@ -61,9 +121,32 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 
 	/////
 	rs->AddShadingProgram("test", "Shaders/shader.vert", "Shaders/shader.frag");
-	ShadingProgram* shader = rs->GetShadingProgram("test");
-	Texture* texture1 = rs->GetTexture("Textures/awesomeface.png");
-	Texture* texture2 = rs->GetTexture("Textures/container.jpg");
+	
+
+	float vertices[] = {
+		 0.5f,  0.5f, 0.0f,  // top right
+		 0.5f, -0.5f, 0.0f,  // bottom right
+		-0.5f, -0.5f, 0.0f,  // bottom left
+		-0.5f,  0.5f, 0.0f   // top left 
+	};
+	unsigned int indices[] = {  // note that we start from 0!
+		0, 1, 3,  // first Triangle
+		1, 2, 3   // second Triangle
+	};
+
+	Model model_;
+	model_.SetIndicies(indices, 6);
+	model_.SetVertices(vertices, 12);
+	rs->AddModel("test", &model_);
+
+	model = rs->GetModel("test");
+	model->vertices[0].TexCoords = glm::vec2(1.0f,1.0f);
+	model->vertices[1].TexCoords = glm::vec2(1.0f,0.0f);
+	model->vertices[2].TexCoords = glm::vec2(0.0f,0.0f);
+	model->vertices[3].TexCoords = glm::vec2(0.0f,1.0f); 
+	model->BindData();
+	
+
 }
 
 void Engine::WindowLoop()
