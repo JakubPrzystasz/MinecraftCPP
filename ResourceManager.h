@@ -5,6 +5,7 @@
 #include "Texture.h"
 #include "Shader.h"
 #include "ShadingProgram.h"
+#include "Model.h"
 
 /// <summary>
 /// Resource Manager is singleton class, that manages all resources for application
@@ -36,6 +37,11 @@ private:
     ///  Holds all shading programs
     /// </summary>
     static std::map<std::string, ShadingProgram*> ShadingPrograms;
+
+    /// <summary>
+    ///  Holds all shading programs
+    /// </summary>
+    static std::map<std::string, Model*> Models;
 
     /// <summary>
     /// Load specified texture from file
@@ -98,6 +104,20 @@ public:
     /// </summary>
     /// <param name="name">Name of shading program </param>
     static ShadingProgram* GetShadingProgram(std::string name);
+
+    /// <summary>
+    /// Add model to map
+    /// </summary>
+    /// <param name="Name"></param>
+    /// <param name="model"></param>
+    static void AddModel(const std::string Name, Model* model);
+
+    /// <summary>
+    /// Loads shader from file to program memory, ready to use in GL context
+    /// </summary>
+    /// <param name="ShaderName">Name of shader file</param>
+    /// <returns></returns>
+    static Model* GetModel(const std::string Name);
 
     /// <summary>
     /// Removes all data from memory
