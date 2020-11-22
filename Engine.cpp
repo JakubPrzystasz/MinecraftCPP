@@ -22,6 +22,11 @@ void Engine::renderFrame()
 	model->Draw();
 }
 
+void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
+
 void Engine::InitializeWindow(GLuint width, GLuint height, const std::string title)
 {
 	if (instance != nullptr) {
@@ -53,6 +58,8 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 		glfwDestroyWindow(window);
 		return;
 	}
+
+	glfwSetWindowSizeCallback(window, windowSizeCallback);
 
 	///SET MOUSE INVISIBLE
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
@@ -90,19 +97,16 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	
 	
 	Texture* tex1 = rs->GetTexture("Textures/awesomeface.png");
-	
 	Texture* tex2 = rs->GetTexture("Textures/container.jpg");
-	tex2->Init();
-	tex1->Init();
+	GLuint id = shader->GetId();
 	shader->Use();
+	tex1->Init();
+	tex2->Init();
+
 	shader->SetData("texture1", tex1->GetId());
 	shader->SetData("texture2", tex2->GetId());
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, tex1->GetId());
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, tex2->GetId());
-	shader->Use();
+	tex1->Bind();
+	tex2->Bind(GL_TEXTURE2);
 }
 
 void Engine::WindowLoop()

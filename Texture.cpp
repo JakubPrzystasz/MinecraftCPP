@@ -16,13 +16,13 @@ Texture::~Texture()
 void Texture::Bind(GLenum index)
 {
 	this->index = index;
-	glActiveTexture(GL_TEXTURE0+index);
+	glActiveTexture(index);
 	glBindTexture(target, id);
 }
 
 void Texture::Bind()
 {
-	Bind(GL_TEXTURE0);
+	Bind(GL_TEXTURE1);
 }
 
 void Texture::Unbind(GLuint target)
@@ -30,13 +30,15 @@ void Texture::Unbind(GLuint target)
 	glBindTexture(target, 0);
 }
 
-GLuint Texture::GetId()
+unsigned int Texture::GetId()
 {
 	return id;
 }
 
 void Texture::Init()
 {
+	if (id != 0)
+		return;
 
 	glGenTextures(1, &id);
 	glBindTexture(target, id);

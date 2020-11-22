@@ -50,6 +50,8 @@ protected:
 	/// </summary>
 	void renderFrame();
 
+	static void windowSizeCallback(GLFWwindow* window, int width, int height);
+
 	Model* model;
 public:
 	/// <summary>

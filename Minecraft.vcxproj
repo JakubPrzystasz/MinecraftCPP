@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="stb_image.c" />
     <ClCompile Include="Time.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Input.cpp" />
@@ -155,7 +156,6 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderCache.cpp" />
     <ClCompile Include="ShadingProgram.cpp" />
-    <ClCompile Include="stb_image.c" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureCache.cpp" />
   </ItemGroup>

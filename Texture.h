@@ -41,7 +41,6 @@ private:
 	/// </summary>
 	GLuint filterMag = GL_LINEAR;
 
-
 	GLenum index = GL_TEXTURE0;
 	
 public:
@@ -78,6 +77,8 @@ public:
 	/// <returns>Uniqure id of texture</returns>
 	GLuint GetId();
 
+
+	//Initialize texture
 	void Init();
 };
 

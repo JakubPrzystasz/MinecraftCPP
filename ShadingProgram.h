@@ -24,16 +24,17 @@ private:
 	Shader* frag = 0;
 
 	/// <summary>
-	/// Unique id of shading program
-	/// </summary>
-	GLuint id = 0;
-
-	/// <summary>
 	/// Checks if compilation succeeds, 
 	/// </summary>
 	/// <returns></returns>
 	int CheckCompileError();
+
+	/// <summary>
+	/// Unique id of shading program
+	/// </summary>
+	GLuint id = 0;
 public:
+
 	/// <summary>
 	/// Constructor of ShadingProgram class
 	/// </summary>
@@ -50,6 +51,8 @@ public:
 	/// Bind shading program to GL context
 	/// </summary>
 	void Use();
+
+	GLuint GetId();
 
 	/// <summary>
 	/// Set variable for shading program
@@ -75,7 +78,7 @@ public:
 	/// Matrix4(float)
 	void SetData(const GLchar* name, const glm::mat4& matrix);
 	/// Texture
-	void SetData(const GLchar* name, const GLuint texture);
+	void SetData(const GLchar* name, const GLuint &value);
 
 };
 

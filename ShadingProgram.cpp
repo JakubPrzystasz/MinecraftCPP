@@ -45,6 +45,11 @@ void ShadingProgram::Use()
 	glUseProgram(id);
 }
 
+GLuint ShadingProgram::GetId()
+{
+	return id;
+}
+
 void ShadingProgram::SetData(const GLchar* name, const bool& value)
 {
 	glUniform1i(glGetUniformLocation(id, name), value);
@@ -100,8 +105,8 @@ void ShadingProgram::SetData(const GLchar* name, const glm::mat4& matrix)
 	glUniformMatrix4fv(glGetUniformLocation(id, name), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
-void ShadingProgram::SetData(const GLchar * name, const GLuint texture)
+void ShadingProgram::SetData(const GLchar* name, const GLuint& value)
 {
-	glUniform1i(glGetUniformLocation(id, name), texture);
+	glUniform1i(glGetUniformLocation(id, name), value);
 }
 
