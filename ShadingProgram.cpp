@@ -40,10 +40,9 @@ ShadingProgram::~ShadingProgram()
 	glDeleteProgram(id);
 }
 
-ShadingProgram &ShadingProgram::Use()
+void ShadingProgram::Use()
 {
 	glUseProgram(id);
-	return *this;
 }
 
 void ShadingProgram::SetData(const GLchar* name, const bool& value)

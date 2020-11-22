@@ -20,17 +20,18 @@ TextureCache::~TextureCache()
 
 int TextureCache::LoadResource()
 {
-	
+
 	if (!inMemory) {
-		
-		data = stbi_load(fileNamePath.c_str(), &width, &height, &colorChannels, STBI_rgb);		if (data != nullptr)
+		std::ifstream file(fileNamePath);
+		if (file.good())
 		{
+			data = stbi_load(fileNamePath.c_str(), &width, &height, &colorChannels, STBI_default);
 			inMemory = true;
 			return 0;
 		}
 		else
 		{
-			std::cout << "ERROR::TEXTURE::FAILED TO LOAD TEXTURE: "<< fileNamePath << std::endl;
+			std::cout << "ERROR::TEXTURE::FAILED TO LOAD TEXTURE: " << fileNamePath << std::endl;
 			return -1;
 		}
 	}
@@ -45,8 +46,7 @@ int TextureCache::FreeResource()
 	}
 	else
 	{
-		// TODO: REMOVING DATA FROM MEMORY
-		//delete []data;
+		stbi_image_free(data);
 		inMemory = false;
 		return 0;
 	}

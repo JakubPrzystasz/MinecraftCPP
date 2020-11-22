@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <string>
 #include <iostream>
+#include <fstream>
 
 #include "DataCache.h"
 #include "stb_image.h"

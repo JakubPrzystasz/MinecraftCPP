@@ -49,7 +49,7 @@ public:
 	/// <summary>
 	/// Bind shading program to GL context
 	/// </summary>
-	ShadingProgram &Use();
+	void Use();
 
 	/// <summary>
 	/// Set variable for shading program
