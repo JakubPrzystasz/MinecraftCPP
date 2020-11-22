@@ -14,8 +14,10 @@ Texture::Texture(std::string fileNamePath)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMin);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMag);
 
-	if (!LoadResource()) {
-		glTexImage2D(target, 0, GL_RGB, GetWith(), GetHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)data);
+	if (LoadResource() == 0) {
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(target);
 	}
 	else {

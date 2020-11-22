@@ -22,8 +22,7 @@ int TextureCache::LoadResource()
 	
 	if (!inMemory) {
 		
-		data = stbi_load(fileNamePath.c_str(), (int*)(&width), (int*)(&height), (int*)(&colorChannels), 0);
-		
+		data = data = stbi_load(fileNamePath.c_str(), &width, &height, &colorChannels, STBI_rgb);
 		if (data)
 		{
 			inMemory = true;
@@ -46,7 +45,8 @@ int TextureCache::FreeResource()
 	}
 	else
 	{
-		free(data);
+		// TODO: REMOVING DATA FROM MEMORY
+		delete []data;
 		inMemory = false;
 		return 0;
 	}

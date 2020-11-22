@@ -26,17 +26,17 @@ private:
     /// <summary>
     /// Stores actual width of texture
     /// </summary>
-    GLuint width;
+    int width = 0;
 
     /// <summary>
     /// Stores actual height of texture
     /// </summary>
-    GLuint height;
+    int height = 0;
 
     /// <summary>
     /// Stores number of color channels of texture file
     /// </summary>
-    GLuint colorChannels;
+    int colorChannels = 0;
 
 public:
     /// <summary>
@@ -77,5 +77,6 @@ public:
     /// <returns>Returns number of color channels of the texture</returns>
     GLuint GetChannels();
 
+    friend class Texture;
 };
 

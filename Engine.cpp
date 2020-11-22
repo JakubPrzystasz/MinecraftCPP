@@ -87,11 +87,11 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	
 
 	ShadingProgram* shader = rs->GetShadingProgram("test");
-	Texture* texture1 = rs->GetTexture("Textures/container.jpg");
-	Texture* texture2 = rs->GetTexture("Textures/awesomeface.png");
+	Texture* texture1 = rs->GetTexture("Textures/awesomeface.png");
+	Texture* texture2 = rs->GetTexture("Textures/container.jpg");
 	shader->Use();
 	shader->SetData("texture1", texture1->GetId());
-	shader->SetData("texture2", texture2->GetId());
+	shader->SetData("texture1", texture2->GetId());
 	texture1->Bind(0);
 	texture1->Bind(1);
 
