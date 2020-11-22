@@ -33,10 +33,6 @@ Texture* ResourceManager::GetTexture(std::string TextureName)
     if ((Textures.count(TextureName) <= 0)) {
         ResourceManager::LoadTexture(TextureName);
     }
-    if ((Textures.count(TextureName) <= 0)) {
-        std::cout << "UNABLE TO LOAD TEXTURE" << std::endl;
-        return nullptr;
-    }
     Texture* texture = Textures.at(TextureName);
     return texture;
 }
@@ -45,10 +41,6 @@ Shader* ResourceManager::GetShader(std::string ShaderName,GLenum type)
 {
     if ((Shaders.count(ShaderName) <= 0)){
         ResourceManager::LoadShader(ShaderName, type);
-    }
-    if ((Shaders.count(ShaderName) <= 0)) {
-        std::cout << "UNABLE TO LOAD SHADER" << std::endl;
-        return nullptr;
     }
     Shader* shader = Shaders.at(ShaderName);
     shader->LoadResource();
