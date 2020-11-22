@@ -16,12 +16,21 @@ Model::Model(Model* model)
 	this->vertices = std::vector<Vertex>(model->vertices);
 }
 
+void Model::SetShadingProgram(ShadingProgram *sp)
+{
+	shadingProgram = sp;
+}
+
+void Model::AddTexture(std::string name, Texture* tex)
+{
+	Textures[name] = tex;
+}
+
 void Model::SetVertices(std::vector<glm::vec3>& vertices)
 {
 	this->vertices.clear();
 	Vertex tmp;
 	for (auto& i : vertices) {
-
 		tmp.Normal = glm::vec3(0);
 		tmp.TexCoords = glm::vec2(0);
 		tmp.Position = i;

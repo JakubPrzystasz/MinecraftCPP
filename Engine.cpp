@@ -19,6 +19,12 @@ void Engine::updateWindow()
 
 void Engine::renderFrame()
 {
+	glm::mat4 trans = glm::mat4(1.0f);
+	trans = glm::rotate(trans, 90.0f, glm::vec3(0.0, 0.0, 1.0));
+	trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+
+	model->shadingProgram->Use();
+	model->shadingProgram->SetData("transform", trans);
 	model->Draw();
 }
 
@@ -91,22 +97,21 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	model->vertices[2].TexCoords = glm::vec2(0.0f,0.0f);
 	model->vertices[3].TexCoords = glm::vec2(0.0f,1.0f); 
 	model->BindData();
+		
+	model->SetShadingProgram(rs->GetShadingProgram("test"));
 	
+	model->AddTexture("face",rs->GetTexture("Textures/awesomeface.png"));
+	model->AddTexture("cont",rs->GetTexture("Textures/container.jpg"));
 
-	ShadingProgram* shader = rs->GetShadingProgram("test");
-	
-	
-	Texture* tex1 = rs->GetTexture("Textures/awesomeface.png");
-	Texture* tex2 = rs->GetTexture("Textures/container.jpg");
-	GLuint id = shader->GetId();
-	shader->Use();
-	tex1->Init();
-	tex2->Init();
+	model->shadingProgram->Use();
+	model->Textures["face"]->Init();
+	model->Textures["cont"]->Init();
 
-	shader->SetData("texture1", tex1->GetId());
-	shader->SetData("texture2", tex2->GetId());
-	tex1->Bind();
-	tex2->Bind(GL_TEXTURE2);
+	model->shadingProgram->SetData("texture1", model->Textures["face"]->GetId());
+	model->shadingProgram->SetData("texture2", model->Textures["cont"]->GetId());
+	model->Textures["face"]->Bind(GL_TEXTURE1);
+	model->Textures["cont"]->Bind(GL_TEXTURE2);
+
 }
 
 void Engine::WindowLoop()

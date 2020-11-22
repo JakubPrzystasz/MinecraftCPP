@@ -4,6 +4,10 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <iostream>
+#include <map>
+
+#include "Texture.h"
+#include "ShadingProgram.h"
 
 struct Vertex {
 	glm::vec3 Position;
@@ -22,6 +26,11 @@ public:
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
 
+	ShadingProgram *shadingProgram;
+	std::map<std::string, Texture*> Textures;
+
+	void SetShadingProgram(ShadingProgram *sp);
+	void AddTexture(std::string name, Texture* tex);
 
 	void SetVertices(std::vector<Vertex>& vertices);
 	void SetVertices(std::vector<glm::vec3>& vertices);
