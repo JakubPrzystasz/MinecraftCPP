@@ -4,29 +4,6 @@
 Texture::Texture(std::string fileNamePath)
 {
 	this->fileNamePath = fileNamePath;
-	
-	glGenTextures(1, &id);
-	glBindTexture(target, id);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);	// set texture wrapping to GL_REPEAT (default wrapping method)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
-	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMin);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMag);
-
-	if (LoadResource() == 0) {
-
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(target);
-	}
-	else {
-		std::cout << "ERROR::TEXTURE::UNABLE TO READ TEXTURE" << std::endl;
-		return;
-	}
-
-	FreeResource();
-
 }
 
 Texture::~Texture()
@@ -56,4 +33,29 @@ void Texture::Unbind(GLuint target)
 GLuint Texture::GetId()
 {
 	return id;
+}
+
+void Texture::Init()
+{
+
+	glGenTextures(1, &id);
+	glBindTexture(target, id);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMin);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMag);
+
+	if (LoadResource() == 0) {
+		//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(target);
+	}
+	else {
+		std::cout << "ERROR::TEXTURE::UNABLE TO READ TEXTURE" << std::endl;
+		return;
+	}
+
+	FreeResource();
+
 }

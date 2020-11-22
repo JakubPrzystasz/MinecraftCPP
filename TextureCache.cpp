@@ -1,5 +1,6 @@
 #include "TextureCache.h"
 
+
 TextureCache::TextureCache(std::string fileNamePath)
 {
 	if (fileNamePath.length() > 0)
@@ -22,8 +23,7 @@ int TextureCache::LoadResource()
 	
 	if (!inMemory) {
 		
-		data = data = stbi_load(fileNamePath.c_str(), &width, &height, &colorChannels, STBI_rgb);
-		if (data)
+		data = stbi_load(fileNamePath.c_str(), &width, &height, &colorChannels, STBI_rgb);		if (data != nullptr)
 		{
 			inMemory = true;
 			return 0;
@@ -46,7 +46,7 @@ int TextureCache::FreeResource()
 	else
 	{
 		// TODO: REMOVING DATA FROM MEMORY
-		delete []data;
+		//delete []data;
 		inMemory = false;
 		return 0;
 	}

@@ -77,5 +77,7 @@ public:
 	/// </summary>
 	/// <returns>Uniqure id of texture</returns>
 	GLuint GetId();
+
+	void Init();
 };
 
