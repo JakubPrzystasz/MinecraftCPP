@@ -36,6 +36,8 @@ private:
     /// </summary>
     int colorChannels = 0;
 
+    bool flipVertically = false;
+
 public:
     /// <summary>
     /// Constructor for TextureCache class, file name is required

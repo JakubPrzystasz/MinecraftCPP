@@ -75,6 +75,9 @@
     <ClCompile Include="stb_image.c">
       <Filter>Source Files\Util</Filter>
     </ClCompile>
+    <ClCompile Include="Quad.cpp">
+      <Filter>Source Files\Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NonCopyable.h">
@@ -117,6 +120,9 @@
       <Filter>Header Files\Engine</Filter>
     </ClInclude>
     <ClInclude Include="Model.h">
+      <Filter>Header Files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Quad.h">
       <Filter>Header Files\Engine</Filter>
     </ClInclude>
   </ItemGroup>

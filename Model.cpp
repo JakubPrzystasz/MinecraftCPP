@@ -2,9 +2,7 @@
 
 Model::Model()
 {
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
+	
 }
 
 Model::Model(Model* model)
@@ -55,6 +53,17 @@ void Model::SetVertices(GLfloat* vertices, GLuint length)
 	}
 }
 
+void Model::SetTexturePosition(GLfloat* texPos, GLuint length)
+{
+	for (GLuint i = 0; i < vertices.size(); i++) {
+		if(i < length-1){
+			vertices[i].TexCoords.x = texPos[i];
+			vertices[i].TexCoords.y = texPos[i+1];
+		}
+	}
+
+}
+
 void Model::SetIndicies(std::vector<GLuint>& indices)
 {
 	this->indices.clear();
@@ -92,6 +101,13 @@ void Model::BindData()
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+}
+
+void Model::Init()
+{
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
 }
 
 void Model::Draw()

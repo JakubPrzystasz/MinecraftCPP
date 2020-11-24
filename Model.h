@@ -36,10 +36,14 @@ public:
 	void SetVertices(std::vector<glm::vec3>& vertices);
 	void SetVertices(GLfloat *vertices, GLuint length);
 
+	void SetTexturePosition(GLfloat* texPos, GLuint length);
+
 	void SetIndicies(std::vector<GLuint>& indices);
 	void SetIndicies(GLuint *indices, GLuint length);
 
 	void BindData();
+
+	void Init();
 
 	void Draw();
 };

@@ -6,6 +6,7 @@
 #include "Shader.h"
 #include "ShadingProgram.h"
 #include "Model.h"
+#include "Quad.h"
 
 /// <summary>
 /// Resource Manager is singleton class, that manages all resources for application

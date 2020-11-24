@@ -20,12 +20,13 @@ void Engine::updateWindow()
 void Engine::renderFrame()
 {
 	glm::mat4 trans = glm::mat4(1.0f);
-	trans = glm::rotate(trans, 90.0f, glm::vec3(0.0, 0.0, 1.0));
-	trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+	//trans = glm::rotate(trans, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
-	model->shadingProgram->Use();
-	model->shadingProgram->SetData("transform", trans);
-	model->Draw();
+	//trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+
+	quad.shadingProgram->Use();
+	//quad.shadingProgram->SetData("transform", trans);
+	quad.Draw();
 }
 
 void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
@@ -73,44 +74,19 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 
 	/////
 	rs->AddShadingProgram("test", "Shaders/shader.vert", "Shaders/shader.frag");
-	
-
-	float vertices[] = {
-		 0.5f,  0.5f, 0.0f,  // top right
-		 0.5f, -0.5f, 0.0f,  // bottom right
-		-0.5f, -0.5f, 0.0f,  // bottom left
-		-0.5f,  0.5f, 0.0f   // top left 
-	};
-	unsigned int indices[] = {  // note that we start from 0!
-		0, 1, 3,  // first Triangle
-		1, 2, 3   // second Triangle
-	};
-
-	Model model_;
-	model_.SetIndicies(indices, 6);
-	model_.SetVertices(vertices, 12);
-	rs->AddModel("test", &model_);
-
-	model = rs->GetModel("test");
-	model->vertices[0].TexCoords = glm::vec2(1.0f,1.0f);
-	model->vertices[1].TexCoords = glm::vec2(1.0f,0.0f);
-	model->vertices[2].TexCoords = glm::vec2(0.0f,0.0f);
-	model->vertices[3].TexCoords = glm::vec2(0.0f,1.0f); 
-	model->BindData();
+	quad.Init();
+	quad.SetFaces();
+	quad.BindData();
 		
-	model->SetShadingProgram(rs->GetShadingProgram("test"));
+	quad.SetShadingProgram(rs->GetShadingProgram("test"));
 	
-	model->AddTexture("face",rs->GetTexture("Textures/awesomeface.png"));
-	model->AddTexture("cont",rs->GetTexture("Textures/container.jpg"));
+	quad.AddTexture("face",rs->GetTexture("Textures/container.jpg"));
 
-	model->shadingProgram->Use();
-	model->Textures["face"]->Init();
-	model->Textures["cont"]->Init();
+	quad.shadingProgram->Use();
+	quad.Textures["face"]->Init();
 
-	model->shadingProgram->SetData("texture1", model->Textures["face"]->GetId());
-	model->shadingProgram->SetData("texture2", model->Textures["cont"]->GetId());
-	model->Textures["face"]->Bind(GL_TEXTURE1);
-	model->Textures["cont"]->Bind(GL_TEXTURE2);
+	quad.shadingProgram->SetData("texture1", quad.Textures["face"]->GetId());
+	quad.Textures["face"]->Bind(GL_TEXTURE1);
 
 }
 

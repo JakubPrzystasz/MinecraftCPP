@@ -52,7 +52,7 @@ protected:
 
 	static void windowSizeCallback(GLFWwindow* window, int width, int height);
 
-	Model* model;
+	Quad quad;
 public:
 	/// <summary>
 	/// Process input
