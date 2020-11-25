@@ -21,8 +21,6 @@ class Input
 private:
 	static std::map<Key, bool> keyState;
 	static std::map<Key, bool> previousState;
-	static std::map<Key, bool> keyState;
-	static std::map<Key, bool> previousState;
 	static MousePosition mousePos;
 	static MousePosition previousMousePos;
 	static bool MouseButton_1;

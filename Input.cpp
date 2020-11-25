@@ -29,11 +29,12 @@ void Input::Update(GLFWwindow *window)
 	/// <summary>
 	/// Get position of mouse
 	/// </summary>
-	MouseButton_1 = glfwGetKey(window, 0) == GLFW_PRESS ? true : false;
-	MouseButton_2 = glfwGetKey(window, 1) == GLFW_PRESS ? true : false;
+	MouseButton_1 = glfwGetKey(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS ? true : false;
+	MouseButton_2 = glfwGetKey(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS ? true : false;
 	
 	previousMousePos = mousePos;
-	glfwGetCursorPos(window, &Input::mousePos.x, &Input::mousePos.y);
+	if(glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
+		glfwGetCursorPos(window, &Input::mousePos.x, &Input::mousePos.y);
 }
 
 bool Input::IsKeyDown(Key key)

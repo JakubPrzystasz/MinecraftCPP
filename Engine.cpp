@@ -37,18 +37,18 @@ void Engine::updateWindow()
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			break;
 		}
-		
 	}
 
-	if (input->GetKeyState(Key::KEY_SPACE))
-		std::cout << "CISKASZ SPACJE!" << std::endl;
+	std::cout <<
+		glfwGetKey(window, GLFW_MOUSE_BUTTON_LEFT) <<
+		glfwGetKey(window, GLFW_MOUSE_BUTTON_RIGHT) << std::endl;
 
 }
 
 void Engine::renderFrame()
 {
 	glm::mat4 model = glm::mat4(1.0f);
-	//model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+	model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
 	quad.shadingProgram->Use();
 	quad.shadingProgram->SetData("projection", camera.Projection);
@@ -98,7 +98,6 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	glfwSetWindowSizeCallback(window, windowSizeCallback);
 
 	///Mouse mode
-	/// TODO: MOUSE WRAP
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 
