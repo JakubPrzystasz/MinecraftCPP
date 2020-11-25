@@ -8,6 +8,7 @@
 #include "Input.h"
 #include "Time.h"
 #include "Camera.h"
+#include "Chunk.h"
 
 class Engine 
 {
@@ -57,6 +58,7 @@ protected:
 	static void windowSizeCallback(GLFWwindow* window, int width, int height);
 
 	/// TODO: REMOVE 
+	Chunk chunk = Chunk();
 	Quad quad;
 
 	Camera camera = Camera((GLfloat)((GLfloat)screenWidth/(GLfloat)screenHeight));

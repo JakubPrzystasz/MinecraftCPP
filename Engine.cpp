@@ -39,20 +39,23 @@ void Engine::updateWindow()
 		}
 	}
 	
-	//if (input->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
-		//std::cout << "left mouse btn " << std::endl;
-	std::cout << camera.Position.x << " " << camera.Position.y << " " << camera.Position.z << std::endl;
+	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
+		chunk.blocks[5] = glm::vec3(0.f,0.f,0.f);
+	//std::cout << camera.Position.x << " " << camera.Position.y << " " << camera.Position.z << std::endl;
 }
 
 void Engine::renderFrame()
 {
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::scale(model,glm::vec3(0.1f,0.1f,0.1f));
-	quad.shadingProgram->Use();
-	quad.shadingProgram->SetData("projection", camera.Projection);
-	quad.shadingProgram->SetData("view", camera.GetViewMatrix());
-	quad.shadingProgram->SetData("model", model);
-	quad.Draw();
+
+	for (const auto& block : chunk.blocks) {   // Range-for!
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, block);
+		quad.shadingProgram->Use();
+		quad.shadingProgram->SetData("projection", camera.Projection);
+		quad.shadingProgram->SetData("view", camera.GetViewMatrix());
+		quad.shadingProgram->SetData("model", model);
+		quad.Draw();
+	}
 
 }
 
@@ -119,6 +122,9 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	quad.shadingProgram->SetData("texture1", quad.Textures["face"]->GetId());
 	quad.Textures["face"]->Bind(GL_TEXTURE1);
 
+	quad.shadingProgram->Use();
+	quad.shadingProgram->SetData("projection", camera.Projection);
+	quad.shadingProgram->SetData("view", camera.GetViewMatrix());
 
 }
 
