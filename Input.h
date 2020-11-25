@@ -1,6 +1,7 @@
 #pragma once
 #include <GLFW/glfw3.h>
 #include <map>
+#include <iostream>
 #include "Key.h"
 
 /// <summary>
@@ -10,6 +11,12 @@ struct MousePosition
 {
 	double x;
 	double y;
+};
+
+struct MouseButtons
+{
+	int left;
+	int right;
 };
 
 
@@ -23,8 +30,8 @@ private:
 	static std::map<Key, bool> previousState;
 	static MousePosition mousePos;
 	static MousePosition previousMousePos;
-	static bool MouseButton_1;
-	static bool MouseButton_2;
+	static MouseButtons buttonState;
+	static MouseButtons previousButtonState;
 	Input();
 	static Input* instance;
 public:
@@ -43,6 +50,8 @@ public:
 	//Return true when key was released
 	static bool IsKeyUp(Key key);
 
+	static bool IsButtonDown(int key);
+
 	/// <summary>
 	/// Returns true when key is being held
 	/// </summary>
@@ -51,9 +60,6 @@ public:
 	static MousePosition GetMousePos();
 
 	static MousePosition GetMouseOffset();
-
-	static bool MouseButton1();
-	static bool MouseButton2();
 
 	friend class Engine;
 };

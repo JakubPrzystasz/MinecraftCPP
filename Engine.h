@@ -56,7 +56,6 @@ protected:
 	/// </summary>
 	static void windowSizeCallback(GLFWwindow* window, int width, int height);
 
-
 	/// TODO: REMOVE 
 	Quad quad;
 

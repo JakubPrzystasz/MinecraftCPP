@@ -5,8 +5,8 @@ std::map<Key, bool> Input::keyState;
 std::map<Key, bool> Input::previousState;
 MousePosition Input::mousePos;
 MousePosition Input::previousMousePos;
-bool Input::MouseButton_1;
-bool Input::MouseButton_2;
+MouseButtons Input::buttonState;
+MouseButtons Input::previousButtonState;
 
 Input* Input::GetInstance()
 {
@@ -22,6 +22,7 @@ void Input::Update(GLFWwindow *window)
 	/// <summary>
 	/// Check if key has changed state
 	/// </summary>
+	
 	for (auto& key : Input::keyState)
 	{
 		key.second = glfwGetKey(window, (int)key.first) == GLFW_PRESS ? true : false;
@@ -29,8 +30,9 @@ void Input::Update(GLFWwindow *window)
 	/// <summary>
 	/// Get position of mouse
 	/// </summary>
-	MouseButton_1 = glfwGetKey(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS ? true : false;
-	MouseButton_2 = glfwGetKey(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS ? true : false;
+	previousButtonState = buttonState;
+	buttonState.left = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS ? true : false;
+	buttonState.right = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS ? true : false;
 	
 	previousMousePos = mousePos;
 	if(glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
@@ -45,6 +47,13 @@ bool Input::IsKeyDown(Key key)
 bool Input::IsKeyUp(Key key)
 {
 	return previousState.at(key) && !keyState.at(key) ? true : false;
+}
+
+bool Input::IsButtonDown(int key)
+{
+	int preValue = key == GLFW_MOUSE_BUTTON_LEFT ? previousButtonState.left : previousButtonState.right;
+	int value = key == GLFW_MOUSE_BUTTON_LEFT ? buttonState.left : buttonState.right;
+	return preValue == GLFW_PRESS && value == GLFW_RELEASE ? true : false;
 }
 
 bool Input::GetKeyState(Key key)
@@ -63,16 +72,6 @@ MousePosition Input::GetMouseOffset()
 	tmp.x = mousePos.x - previousMousePos.x;
 	tmp.y = previousMousePos.y - mousePos.y;
 	return tmp;
-}
-
-bool Input::MouseButton1()
-{
-	return MouseButton_1;
-}
-
-bool Input::MouseButton2()
-{
-	return MouseButton_2;
 }
 
 Input::Input() {

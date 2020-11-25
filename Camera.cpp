@@ -58,8 +58,8 @@ void Camera::ProcessMouseMovement(MousePosition mousePos, GLboolean constrainPit
     mousePos.x *= MouseSensitivity;
     mousePos.y *= MouseSensitivity;
 
-    Yaw += mousePos.x;
-    Pitch += mousePos.y;
+    Yaw += (GLfloat)mousePos.x;
+    Pitch += (GLfloat)mousePos.y;
 
     if (constrainPitch)
     {

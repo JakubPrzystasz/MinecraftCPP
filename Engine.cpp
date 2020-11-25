@@ -38,11 +38,10 @@ void Engine::updateWindow()
 			break;
 		}
 	}
-
-	std::cout <<
-		glfwGetKey(window, GLFW_MOUSE_BUTTON_LEFT) <<
-		glfwGetKey(window, GLFW_MOUSE_BUTTON_RIGHT) << std::endl;
-
+	
+	//if (input->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
+		//std::cout << "left mouse btn " << std::endl;
+	std::cout << camera.Position.x << " " << camera.Position.y << " " << camera.Position.z << std::endl;
 }
 
 void Engine::renderFrame()
@@ -99,7 +98,6 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 
 	///Mouse mode
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
 
 	/////
 	rs->AddShadingProgram("test", "Shaders/shader.vert", "Shaders/shader.frag");
