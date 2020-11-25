@@ -30,7 +30,7 @@ public:
     GLfloat MouseSensitivity;
     glm::mat4 Projection;
 
-    Camera();
+    Camera(GLfloat screenRatio);
 
     glm::mat4 GetViewMatrix();
 

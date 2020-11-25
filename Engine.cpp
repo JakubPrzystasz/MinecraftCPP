@@ -47,8 +47,7 @@ void Engine::updateWindow()
 void Engine::renderFrame()
 {
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-
+	model = glm::scale(model,glm::vec3(0.1f,0.1f,0.1f));
 	quad.shadingProgram->Use();
 	quad.shadingProgram->SetData("projection", camera.Projection);
 	quad.shadingProgram->SetData("view", camera.GetViewMatrix());
@@ -102,18 +101,24 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	/////
 	rs->AddShadingProgram("test", "Shaders/shader.vert", "Shaders/shader.frag");
 	quad.Init();
-	quad.SetFaces();
+	quad.AddFace((Face*)&quad.FrontFace);
+	quad.AddFace((Face*)&quad.BackFace);
+	quad.AddFace((Face*)&quad.TopFace);
+	quad.AddFace((Face*)&quad.BottomFace);
+	quad.AddFace((Face*)&quad.RightFace);
+	quad.AddFace((Face*)&quad.LeftFace);
 	quad.BindData();
 		
 	quad.SetShadingProgram(rs->GetShadingProgram("test"));
 	
-	quad.AddTexture("face",rs->GetTexture("Textures/container.jpg"));
+	quad.AddTexture("face",rs->GetTexture("Textures/cobble.png"));
 
 	quad.shadingProgram->Use();
 	quad.Textures["face"]->Init();
 
 	quad.shadingProgram->SetData("texture1", quad.Textures["face"]->GetId());
 	quad.Textures["face"]->Bind(GL_TEXTURE1);
+
 
 }
 

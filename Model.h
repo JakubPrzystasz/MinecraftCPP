@@ -13,6 +13,12 @@ struct Vertex {
 	glm::vec3 Position;
 	glm::vec3 Normal;
 	glm::vec2 TexCoords;
+	Vertex(glm::vec3 pos, glm::vec3 norm, glm::vec2 tex) {
+		Position = pos;
+		Normal = norm;
+		TexCoords = tex;
+	}
+	Vertex() {};
 };
 
 class Model
@@ -40,6 +46,9 @@ public:
 
 	void SetIndicies(std::vector<GLuint>& indices);
 	void SetIndicies(GLuint *indices, GLuint length);
+	void AddIndices(GLuint* indices, GLuint length);
+	void AddVertex(Vertex* vert);
+	void AddVertices(Vertex* vert, GLuint length);
 
 	void BindData();
 

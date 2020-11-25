@@ -59,7 +59,7 @@ protected:
 	/// TODO: REMOVE 
 	Quad quad;
 
-	Camera camera = Camera();
+	Camera camera = Camera((GLfloat)((GLfloat)screenWidth/(GLfloat)screenHeight));
 public:
 	/// <summary>
 	/// Process input

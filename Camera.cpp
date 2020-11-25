@@ -13,7 +13,7 @@ void Camera::updateCameraVectors()
     Up = glm::normalize(glm::cross(Right, Front));
 }
 
-Camera::Camera()
+Camera::Camera(GLfloat screenRatio)
 {
     Position = glm::vec3({0.f,0.f,0.f});
     WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -26,7 +26,7 @@ Camera::Camera()
     Right = glm::vec3();
     Up = glm::vec3();
     //SETUP projection matrix
-    Projection = glm::perspective(FOV, (GLfloat)800.f / (GLfloat)600.f, 0.1f, 100.0f);
+    Projection = glm::perspective(FOV, screenRatio, 0.001f, 100.0f);
 }
 
 glm::mat4 Camera::GetViewMatrix()

@@ -2,7 +2,8 @@
 
 Model::Model()
 {
-	
+	VAO = 0;
+	EBO = 0;
 }
 
 Model::Model(Model* model)
@@ -27,7 +28,7 @@ void Model::AddTexture(std::string name, Texture* tex)
 void Model::SetVertices(std::vector<glm::vec3>& vertices)
 {
 	this->vertices.clear();
-	Vertex tmp;
+	Vertex tmp = Vertex();
 	for (auto& i : vertices) {
 		tmp.Normal = glm::vec3(0);
 		tmp.TexCoords = glm::vec2(0);
@@ -53,6 +54,7 @@ void Model::SetVertices(GLfloat* vertices, GLuint length)
 	}
 }
 
+
 void Model::SetTexturePosition(GLfloat* texPos, GLuint length)
 {
 	for (GLuint i = 0; i < vertices.size(); i++) {
@@ -74,6 +76,28 @@ void Model::SetIndicies(GLuint* indices, GLuint length)
 {
 	this->indices.clear();
 	this->indices = std::vector<GLuint>(indices, indices + length);
+}
+
+void Model::AddIndices(GLuint* indices, GLuint length)
+{
+	std::vector<GLuint> tmp = std::vector<GLuint>(indices, indices + length);
+	GLuint countVertices = this->vertices.size();
+	for (GLuint i = 0; i < tmp.size(); i++) {
+		this->indices.push_back(tmp[i] + countVertices);
+	}
+}
+
+void Model::AddVertex(Vertex* vert)
+{
+	Vertex tmp = Vertex(*vert);
+	vertices.push_back(tmp);
+}
+
+void Model::AddVertices(Vertex* vert,GLuint length)
+{
+	for (GLuint i = 0; i < length; i++) {
+		AddVertex(vert + i);
+	}
 }
 
 void Model::BindData()

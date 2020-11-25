@@ -1,34 +1,30 @@
 #pragma once
 #include "Model.h"
 
-struct face {
-	GLfloat vertices[12];
-	GLfloat texturePos[8];
+struct Face {
+	Vertex vertices[4];
 	GLuint indices[6];
+	Face(Vertex vert1, Vertex vert2, Vertex vert3, Vertex vert4, GLuint ind1, GLuint ind2, GLuint ind3, GLuint ind4, GLuint ind5, GLuint ind6) {
+		vertices[0] = vert1;
+		vertices[1] = vert2;
+		vertices[2] = vert3;
+		vertices[3] = vert4;
+		indices[0] = ind1;
+		indices[1] = ind2;
+		indices[2] = ind3;
+		indices[3] = ind4;
+		indices[4] = ind5;
+		indices[5] = ind6;
+	}
 };
 
-class Quad: public Model {
-private:
-
-	const face frontFace =
-	{
-		//vert [12]
-		//x      y      z
-		 0.5f,  0.5f, 0.0f,   // right top
-		 0.5f, -0.5f, 0.0f,   // right bottom
-		-0.5f, -0.5f, 0.0f,   // left bottom
-		-0.5f,  0.5f, 0.0f,   // left top
-		//texture [8]
-		//s    t
-		1.0f, 1.0f,//0   	  // right top
-		0.0f, 0.0f,//1  	  // right bottom
-		1.0f, 0.0f,//2   	  // left bottom
-		0.0f, 1.0f,//3        // left top
-		//indices [6]
-		1,2,3,0,1,3
-	};
-
+class Quad : public Model {
 public:
-	void SetFaces();
-	void SetFace(face face_);
+	static Face FrontFace; 
+	static Face BackFace; 
+	static Face TopFace; 
+	static Face BottomFace; 
+	static Face RightFace; 
+	static Face LeftFace; 
+	void AddFace(Face* face);
 };

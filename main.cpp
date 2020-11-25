@@ -3,7 +3,7 @@
 int main() {
 
 	Engine engine = Engine();
-	engine.InitializeWindow(800, 450, "Minecraft");
+	engine.InitializeWindow(800, 600, "Minecraft");
 	engine.WindowLoop();
 }
 
