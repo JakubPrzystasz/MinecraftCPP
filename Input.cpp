@@ -4,6 +4,9 @@ Input* Input::instance = nullptr;
 std::map<Key, bool> Input::keyState;
 std::map<Key, bool> Input::previousState;
 MousePosition Input::mousePos;
+MousePosition Input::previousMousePos;
+bool Input::MouseButton_1;
+bool Input::MouseButton_2;
 
 Input* Input::GetInstance()
 {
@@ -26,6 +29,10 @@ void Input::Update(GLFWwindow *window)
 	/// <summary>
 	/// Get position of mouse
 	/// </summary>
+	MouseButton_1 = glfwGetKey(window, 0) == GLFW_PRESS ? true : false;
+	MouseButton_2 = glfwGetKey(window, 1) == GLFW_PRESS ? true : false;
+	
+	previousMousePos = mousePos;
 	glfwGetCursorPos(window, &Input::mousePos.x, &Input::mousePos.y);
 }
 
@@ -47,6 +54,24 @@ bool Input::GetKeyState(Key key)
 MousePosition Input::GetMousePos()
 {
 	return mousePos;
+}
+
+MousePosition Input::GetMouseOffset()
+{
+	MousePosition tmp;
+	tmp.x = mousePos.x - previousMousePos.x;
+	tmp.y = previousMousePos.y - mousePos.y;
+	return tmp;
+}
+
+bool Input::MouseButton1()
+{
+	return MouseButton_1;
+}
+
+bool Input::MouseButton2()
+{
+	return MouseButton_2;
 }
 
 Input::Input() {
@@ -174,5 +199,6 @@ Input::Input() {
 
 	mousePos.x = 0.0;
 	mousePos.y = 0.0;
+	previousMousePos = mousePos;
 
 }

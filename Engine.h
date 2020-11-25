@@ -7,6 +7,7 @@
 #include "ResourceManager.h"
 #include "Input.h"
 #include "Time.h"
+#include "Camera.h"
 
 class Engine 
 {
@@ -50,9 +51,16 @@ protected:
 	/// </summary>
 	void renderFrame();
 
+	/// <summary>
+	/// Window resize callback function
+	/// </summary>
 	static void windowSizeCallback(GLFWwindow* window, int width, int height);
 
+
+	/// TODO: REMOVE 
 	Quad quad;
+
+	Camera camera = Camera();
 public:
 	/// <summary>
 	/// Process input

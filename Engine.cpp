@@ -9,8 +9,36 @@ void Engine::updateWindow()
 	timer.update(glfwGetTime());
 	input->Update(window);
 
+	camera.ProcessMouseMovement(input->GetMouseOffset());
+
+	if (input->GetKeyState(Key::KEY_W))
+		camera.ProcessKeyboard(CameraMovement::FORWARD, (GLfloat)timer.deltaTime);
+
+	if (input->GetKeyState(Key::KEY_A))
+		camera.ProcessKeyboard(CameraMovement::LEFT, (GLfloat)timer.deltaTime);
+
+	if (input->GetKeyState(Key::KEY_S))
+		camera.ProcessKeyboard(CameraMovement::BACKWARD, (GLfloat)timer.deltaTime);
+
+	if (input->GetKeyState(Key::KEY_D))
+		camera.ProcessKeyboard(CameraMovement::RIGHT, (GLfloat)timer.deltaTime);
+
 	if (input->IsKeyDown(Key::KEY_ESCAPE))
 		glfwSetWindowShouldClose(window, true);
+
+	if (input->IsKeyDown(Key::KEY_G))
+	{
+		int inputMode = glfwGetInputMode(window, GLFW_CURSOR);
+		switch (inputMode) {
+		case GLFW_CURSOR_DISABLED:
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			break;
+		case GLFW_CURSOR_NORMAL:
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			break;
+		}
+		
+	}
 
 	if (input->GetKeyState(Key::KEY_SPACE))
 		std::cout << "CISKASZ SPACJE!" << std::endl;
@@ -19,14 +47,15 @@ void Engine::updateWindow()
 
 void Engine::renderFrame()
 {
-	glm::mat4 trans = glm::mat4(1.0f);
-	//trans = glm::rotate(trans, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-
-	//trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+	glm::mat4 model = glm::mat4(1.0f);
+	//model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
 	quad.shadingProgram->Use();
-	//quad.shadingProgram->SetData("transform", trans);
+	quad.shadingProgram->SetData("projection", camera.Projection);
+	quad.shadingProgram->SetData("view", camera.GetViewMatrix());
+	quad.shadingProgram->SetData("model", model);
 	quad.Draw();
+
 }
 
 void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
@@ -65,11 +94,12 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 		glfwDestroyWindow(window);
 		return;
 	}
-
+	///Window resize callback
 	glfwSetWindowSizeCallback(window, windowSizeCallback);
 
-	///SET MOUSE INVISIBLE
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	///Mouse mode
+	/// TODO: MOUSE WRAP
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 
 	/////
@@ -100,6 +130,9 @@ void Engine::WindowLoop()
 		glfwSetTime(0.f);
 		timer.init(glfwGetTime());
 		SetFrameRate(60);
+		glClearColor(0.678f, 0.847f, 0.902f, 1.07f);
+		glEnable(GL_DEPTH_TEST);
+
 		while (!glfwWindowShouldClose(window))
 		{
 			/// <summary>
@@ -112,6 +145,7 @@ void Engine::WindowLoop()
 			/// </summary>
 			if (timer.renderFrame())
 			{
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				renderFrame();
 				/// Draw recently rendered frame on window,
 				glfwSwapBuffers(window);

@@ -21,7 +21,12 @@ class Input
 private:
 	static std::map<Key, bool> keyState;
 	static std::map<Key, bool> previousState;
+	static std::map<Key, bool> keyState;
+	static std::map<Key, bool> previousState;
 	static MousePosition mousePos;
+	static MousePosition previousMousePos;
+	static bool MouseButton_1;
+	static bool MouseButton_2;
 	Input();
 	static Input* instance;
 public:
@@ -46,6 +51,11 @@ public:
 	static bool GetKeyState(Key key);
 
 	static MousePosition GetMousePos();
+
+	static MousePosition GetMouseOffset();
+
+	static bool MouseButton1();
+	static bool MouseButton2();
 
 	friend class Engine;
 };

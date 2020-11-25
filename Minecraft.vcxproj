@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Quad.cpp" />
@@ -161,6 +162,7 @@
     <ClCompile Include="TextureCache.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="DataCache.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Model.h" />
