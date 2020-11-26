@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <ctime>
 #include <iostream>
+#include <iomanip>
 #include "ResourceManager.h"
 #include "Input.h"
 #include "Time.h"

@@ -21,7 +21,7 @@ Camera::Camera(GLfloat screenRatio)
     FOV = 45.0f;
     Yaw = -90.f;
     Pitch = 0.f;
-    MovementSpeed = 0.002f;
+    MovementSpeed = 0.0001f;
     MouseSensitivity = 0.1f;
     Right = glm::vec3();
     Up = glm::vec3();

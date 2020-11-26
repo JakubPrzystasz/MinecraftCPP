@@ -30,7 +30,6 @@ void Model::SetVertices(std::vector<glm::vec3>& vertices)
 	this->vertices.clear();
 	Vertex tmp = Vertex();
 	for (auto& i : vertices) {
-		tmp.Normal = glm::vec3(0);
 		tmp.TexCoords = glm::vec2(0);
 		tmp.Position = i;
 		this->vertices.push_back(tmp);
@@ -115,12 +114,9 @@ void Model::BindData()
 	// Vertex position
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-	// Vertex normal
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
 	// Vertex texture pos
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -139,6 +135,6 @@ void Model::Draw()
 	if (vertices.size() < 1 || VBO == 0)
 		std::cout << "ERROR:MODEL::NO DATA "<< std::endl;
 	glBindVertexArray(VAO);
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
 	glBindVertexArray(0);
 }
