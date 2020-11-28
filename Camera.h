@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <iostream>
 
 #include "Input.h"
 
@@ -10,7 +11,9 @@ enum class CameraMovement {
     FORWARD = 0,
     BACKWARD = 1,
     RIGHT = 2,
-    LEFT = 3
+    LEFT = 3,
+    UP = 4,
+    DOWN = 5
 };
 
 class Camera

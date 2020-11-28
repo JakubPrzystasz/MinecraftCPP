@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include "Model.h"
 
 struct Face {
@@ -18,7 +19,7 @@ struct Face {
 	}
 };
 
-class Quad : public Model {
+class Cube : public Model {
 public:
 	static Face FrontFace; 
 	static Face BackFace; 
@@ -26,5 +27,16 @@ public:
 	static Face BottomFace; 
 	static Face RightFace; 
 	static Face LeftFace; 
-	void AddFace(Face* face);
+	std::array<Face, 6> Faces = {FrontFace,BackFace,TopFace,BottomFace,RightFace,LeftFace};
+	
+	/// <summary>
+	/// Bind desired face
+	/// </summary>
+	/// <param name="face"></param>
+	void BindFace(const Face* face);
+
+	/// <summary>
+	/// Bind all faces 
+	/// </summary>
+	void Bind();
 };

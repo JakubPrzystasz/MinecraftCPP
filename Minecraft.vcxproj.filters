@@ -87,7 +87,7 @@
     <ClCompile Include="Chunk.cpp">
       <Filter>Source Files\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Quad.cpp">
+    <ClCompile Include="Cube.cpp">
       <Filter>Source Files\Game</Filter>
     </ClCompile>
   </ItemGroup>
@@ -140,7 +140,7 @@
     <ClInclude Include="Chunk.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Quad.h">
+    <ClInclude Include="Cube.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
   </ItemGroup>

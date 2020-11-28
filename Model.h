@@ -48,10 +48,19 @@ public:
 	void AddVertex(Vertex* vert);
 	void AddVertices(Vertex* vert, GLuint length);
 
+	/// <summary>
+	/// Bind model data to GLContext
+	/// </summary>
 	void BindData();
 
+	/// <summary>
+	/// Initialize object's VAO,ABO,EBO
+	/// </summary>
 	void Init();
 
+	/// <summary>
+	/// Draw object
+	/// </summary>
 	void Draw();
 };
 

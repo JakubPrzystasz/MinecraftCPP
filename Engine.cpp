@@ -23,6 +23,12 @@ void Engine::updateWindow()
 	if (input->GetKeyState(Key::KEY_D))
 		camera.ProcessKeyboard(CameraMovement::RIGHT, (GLfloat)timer.deltaTime);
 
+	if (input->GetKeyState(Key::KEY_LEFT_SHIFT))
+		camera.ProcessKeyboard(CameraMovement::DOWN, (GLfloat)timer.deltaTime);
+
+	if (input->GetKeyState(Key::KEY_SPACE))
+		camera.ProcessKeyboard(CameraMovement::UP, (GLfloat)timer.deltaTime);
+
 	if (input->IsKeyDown(Key::KEY_ESCAPE))
 		glfwSetWindowShouldClose(window, true);
 
@@ -41,18 +47,20 @@ void Engine::updateWindow()
 	
 	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
 		chunk.blocks[5] = glm::vec3(0.f,0.f,0.f);
-	std::cout << camera.Position.x << " " << camera.Position.y << " " << camera.Position.z << std::endl;
+	//std::cout << camera.Position.x << " " << camera.Position.y << " " << camera.Position.z << std::endl;
 }
 
 void Engine::renderFrame()
 {
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, chunk.blocks[0]);
-	quad.shadingProgram->Use();
-	quad.shadingProgram->SetData("projection", camera.Projection);
-	quad.shadingProgram->SetData("view", camera.GetViewMatrix());
-	quad.shadingProgram->SetData("model", model);
-	quad.Draw();
+	for (int i = 0; i < 10; i++) {
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, chunk.blocks[i]);
+		Cube.shadingProgram->Use();
+		Cube.shadingProgram->SetData("projection", camera.Projection);
+		Cube.shadingProgram->SetData("view", camera.GetViewMatrix());
+		Cube.shadingProgram->SetData("model", model);
+		Cube.Draw();
+	}
 }
 
 void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
@@ -99,28 +107,23 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 
 	/////
 	rs->AddShadingProgram("test", "Shaders/shader.vert", "Shaders/shader.frag");
-	quad.Init();
-	quad.AddFace((Face*)&quad.FrontFace);
-	quad.AddFace((Face*)&quad.BackFace);
-	quad.AddFace((Face*)&quad.TopFace);
-	quad.AddFace((Face*)&quad.BottomFace);
-	quad.AddFace((Face*)&quad.RightFace);
-	quad.AddFace((Face*)&quad.LeftFace);
-	quad.BindData();
+	Cube.Init();
+	Cube.Bind();
+	Cube.BindData();
 	std::cout << std::setprecision(2);
-	quad.SetShadingProgram(rs->GetShadingProgram("test"));
+	Cube.SetShadingProgram(rs->GetShadingProgram("test"));
 	
-	quad.AddTexture("face",rs->GetTexture("Textures/cobble.png"));
+	Cube.AddTexture("face",rs->GetTexture("Textures/cobble.png"));
 
-	quad.shadingProgram->Use();
-	quad.Textures["face"]->Init();
+	Cube.shadingProgram->Use();
+	Cube.Textures["face"]->Init();
 
-	quad.shadingProgram->SetData("texture1", quad.Textures["face"]->GetId());
-	quad.Textures["face"]->Bind(GL_TEXTURE1);
+	Cube.shadingProgram->SetData("texture1", Cube.Textures["face"]->GetId());
+	Cube.Textures["face"]->Bind(GL_TEXTURE1);
 
-	quad.shadingProgram->Use();
-	quad.shadingProgram->SetData("projection", camera.Projection);
-	quad.shadingProgram->SetData("view", camera.GetViewMatrix());
+	Cube.shadingProgram->Use();
+	Cube.shadingProgram->SetData("projection", camera.Projection);
+	Cube.shadingProgram->SetData("view", camera.GetViewMatrix());
 
 }
 

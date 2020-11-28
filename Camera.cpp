@@ -21,7 +21,7 @@ Camera::Camera(GLfloat screenRatio)
     FOV = 45.0f;
     Yaw = -90.f;
     Pitch = 0.f;
-    MovementSpeed = 0.0001f;
+    MovementSpeed = 3.f;
     MouseSensitivity = 0.1f;
     Right = glm::vec3();
     Up = glm::vec3();
@@ -37,20 +37,32 @@ glm::mat4 Camera::GetViewMatrix()
 void Camera::ProcessKeyboard(CameraMovement direction, GLfloat deltaTime)
 {
     GLfloat velocity = MovementSpeed * deltaTime;
+    glm::vec3 PositionDelta = glm::vec3(0);
     switch (direction) {
     case CameraMovement::FORWARD:
-        Position += Front * velocity;
+        PositionDelta += Front * velocity;
+        PositionDelta.y = 0;
         break;
     case CameraMovement::BACKWARD:
-        Position -= Front * velocity;
+        PositionDelta -= Front * velocity;
+        PositionDelta.y = 0;
         break;
     case CameraMovement::LEFT:
-        Position -= Right * velocity;
+        PositionDelta -= Right * velocity;
+        PositionDelta.y = 0;
         break;
     case CameraMovement::RIGHT:
-        Position += Right * velocity;
+        PositionDelta += Right * velocity;
+        PositionDelta.y = 0;
+        break;
+    case CameraMovement::UP:
+        PositionDelta += glm::vec3(0, 1 *velocity,0);
+        break;
+    case CameraMovement::DOWN:
+        PositionDelta -= glm::vec3(0, 1 * velocity, 0);
         break;
     };
+    Position += PositionDelta;
 }
 
 void Camera::ProcessMouseMovement(MousePosition mousePos, GLboolean constrainPitch)

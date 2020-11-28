@@ -10,6 +10,7 @@ void Time::init(GLdouble time)
 
 void Time::update(GLdouble time)
 {
+	previousTime = currentTime;
 	currentTime = time;
 	deltaTime = currentTime - previousTime;
 	if((currentTime - lastSecond) >= 0.25){

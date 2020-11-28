@@ -60,7 +60,7 @@ protected:
 
 	/// TODO: REMOVE 
 	Chunk chunk = Chunk();
-	Quad quad;
+	Cube Cube;
 
 	Camera camera = Camera((GLfloat)((GLfloat)screenWidth/(GLfloat)screenHeight));
 public:
