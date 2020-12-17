@@ -151,6 +151,7 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="stb_image.c" />
+    <ClCompile Include="stb_perlin .c" />
     <ClCompile Include="Time.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Input.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Cube.h" />
+    <ClInclude Include="stb_perlin.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Key.h" />

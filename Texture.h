@@ -34,12 +34,12 @@ private:
 	/// <summary>
 	/// Texture interpolation mode when scalling down
 	/// </summary>
-	GLuint filterMin = GL_LINEAR;
+	GLuint filterMin = GL_NEAREST;
 
 	/// <summary>
 	/// Texture interpolation mode when scalling up
 	/// </summary>
-	GLuint filterMag = GL_LINEAR;
+	GLuint filterMag = GL_NEAREST;
 
 	GLenum index = GL_TEXTURE0;
 	

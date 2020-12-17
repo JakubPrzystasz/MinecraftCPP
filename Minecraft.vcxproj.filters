@@ -90,6 +90,9 @@
     <ClCompile Include="Cube.cpp">
       <Filter>Source Files\Game</Filter>
     </ClCompile>
+    <ClCompile Include="stb_perlin .c">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NonCopyable.h">
@@ -142,6 +145,9 @@
     </ClInclude>
     <ClInclude Include="Cube.h">
       <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_perlin.h">
+      <Filter>Header Files\Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

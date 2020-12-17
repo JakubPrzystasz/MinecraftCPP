@@ -20,6 +20,8 @@ struct Face {
 };
 
 class Cube : public Model {
+private:
+	GLuint faceTextureSize = 128;
 public:
 	static Face FrontFace; 
 	static Face BackFace; 
@@ -27,6 +29,11 @@ public:
 	static Face BottomFace; 
 	static Face RightFace; 
 	static Face LeftFace; 
+	/// <summary>
+	/// [0 FrontFace][1 BackFace]
+	/// [2 TopFace][3 BottomFace]
+	/// [4 RightFace][5 LeftFace]
+	/// </summary>
 	std::array<Face, 6> Faces = {FrontFace,BackFace,TopFace,BottomFace,RightFace,LeftFace};
 	
 	/// <summary>
@@ -38,5 +45,7 @@ public:
 	/// <summary>
 	/// Bind all faces 
 	/// </summary>
-	void Bind();
+	void BindFaces();
+
+	void SetFaceTexture(Texture *texure,Face &face, const int texRow, const int texCol);
 };

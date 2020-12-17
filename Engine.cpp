@@ -45,22 +45,20 @@ void Engine::updateWindow()
 		}
 	}
 	
-	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
-		chunk.blocks[5] = glm::vec3(0.f,0.f,0.f);
+	//if (input->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
+		//chunk.blocks[5] = glm::vec3(0.f,0.f,0.f);
 	//std::cout << camera.Position.x << " " << camera.Position.y << " " << camera.Position.z << std::endl;
 }
 
 void Engine::renderFrame()
 {
-	for (int i = 0; i < 10; i++) {
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, chunk.blocks[i]);
-		Cube.shadingProgram->Use();
-		Cube.shadingProgram->SetData("projection", camera.Projection);
-		Cube.shadingProgram->SetData("view", camera.GetViewMatrix());
-		Cube.shadingProgram->SetData("model", model);
-		Cube.Draw();
-	}
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, chunk.blocks[0]);
+	Cube.shadingProgram->Use();
+	Cube.shadingProgram->SetData("projection", camera.Projection);
+	Cube.shadingProgram->SetData("view", camera.GetViewMatrix());
+	Cube.shadingProgram->SetData("model", model);
+	Cube.Draw();
 }
 
 void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
@@ -108,19 +106,24 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	/////
 	rs->AddShadingProgram("test", "Shaders/shader.vert", "Shaders/shader.frag");
 	Cube.Init();
-	Cube.Bind();
-	Cube.BindData();
 	std::cout << std::setprecision(2);
 	Cube.SetShadingProgram(rs->GetShadingProgram("test"));
 	
-	Cube.AddTexture("face",rs->GetTexture("Textures/cobble.png"));
+	Cube.AddTexture("face",rs->GetTexture("Textures/terrain.png"));
 
 	Cube.shadingProgram->Use();
 	Cube.Textures["face"]->Init();
 
 	Cube.shadingProgram->SetData("texture1", Cube.Textures["face"]->GetId());
 	Cube.Textures["face"]->Bind(GL_TEXTURE1);
-
+	Cube.SetFaceTexture(Cube.Textures["face"], Cube.Faces[0], 3, 15);
+	Cube.SetFaceTexture(Cube.Textures["face"], Cube.Faces[1], 3, 15);
+	Cube.SetFaceTexture(Cube.Textures["face"], Cube.Faces[2], 0, 0);
+	Cube.SetFaceTexture(Cube.Textures["face"], Cube.Faces[3], 2, 15);
+	Cube.SetFaceTexture(Cube.Textures["face"], Cube.Faces[4], 3, 15);
+	Cube.SetFaceTexture(Cube.Textures["face"], Cube.Faces[5], 3, 15);
+	Cube.BindFaces();
+	Cube.BindData();
 	Cube.shadingProgram->Use();
 	Cube.shadingProgram->SetData("projection", camera.Projection);
 	Cube.shadingProgram->SetData("view", camera.GetViewMatrix());

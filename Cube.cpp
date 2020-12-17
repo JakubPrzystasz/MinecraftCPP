@@ -60,9 +60,20 @@ void Cube::BindFace(const Face* face)
 	this->AddVertices((Vertex*)face->vertices, 4);
 }
 
-void Cube::Bind()
+void Cube::BindFaces()
 {
 	for (const Face& face : Faces) {
 		this->BindFace(&face);
 	}
+}
+
+void Cube::SetFaceTexture(Texture *texture, Face &face, const int texCol, const int texRow)
+{
+	GLfloat pixelSize = 1.f/ texture->GetWith();
+	GLfloat texSize = pixelSize * faceTextureSize;
+	glm::vec2 base = glm::vec2(texSize*texCol,texSize*texRow);
+	face.vertices[0].TexCoords = base + texSize * face.vertices[0].TexCoords;
+	face.vertices[1].TexCoords = base + texSize * face.vertices[1].TexCoords;
+	face.vertices[2].TexCoords = base + texSize * face.vertices[2].TexCoords;
+	face.vertices[3].TexCoords = base + texSize * face.vertices[3].TexCoords;
 }
