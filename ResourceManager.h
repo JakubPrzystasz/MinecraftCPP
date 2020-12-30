@@ -44,6 +44,8 @@ private:
     /// </summary>
     static std::map<std::string, Model*> Models;
 
+    static std::map<BlockName, Cube*> Blocks;
+
     /// <summary>
     /// Load specified texture from file
     /// </summary>
@@ -119,6 +121,20 @@ public:
     /// <param name="ShaderName">Name of shader file</param>
     /// <returns></returns>
     static Model* GetModel(const std::string Name);
+
+    /// <summary>
+    /// Add block to map
+    /// </summary>
+    /// <param name="Name"></param>
+    /// <param name="model"></param>
+    static void AddBlock(BlockName blockName, unsigned int texIndex[12]);
+
+    /// <summary>
+    /// Loads block
+    /// </summary>
+    /// <param name="ShaderName">Name of shader file</param>
+    /// <returns></returns>
+    static Cube* GetBlock(BlockName blockName);
 
     /// <summary>
     /// Removes all data from memory

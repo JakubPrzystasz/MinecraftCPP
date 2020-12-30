@@ -19,10 +19,22 @@ struct Face {
 	}
 };
 
+enum BlockName {
+	Air,
+	Grass,
+	Dirt,
+	Cobble,
+	Stone
+};
+
+
 class Cube : public Model {
 private:
 	GLuint faceTextureSize = 128;
 public:
+	Cube();
+	unsigned int textureIndex[12];
+
 	static Face FrontFace; 
 	static Face BackFace; 
 	static Face TopFace; 

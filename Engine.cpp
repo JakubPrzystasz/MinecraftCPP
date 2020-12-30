@@ -1,6 +1,5 @@
 #include "Engine.h"
 
-
 Engine* Engine::instance = nullptr;
 
 void Engine::updateWindow()
@@ -32,6 +31,15 @@ void Engine::updateWindow()
 	if (input->IsKeyDown(Key::KEY_ESCAPE))
 		glfwSetWindowShouldClose(window, true);
 
+	if (input->IsKeyDown(Key::KEY_I)) {
+		std::cout << "Shwitch polygon mode" << std::endl;
+		poly = !poly;
+		if (!poly)
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		else
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+
 	if (input->IsKeyDown(Key::KEY_G))
 	{
 		int inputMode = glfwGetInputMode(window, GLFW_CURSOR);
@@ -52,13 +60,7 @@ void Engine::updateWindow()
 
 void Engine::renderFrame()
 {
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, chunk.blocks[0]);
-	Cube.shadingProgram->Use();
-	Cube.shadingProgram->SetData("projection", camera.Projection);
-	Cube.shadingProgram->SetData("view", camera.GetViewMatrix());
-	Cube.shadingProgram->SetData("model", model);
-	Cube.Draw();
+	chunk.Draw(camera);
 }
 
 void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
@@ -103,30 +105,96 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	///Mouse mode
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-	/////
-	rs->AddShadingProgram("test", "Shaders/shader.vert", "Shaders/shader.frag");
-	Cube.Init();
+	//Console output precision
 	std::cout << std::setprecision(2);
-	Cube.SetShadingProgram(rs->GetShadingProgram("test"));
+
+	//Load shaders
+	rs->AddShadingProgram("block", "Shaders/shader.vert", "Shaders/shader.frag");
+
+	//Add blocks
+	//Grass
+	unsigned int texIndex[12] = { 3,15,3,15,0,0,2,15,3,15,3,15 };
+	rs->AddBlock(BlockName::Grass, texIndex);
+	rs->GetBlock(BlockName::Grass)->BindFaces();
+	rs->GetBlock(BlockName::Grass)->BindData();
+	//Dirt
+	/// <summary>
+	/// [0 FrontFace][1 BackFace]
+	/// [2 TopFace][3 BottomFace]
+	/// [4 RightFace][5 LeftFace]
+	/// </summary>
+	texIndex[0] = 2;
+	texIndex[1] = 15;
+
+	texIndex[2] = 2;
+	texIndex[3] = 15;
 	
-	Cube.AddTexture("face",rs->GetTexture("Textures/terrain.png"));
+	texIndex[4] = 2;
+	texIndex[5] = 15;
+	
+	texIndex[6] = 2;
+	texIndex[7] = 15;
+	
+	texIndex[8] = 2;
+	texIndex[9] = 15;
+	
+	texIndex[10] = 2;
+	texIndex[11] = 15;
+	rs->AddBlock(BlockName::Dirt, texIndex);
+	rs->GetBlock(BlockName::Dirt)->BindFaces();
+	rs->GetBlock(BlockName::Dirt)->BindData();
 
-	Cube.shadingProgram->Use();
-	Cube.Textures["face"]->Init();
+	//Dirt
+	/// <summary>
+	/// [0 FrontFace][1 BackFace]
+	/// [2 TopFace][3 BottomFace]
+	/// [4 RightFace][5 LeftFace]
+	/// </summary>
+	texIndex[0] = 1;
+	texIndex[1] = 15;
 
-	Cube.shadingProgram->SetData("texture1", Cube.Textures["face"]->GetId());
-	Cube.Textures["face"]->Bind(GL_TEXTURE1);
-	Cube.SetFaceTexture(Cube.Textures["face"], Cube.Faces[0], 3, 15);
-	Cube.SetFaceTexture(Cube.Textures["face"], Cube.Faces[1], 3, 15);
-	Cube.SetFaceTexture(Cube.Textures["face"], Cube.Faces[2], 0, 0);
-	Cube.SetFaceTexture(Cube.Textures["face"], Cube.Faces[3], 2, 15);
-	Cube.SetFaceTexture(Cube.Textures["face"], Cube.Faces[4], 3, 15);
-	Cube.SetFaceTexture(Cube.Textures["face"], Cube.Faces[5], 3, 15);
-	Cube.BindFaces();
-	Cube.BindData();
-	Cube.shadingProgram->Use();
-	Cube.shadingProgram->SetData("projection", camera.Projection);
-	Cube.shadingProgram->SetData("view", camera.GetViewMatrix());
+	texIndex[2] = 1;
+	texIndex[3] = 15;
+
+	texIndex[4] = 1;
+	texIndex[5] = 15;
+
+	texIndex[6] = 1;
+	texIndex[7] = 15;
+
+	texIndex[8] = 1;
+	texIndex[9] = 15;
+
+	texIndex[10] = 1;
+	texIndex[11] = 15;
+	rs->AddBlock(BlockName::Stone, texIndex);
+	rs->GetBlock(BlockName::Stone)->BindFaces();
+	rs->GetBlock(BlockName::Stone)->BindData();
+	//chunk.chunkPosition = glm::vec2(0, 0);
+	//chunk.Init();
+	float grassHeight;
+	float dirtHeight;
+
+	int seed = time(NULL);
+	for (int x = 0; x < 16 ; x++) {
+		for (int z = 0; z < 16; z++) {
+			grassHeight = stb_perlin_noise3_seed((float)x / 16.f , 0.f, (float)z / 16.f, 0, 0, 0, seed) * (-8) + 16;
+			dirtHeight = stb_perlin_noise3_seed((float)x/32,0.f,(float)z/32,0,0,0,seed) * (-2) + 10;
+			
+			for (int y = 0; y < grassHeight; y++) {
+				if (y < dirtHeight) {
+					chunk.PutBlock(BlockName::Stone, x, y, z);
+					continue;
+				}
+				if (y+1 < grassHeight) {
+					chunk.PutBlock(BlockName::Dirt, x, y, z);
+					continue;
+				}
+				chunk.PutBlock(BlockName::Grass, x, y, z);
+			}
+			
+		}
+	}
 
 }
 

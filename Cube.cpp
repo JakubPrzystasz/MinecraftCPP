@@ -54,6 +54,11 @@ Face Cube::LeftFace = Face(
 	0, 1, 3  // right top -> right bottom -> left top
 );
 
+Cube::Cube()
+{
+	
+}
+
 void Cube::BindFace(const Face* face)
 {
 	this->AddIndices((GLuint*)face->indices, 6);

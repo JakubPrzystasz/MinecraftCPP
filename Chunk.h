@@ -1,18 +1,27 @@
 #pragma once
-#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <array>
+#include <vector>
+#include "ResourceManager.h"
 
-class Chunk
+struct BlockPos{
+	BlockName block;
+	glm::vec3 pos;
+};
+
+class Chunk : public Model
 {
 public:
-	std::array<glm::vec3,16*16> blocks;
-	Chunk() {
-		for (GLuint x = 0; x < 16; x++) {
-			for (GLuint z = 0; z < 16; z++) {
-				blocks[16*x + z] = glm::vec3(x,0.f,z);
-			}
-		}
-	}
+	void Init();
+	glm::vec2 chunkPosition;
+
+	std::vector<BlockPos> blocks;
+	
+	void PutBlock(BlockName blockName, unsigned int x, unsigned int y, unsigned int z);
+	
+	void Draw(Camera &camera);
+
+	bool FindAdjacent(glm::vec3 position);
+
+	bool isBlock(glm::vec3 position);
 };
 

@@ -16,13 +16,13 @@ void Camera::updateCameraVectors()
 
 Camera::Camera(GLfloat screenRatio)
 {
-    Position = glm::vec3({0.f,0.f,0.f});
+    Position = glm::vec3({0.f,16.f,0.f});
     WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
     Front = glm::vec3({0.f,0.f,-1.f});
     FOV = 45.0f;
     Yaw = -90.f;
     Pitch = 0.f;
-    MovementSpeed = 3.f;
+    MovementSpeed = 10.f;
     MouseSensitivity = 0.1f;
     Right = glm::vec3();
     Up = glm::vec3();

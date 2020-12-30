@@ -5,6 +5,8 @@
 #include <ctime>
 #include <iostream>
 #include <iomanip>
+#include <algorithm> 
+#include "stb_perlin.h"
 #include "ResourceManager.h"
 #include "Input.h"
 #include "Time.h"
@@ -60,7 +62,8 @@ protected:
 
 	/// TODO: REMOVE 
 	Chunk chunk = Chunk();
-	Cube Cube;
+
+	bool poly = false;
 
 	Camera camera = Camera((GLfloat)((GLfloat)screenWidth/(GLfloat)screenHeight));
 public:

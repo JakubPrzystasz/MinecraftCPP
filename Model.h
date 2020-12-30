@@ -8,6 +8,7 @@
 
 #include "Texture.h"
 #include "ShadingProgram.h"
+#include "Camera.h"
 
 struct Vertex {
 	glm::vec3 Position;
