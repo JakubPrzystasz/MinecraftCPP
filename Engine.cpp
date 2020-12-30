@@ -54,13 +54,25 @@ void Engine::updateWindow()
 	}
 	
 	//if (input->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
-		//chunk.blocks[5] = glm::vec3(0.f,0.f,0.f);
-	//std::cout << camera.Position.x << " " << camera.Position.y << " " << camera.Position.z << std::endl;
+	if (timer.printDebug()) {
+		system("cls");
+		std::cout << "FPS: " << timer.FPS << "  x:" <<
+			camera.Position.x << "  y:" << camera.Position.y << "  z:"
+			<< camera.Position.z << std::endl <<
+			"Dir: " << camera.Front.x << " " << camera.Front.y <<" " << camera.Front.y << std::endl;
+	}
+	
 }
 
 void Engine::renderFrame()
 {
-	chunk.Draw(camera);
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(1,0,2));
+	rs->GetBlock(BlockName::Stone)->shadingProgram->Use();
+	rs->GetBlock(BlockName::Stone)->shadingProgram->SetData("projection", camera.Projection);
+	rs->GetBlock(BlockName::Stone)->shadingProgram->SetData("view", camera.GetViewMatrix());
+	rs->GetBlock(BlockName::Stone)->shadingProgram->SetData("model", model);
+	rs->GetBlock(BlockName::Stone)->Draw();
 }
 
 void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
@@ -106,95 +118,49 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	//Console output precision
-	std::cout << std::setprecision(2);
+	std::cout << std::fixed << std::setprecision(2);
 
 	//Load shaders
 	rs->AddShadingProgram("block", "Shaders/shader.vert", "Shaders/shader.frag");
 
 	//Add blocks
 	//Grass
-	unsigned int texIndex[12] = { 3,15,3,15,0,0,2,15,3,15,3,15 };
-	rs->AddBlock(BlockName::Grass, texIndex);
+	rs->AddBlock(BlockName::Grass, { 3,15 }, { 3,15 }, { 0,0 }, { 2,15 }, { 3,15 }, {3,15});
 	rs->GetBlock(BlockName::Grass)->BindFaces();
 	rs->GetBlock(BlockName::Grass)->BindData();
 	//Dirt
-	/// <summary>
-	/// [0 FrontFace][1 BackFace]
-	/// [2 TopFace][3 BottomFace]
-	/// [4 RightFace][5 LeftFace]
-	/// </summary>
-	texIndex[0] = 2;
-	texIndex[1] = 15;
-
-	texIndex[2] = 2;
-	texIndex[3] = 15;
-	
-	texIndex[4] = 2;
-	texIndex[5] = 15;
-	
-	texIndex[6] = 2;
-	texIndex[7] = 15;
-	
-	texIndex[8] = 2;
-	texIndex[9] = 15;
-	
-	texIndex[10] = 2;
-	texIndex[11] = 15;
-	rs->AddBlock(BlockName::Dirt, texIndex);
+	rs->AddBlock(BlockName::Dirt, { 2,15 }, { 2,15 }, { 2,15 }, { 2,15 }, { 2,15 }, { 2,15 });
 	rs->GetBlock(BlockName::Dirt)->BindFaces();
 	rs->GetBlock(BlockName::Dirt)->BindData();
-
-	//Dirt
-	/// <summary>
-	/// [0 FrontFace][1 BackFace]
-	/// [2 TopFace][3 BottomFace]
-	/// [4 RightFace][5 LeftFace]
-	/// </summary>
-	texIndex[0] = 1;
-	texIndex[1] = 15;
-
-	texIndex[2] = 1;
-	texIndex[3] = 15;
-
-	texIndex[4] = 1;
-	texIndex[5] = 15;
-
-	texIndex[6] = 1;
-	texIndex[7] = 15;
-
-	texIndex[8] = 1;
-	texIndex[9] = 15;
-
-	texIndex[10] = 1;
-	texIndex[11] = 15;
-	rs->AddBlock(BlockName::Stone, texIndex);
+	//Stone
+	rs->AddBlock(BlockName::Stone, {1,15}, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 });
 	rs->GetBlock(BlockName::Stone)->BindFaces();
 	rs->GetBlock(BlockName::Stone)->BindData();
 	//chunk.chunkPosition = glm::vec2(0, 0);
 	//chunk.Init();
-	float grassHeight;
-	float dirtHeight;
+	//float grassHeight;
+	//float dirtHeight;
 
-	int seed = time(NULL);
-	for (int x = 0; x < 16 ; x++) {
-		for (int z = 0; z < 16; z++) {
-			grassHeight = stb_perlin_noise3_seed((float)x / 16.f , 0.f, (float)z / 16.f, 0, 0, 0, seed) * (-8) + 16;
-			dirtHeight = stb_perlin_noise3_seed((float)x/32,0.f,(float)z/32,0,0,0,seed) * (-2) + 10;
-			
-			for (int y = 0; y < grassHeight; y++) {
-				if (y < dirtHeight) {
-					chunk.PutBlock(BlockName::Stone, x, y, z);
-					continue;
-				}
-				if (y+1 < grassHeight) {
-					chunk.PutBlock(BlockName::Dirt, x, y, z);
-					continue;
-				}
-				chunk.PutBlock(BlockName::Grass, x, y, z);
-			}
-			
-		}
-	}
+	//int seed = time(NULL);
+	//for (int x = 0; x < 16 ; x++) {
+	//	for (int z = 0; z < 16; z++) {
+	//		grassHeight = stb_perlin_noise3_seed((float)x / 16.f , 0.f, (float)z / 16.f, 0, 0, 0, seed) * (-8) + 16;
+	//		dirtHeight = stb_perlin_noise3_seed((float)x/32,0.f,(float)z/32,0,0,0,seed) * (-2) + 10;
+	//		
+	//		for (int y = 0; y < grassHeight; y++) {
+	//			if (y < dirtHeight) {
+	//				chunk.PutBlock(BlockName::Stone, x, y, z);
+	//				continue;
+	//			}
+	//			if (y+1 < grassHeight) {
+	//				chunk.PutBlock(BlockName::Dirt, x, y, z);
+	//				continue;
+	//			}
+	//			chunk.PutBlock(BlockName::Grass, x, y, z);
+	//		}
+	//		
+	//	}
+	//}
 
 }
 

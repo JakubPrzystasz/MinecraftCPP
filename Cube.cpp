@@ -56,7 +56,19 @@ Face Cube::LeftFace = Face(
 
 Cube::Cube()
 {
-	
+	Faces.insert(std::pair<FaceName, Face>(FaceName::Front,FrontFace));	
+	Faces.insert(std::pair<FaceName, Face>(FaceName::Back,BackFace));	
+	Faces.insert(std::pair<FaceName, Face>(FaceName::Top,TopFace));	
+	Faces.insert(std::pair<FaceName, Face>(FaceName::Bottom,BottomFace));	
+	Faces.insert(std::pair<FaceName, Face>(FaceName::Left,LeftFace));	
+	Faces.insert(std::pair<FaceName, Face>(FaceName::Right,RightFace));	
+
+	FaceTexturesIndex.insert(std::pair<FaceName, FaceTexture>(FaceName::Front, FaceTexture(0,0)));
+	FaceTexturesIndex.insert(std::pair<FaceName, FaceTexture>(FaceName::Back, FaceTexture(0,0)));
+	FaceTexturesIndex.insert(std::pair<FaceName, FaceTexture>(FaceName::Top, FaceTexture(0,0)));
+	FaceTexturesIndex.insert(std::pair<FaceName, FaceTexture>(FaceName::Bottom, FaceTexture(0,0)));
+	FaceTexturesIndex.insert(std::pair<FaceName, FaceTexture>(FaceName::Left, FaceTexture(0,0)));
+	FaceTexturesIndex.insert(std::pair<FaceName, FaceTexture>(FaceName::Right, FaceTexture(0,0)));
 }
 
 void Cube::BindFace(const Face* face)
@@ -67,16 +79,23 @@ void Cube::BindFace(const Face* face)
 
 void Cube::BindFaces()
 {
-	for (const Face& face : Faces) {
-		this->BindFace(&face);
+	for (auto& face : Faces ) {
+		this->BindFace(&face.second);
 	}
 }
 
-void Cube::SetFaceTexture(Texture *texture, Face &face, const int texCol, const int texRow)
+Face Cube::GetFaceTexture(Face& face, FaceTexture fTex)
 {
-	GLfloat pixelSize = 1.f/ texture->GetWith();
+	Face _face = Face(face);
+	SetFaceTexture(_face, fTex);
+	return _face;
+}
+
+void Cube::SetFaceTexture(Face &face, FaceTexture fTex)
+{
+	GLfloat pixelSize = 1.f/ textureWidth;
 	GLfloat texSize = pixelSize * faceTextureSize;
-	glm::vec2 base = glm::vec2(texSize*texCol,texSize*texRow);
+	glm::vec2 base = glm::vec2(texSize* fTex.Column,texSize*fTex.Row);
 	face.vertices[0].TexCoords = base + texSize * face.vertices[0].TexCoords;
 	face.vertices[1].TexCoords = base + texSize * face.vertices[1].TexCoords;
 	face.vertices[2].TexCoords = base + texSize * face.vertices[2].TexCoords;

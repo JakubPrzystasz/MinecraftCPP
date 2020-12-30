@@ -127,7 +127,7 @@ public:
     /// </summary>
     /// <param name="Name"></param>
     /// <param name="model"></param>
-    static void AddBlock(BlockName blockName, unsigned int texIndex[12]);
+    static void AddBlock(BlockName blockName, FaceTexture front, FaceTexture back, FaceTexture top, FaceTexture bottom, FaceTexture left, FaceTexture right);
 
     /// <summary>
     /// Loads block

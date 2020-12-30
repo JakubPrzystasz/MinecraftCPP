@@ -2,6 +2,24 @@
 #include <array>
 #include "Model.h"
 
+struct FaceTexture {
+	GLuint Column;
+	GLuint Row;
+	FaceTexture(GLuint col, GLuint row) {
+		Column = col;
+		Row = row;
+	}
+};
+
+enum FaceName {
+	Front,
+	Back,
+	Top,
+	Bottom,
+	Left,
+	Right
+};
+
 struct Face {
 	Vertex vertices[4];
 	GLuint indices[6];
@@ -17,6 +35,7 @@ struct Face {
 		indices[4] = ind5;
 		indices[5] = ind6;
 	}
+	Face() {};
 };
 
 enum BlockName {
@@ -31,9 +50,9 @@ enum BlockName {
 class Cube : public Model {
 private:
 	GLuint faceTextureSize = 128;
+	GLuint textureWidth = 2048;
 public:
 	Cube();
-	unsigned int textureIndex[12];
 
 	static Face FrontFace; 
 	static Face BackFace; 
@@ -41,12 +60,9 @@ public:
 	static Face BottomFace; 
 	static Face RightFace; 
 	static Face LeftFace; 
-	/// <summary>
-	/// [0 FrontFace][1 BackFace]
-	/// [2 TopFace][3 BottomFace]
-	/// [4 RightFace][5 LeftFace]
-	/// </summary>
-	std::array<Face, 6> Faces = {FrontFace,BackFace,TopFace,BottomFace,RightFace,LeftFace};
+
+	std::map<FaceName, Face> Faces;
+	std::map<FaceName, FaceTexture> FaceTexturesIndex;
 	
 	/// <summary>
 	/// Bind desired face
@@ -59,5 +75,7 @@ public:
 	/// </summary>
 	void BindFaces();
 
-	void SetFaceTexture(Texture *texure,Face &face, const int texRow, const int texCol);
+	Face GetFaceTexture(Face& face, FaceTexture fTex);
+	
+	void SetFaceTexture(Face& face, FaceTexture fTex);
 };

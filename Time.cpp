@@ -6,6 +6,7 @@ void Time::init(GLdouble time)
 	currentTime = time;
 	lastSecond = time;
 	lastFrame = time;
+	lastPrint = time;
 }
 
 void Time::update(GLdouble time)
@@ -25,6 +26,16 @@ bool Time::renderFrame()
 	if ((currentTime - lastFrame) >= frameTime){
 		counter++;
 		lastFrame = currentTime;
+		return true;
+	}
+	return false;
+}
+
+
+bool Time::printDebug()
+{
+	if ((currentTime - lastPrint) >= 0.5f) {
+		lastPrint = currentTime;
 		return true;
 	}
 	return false;

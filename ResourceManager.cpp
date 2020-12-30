@@ -81,7 +81,7 @@ Model* ResourceManager::GetModel(const std::string Name)
     return nullptr;
 }
 
-void ResourceManager::AddBlock(BlockName blockName, unsigned int faceTextureIndex[12])
+void ResourceManager::AddBlock(BlockName blockName, FaceTexture front, FaceTexture back, FaceTexture top, FaceTexture bottom, FaceTexture left, FaceTexture right)
 {
     ResourceManager* RS = ResourceManager::GetInstance();
     if (RS->Blocks.count(blockName) > 0)
@@ -95,12 +95,12 @@ void ResourceManager::AddBlock(BlockName blockName, unsigned int faceTextureInde
     RS->Blocks[blockName]->Textures["face"]->Init();
     RS->Blocks[blockName]->shadingProgram->SetData("texture1", RS->Blocks[blockName]->Textures["face"]->GetId());
     RS->Blocks[blockName]->Textures["face"]->Bind(GL_TEXTURE1);
-    RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Textures["face"], RS->Blocks[blockName]->Faces[0], faceTextureIndex[0], faceTextureIndex[1]);
-    RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Textures["face"], RS->Blocks[blockName]->Faces[1], faceTextureIndex[2], faceTextureIndex[3]);
-    RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Textures["face"], RS->Blocks[blockName]->Faces[2], faceTextureIndex[4], faceTextureIndex[5]);
-    RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Textures["face"], RS->Blocks[blockName]->Faces[3], faceTextureIndex[6], faceTextureIndex[7]);
-    RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Textures["face"], RS->Blocks[blockName]->Faces[4], faceTextureIndex[8], faceTextureIndex[9]);
-    RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Textures["face"], RS->Blocks[blockName]->Faces[5], faceTextureIndex[10], faceTextureIndex[11]);
+    RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Faces[FaceName::Front], front);
+    RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Faces[FaceName::Back], back);
+    RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Faces[FaceName::Top], top);
+    RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Faces[FaceName::Bottom], bottom);
+    RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Faces[FaceName::Left], left);
+    RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Faces[FaceName::Right], right);
 }
 
 Cube* ResourceManager::GetBlock(BlockName blockName)
@@ -130,5 +130,10 @@ void ResourceManager::FreeResources()
     for (auto const& x : Models)
     {
         x.second->~Model();
+    }
+
+    for (auto const& x : Blocks)
+    {
+        x.second->~Cube();
     }
 }

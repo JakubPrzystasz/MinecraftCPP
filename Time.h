@@ -11,7 +11,9 @@ public:
 	GLuint counter;
 	GLfloat frameTime;
 	GLdouble lastFrame;
+	GLfloat lastPrint;
 	void init(GLdouble time);
 	void update(GLdouble time);
 	bool renderFrame();
+	bool printDebug();
 };

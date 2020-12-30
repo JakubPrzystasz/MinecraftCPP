@@ -1,5 +1,12 @@
 #include "Chunk.h"
 
+void Chunk::Init()
+{
+	Model::Init();
+
+
+}
+
 void Chunk::PutBlock(BlockName blockName, unsigned int x, unsigned int y, unsigned int z)
 {
 	auto block = new BlockPos;
@@ -44,16 +51,13 @@ void Chunk::Draw(Camera& camera)
 			faces++;
 		}
 
-		if (faces > 0) {
-			Cube _block = Cube(*rs->GetBlock(__block.block));
+			//Cube _block = Cube(*rs->GetBlock(__block.block));
 
-			model = glm::translate(_model, __block.pos);
-			_block.shadingProgram->Use();
-			_block.shadingProgram->SetData("projection", camera.Projection);
-			_block.shadingProgram->SetData("view", camera.GetViewMatrix());
-			_block.shadingProgram->SetData("model", model);
-			_block.Draw();
-		}
+			//model = glm::translate(_model, __block.pos);
+			//_block.shadingProgram->Use();
+			//_block.shadingProgram->SetData("projection", camera.Projection);
+			//_block.shadingProgram->SetData("view", camera.GetViewMatrix());
+			//_block.shadingProgram->SetData("model", model);
 	}
 }
 
