@@ -135,18 +135,17 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 
 	Chunks = std::vector<Chunk>();
 
-	float xpos, ypos;
-	xpos = 0;
-	ypos = 0;
-	Chunk tmp = Chunk();
-	tmp.Init();
-	tmp.chunkPosition = glm::vec2(xpos, ypos);
+	GLuint seed = (GLuint)time(NULL);
+	for (int i = 0; i < 16; i++) {
+		float xpos, ypos;
+		xpos = i/4;
+		ypos = i%4;
+		Chunk tmp = Chunk();
+		tmp.Init();
+		tmp.chunkPosition = glm::vec2(xpos, ypos);
 
-	float grassHeight;
-	float dirtHeight;
-
-	int seed = time(NULL);
-
+		float grassHeight;
+		float dirtHeight;
 		for (int x = 0; x < 16; x++) {
 			for (int z = 0; z < 16; z++) {
 				grassHeight = stb_perlin_noise3_seed((float)(x + 16 * xpos) / 16.f, 0.f, (float)(z + 16 * ypos) / 16.f, 0, 0, 0, seed) * (-8) + 16;
@@ -167,7 +166,9 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 			}
 		}
 		Chunks.push_back(tmp);
+	}
 }
+
 
 void Engine::WindowLoop()
 {

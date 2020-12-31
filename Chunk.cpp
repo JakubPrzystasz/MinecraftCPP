@@ -54,16 +54,19 @@ void Chunk::ChunkUpdate()
 	GLuint faces = 0;
 	for (auto const& __block : blocks)
 	{
+		if (__block.pos.y == 0)
+			continue;
+
 		_block = Cube(*rs->GetBlock(__block.block));
 		//Front
-		if (!FindAdjacent(__block.pos + glm::vec3(0, 0, -1))) {
+		if (!FindAdjacent(__block.pos + glm::vec3(0, 0, 1))) {
 			faces++;
 			tmp = AddPosToFace(__block.pos, _block.Faces[FaceName::Front]);
 			AddIndices(tmp.indices, 6);
 			AddVertices(tmp.vertices, 4);
 		}
 		//Back
-		if (!FindAdjacent(__block.pos + glm::vec3(0, 0, 1))) {
+		if (!FindAdjacent(__block.pos + glm::vec3(0, 0, -1))) {
 			faces++;
 			tmp = AddPosToFace(__block.pos, _block.Faces[FaceName::Back]);
 			AddIndices(tmp.indices, 6);

@@ -9,9 +9,9 @@ public:
 	GLdouble lastSecond;
 	GLuint FPS;
 	GLuint counter;
-	GLfloat frameTime;
+	GLdouble frameTime;
 	GLdouble lastFrame;
-	GLfloat lastPrint;
+	GLdouble lastPrint;
 	void init(GLdouble time);
 	void update(GLdouble time);
 	bool renderFrame();
