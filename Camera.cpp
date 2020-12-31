@@ -16,7 +16,7 @@ void Camera::updateCameraVectors()
 
 Camera::Camera(GLfloat screenRatio)
 {
-    Position = glm::vec3({0.f,16.f,0.f});
+    Position = glm::vec3({0.f,0.f,0.f});
     WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
     Front = glm::vec3({0.f,0.f,-1.f});
     FOV = 45.0f;

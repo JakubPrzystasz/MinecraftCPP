@@ -93,6 +93,9 @@
     <ClCompile Include="stb_perlin .c">
       <Filter>Source Files\Util</Filter>
     </ClCompile>
+    <ClCompile Include="World.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NonCopyable.h">
@@ -148,6 +151,9 @@
     </ClInclude>
     <ClInclude Include="stb_perlin.h">
       <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="World.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

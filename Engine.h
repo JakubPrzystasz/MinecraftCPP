@@ -6,12 +6,13 @@
 #include <iostream>
 #include <iomanip>
 #include <algorithm> 
-#include "stb_perlin.h"
 #include "ResourceManager.h"
 #include "Input.h"
 #include "Time.h"
 #include "Camera.h"
 #include "Chunk.h"
+#include "stb_perlin.h"
+//#include "World.h"
 
 class Engine 
 {
@@ -60,8 +61,7 @@ protected:
 	/// </summary>
 	static void windowSizeCallback(GLFWwindow* window, int width, int height);
 
-	/// TODO: REMOVE 
-	Chunk chunk = Chunk();
+	std::vector<Chunk> Chunks;
 
 	bool poly = false;
 

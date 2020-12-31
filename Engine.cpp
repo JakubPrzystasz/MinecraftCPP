@@ -66,13 +66,9 @@ void Engine::updateWindow()
 
 void Engine::renderFrame()
 {
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(1,0,2));
-	rs->GetBlock(BlockName::Stone)->shadingProgram->Use();
-	rs->GetBlock(BlockName::Stone)->shadingProgram->SetData("projection", camera.Projection);
-	rs->GetBlock(BlockName::Stone)->shadingProgram->SetData("view", camera.GetViewMatrix());
-	rs->GetBlock(BlockName::Stone)->shadingProgram->SetData("model", model);
-	rs->GetBlock(BlockName::Stone)->Draw();
+	for (int i = 0; i < Chunks.size(); i++) {
+		Chunks[i].Draw(camera);
+	}
 }
 
 void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
@@ -125,7 +121,7 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 
 	//Add blocks
 	//Grass
-	rs->AddBlock(BlockName::Grass, { 3,15 }, { 3,15 }, { 0,0 }, { 2,15 }, { 3,15 }, {3,15});
+	rs->AddBlock(BlockName::Grass, { 3,15 }, { 3,15 }, { 0,0 }, { 2,15 }, { 3,15 }, { 3,15 });
 	rs->GetBlock(BlockName::Grass)->BindFaces();
 	rs->GetBlock(BlockName::Grass)->BindData();
 	//Dirt
@@ -133,35 +129,44 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	rs->GetBlock(BlockName::Dirt)->BindFaces();
 	rs->GetBlock(BlockName::Dirt)->BindData();
 	//Stone
-	rs->AddBlock(BlockName::Stone, {1,15}, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 });
+	rs->AddBlock(BlockName::Stone, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 });
 	rs->GetBlock(BlockName::Stone)->BindFaces();
 	rs->GetBlock(BlockName::Stone)->BindData();
-	//chunk.chunkPosition = glm::vec2(0, 0);
-	//chunk.Init();
-	//float grassHeight;
-	//float dirtHeight;
 
-	//int seed = time(NULL);
-	//for (int x = 0; x < 16 ; x++) {
-	//	for (int z = 0; z < 16; z++) {
-	//		grassHeight = stb_perlin_noise3_seed((float)x / 16.f , 0.f, (float)z / 16.f, 0, 0, 0, seed) * (-8) + 16;
-	//		dirtHeight = stb_perlin_noise3_seed((float)x/32,0.f,(float)z/32,0,0,0,seed) * (-2) + 10;
-	//		
-	//		for (int y = 0; y < grassHeight; y++) {
-	//			if (y < dirtHeight) {
-	//				chunk.PutBlock(BlockName::Stone, x, y, z);
-	//				continue;
-	//			}
-	//			if (y+1 < grassHeight) {
-	//				chunk.PutBlock(BlockName::Dirt, x, y, z);
-	//				continue;
-	//			}
-	//			chunk.PutBlock(BlockName::Grass, x, y, z);
-	//		}
-	//		
-	//	}
-	//}
+	Chunks = std::vector<Chunk>();
 
+	float xpos, ypos;
+	xpos = 0;
+	ypos = 0;
+	Chunk tmp = Chunk();
+	tmp.Init();
+	tmp.chunkPosition = glm::vec2(xpos, ypos);
+
+	float grassHeight;
+	float dirtHeight;
+
+	int seed = time(NULL);
+
+		for (int x = 0; x < 16; x++) {
+			for (int z = 0; z < 16; z++) {
+				grassHeight = stb_perlin_noise3_seed((float)(x + 16 * xpos) / 16.f, 0.f, (float)(z + 16 * ypos) / 16.f, 0, 0, 0, seed) * (-8) + 16;
+				dirtHeight = stb_perlin_noise3_seed((float)(x + 16 * xpos) / 32.f, 0.f, (float)(z + 16 * ypos) / 32, 0, 0, 0, seed) * (-2) + 10;
+
+				for (int y = 0; y < grassHeight; y++) {
+					if (y < dirtHeight) {
+						tmp.PutBlock(BlockName::Stone, x, y, z);
+						continue;
+					}
+					if (y + 1 < grassHeight) {
+						tmp.PutBlock(BlockName::Dirt, x, y, z);
+						continue;
+					}
+					tmp.PutBlock(BlockName::Grass, x, y, z);
+				}
+
+			}
+		}
+		Chunks.push_back(tmp);
 }
 
 void Engine::WindowLoop()

@@ -10,10 +10,22 @@ struct BlockPos{
 
 class Chunk : public Model
 {
+private:
+	bool updateChunk;
 public:
+	Chunk() {
+		updateChunk = true;
+		glm::vec2 chunkPosition = glm::vec2(0,0);
+	};
+
+	Chunk(glm::vec2 chunkPos) {
+		updateChunk = true;
+		glm::vec2 chunkPosition = chunkPos;
+	};
+
 	void Init();
 	glm::vec2 chunkPosition;
-
+	GLuint chunkSize = 16;
 	std::vector<BlockPos> blocks;
 	
 	void PutBlock(BlockName blockName, unsigned int x, unsigned int y, unsigned int z);
@@ -22,6 +34,10 @@ public:
 
 	bool FindAdjacent(glm::vec3 position);
 
-	bool isBlock(glm::vec3 position);
+	void ChunkUpdate();
+
+	Face AddPosToFace(glm::vec3 pos, Face& face);
+
+	glm::vec3 ToWorldPosition(glm::vec3 pos);
 };
 
