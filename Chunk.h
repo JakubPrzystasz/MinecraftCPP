@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include "ResourceManager.h"
 #include "Vectors.h"
-
+#include "World.h"
 
 
 class Chunk : public Model
@@ -23,8 +23,12 @@ public:
 
 	void Init();
 
+	World* world;
+
 	vec2 chunkPosition;
+
 	GLuint chunkSize = 16;
+
 	std::unordered_map<vec3,BlockName> blocks;
 	
 	void PutBlock(BlockName blockName, unsigned int x, unsigned int y, unsigned int z);

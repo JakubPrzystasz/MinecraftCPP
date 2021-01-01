@@ -17,6 +17,8 @@ private:
 	
 	static std::unordered_map<vec2,Chunk*> Chunks;
 
+	static GLfloat RoundPos(GLfloat x);
+
 public:
 	
 	/// <summary>
@@ -46,12 +48,19 @@ public:
 
 	static void SetBlock(glm::vec3 pos, BlockName block);
 
-	static bool IsBlock(glm::vec3 pos);
+	static void GenerateChunk(vec2 chunkPos);
+	//Takes in chunk coords as parameter
+	static BlockName GetBlock(Chunk* chunk,vec3 pos);
+	//Takes world coords as parameter
+	static BlockName GetBlock(glm::vec3 pos);
+	static BlockName GetBlock(vec3 pos);
 
 	inline static Chunk* GetChunk(vec2 chunkPos);
 
 	inline static vec2 GetChunkPosition(glm::vec3 pos);
+	inline static vec2 GetChunkPosition(vec3 pos);
 
-	static vec3 ToChunkPosition(glm::vec3 worldPos);
+	inline static vec3 ToChunkPosition(glm::vec3 worldPos);
+	inline static vec3 ToChunkPosition(vec3 worldPos);
 };
 

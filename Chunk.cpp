@@ -10,6 +10,7 @@ void Chunk::Init()
 	Textures["face"]->Init();
 	shadingProgram->SetData("texture1", Textures["face"]->GetId());
 	Textures["face"]->Bind(GL_TEXTURE1);
+	world = World::GetInstance();
 }
 
 void Chunk::PutBlock(BlockName blockName, unsigned int x, unsigned int y, unsigned int z)
@@ -64,6 +65,12 @@ void Chunk::ChunkUpdate()
 			continue;
 
 		_block = *rs->GetBlock(__block.second);
+
+		//back face 
+		if (__block.first.x == 0) {
+			auto foreginBlock = world->GetBlock(__block.first);
+		}
+
 		//Front
 		if (!FindAdjacent(__block.first + vec3(0, 0, 1))) {
 			faces++;
