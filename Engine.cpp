@@ -80,7 +80,6 @@ void Engine::updateWindow()
 
 void Engine::renderFrame()
 {
-	rs->GetBlock(BlockName::Stone)->Draw();
 	world.DrawChunks(camera);
 }
 
@@ -136,15 +135,12 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	//Grass
 	rs->AddBlock(BlockName::Grass, { 3,15 }, { 3,15 }, { 0,0 }, { 2,15 }, { 3,15 }, { 3,15 });
 	rs->GetBlock(BlockName::Grass)->BindFaces();
-	rs->GetBlock(BlockName::Grass)->BindData();
 	//Dirt
 	rs->AddBlock(BlockName::Dirt, { 2,15 }, { 2,15 }, { 2,15 }, { 2,15 }, { 2,15 }, { 2,15 });
 	rs->GetBlock(BlockName::Dirt)->BindFaces();
-	rs->GetBlock(BlockName::Dirt)->BindData();
 	//Stone
 	rs->AddBlock(BlockName::Stone, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 });
 	rs->GetBlock(BlockName::Stone)->BindFaces();
-	rs->GetBlock(BlockName::Stone)->BindData();
 
 	world = World(4);
 	world.GenerateWorld();

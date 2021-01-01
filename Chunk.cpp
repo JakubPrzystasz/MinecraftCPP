@@ -20,18 +20,19 @@ void Chunk::PutBlock(BlockName blockName, unsigned int x, unsigned int y, unsign
 
 void Chunk::Draw(Camera& camera)
 {
-	glm::mat4 model = glm::mat4(1.0f);
 	if (updateChunk)
 		ChunkUpdate();
+	if (indices.size() < 1)
+		return;
 	BindData();
 	shadingProgram->Use();
 	shadingProgram->SetData("projection", camera.Projection);
 	shadingProgram->SetData("view", camera.GetViewMatrix());
-	shadingProgram->SetData("model", model);
+	shadingProgram->SetData("model", glm::mat4(1.0f));
 	Model::Draw();
 }
 
-bool Chunk::FindAdjacent(vec3 position) {
+bool Chunk::FindAdjacent(vec3 position) const {
 	for (auto const& block : blocks)
 	{
 		if (position.x == block.first.x && \
@@ -114,20 +115,20 @@ Face Chunk::AddPosToFace(vec3 pos, Face& face)
 {
 	
 	Face tmp = Face(face);
-	for (int i = 0; i < 4; i++) {
-	//	tmp.vertices[i].Position = ToWorldPosition(pos);
-		tmp.vertices[i].Position = tmp.vertices[i].Position + glm::vec3(chunkPosition.x * chunkSize, 0, chunkPosition.y * chunkSize);
-		tmp.vertices[i].Position.x = pos.x;
-		tmp.vertices[i].Position.y = pos.y;
-		tmp.vertices[i].Position.z = pos.z;
+	for (auto & vert : tmp.vertices) {
+		vert.Position = ToWorldPosition(pos + vert.Position);
 	}
 
 	return tmp;
 }
 
 glm::vec3 Chunk::ToWorldPosition(vec3 pos)
-{
-	return glm::vec3(chunkPosition.x * chunkSize + pos.x, 0+pos.y, chunkPosition.y * chunkSize+pos.z);
+{ 
+	return glm::vec3(\
+		chunkPosition.x * chunkSize + pos.x, \
+		0 + pos.y, \
+		chunkPosition.y * chunkSize + pos.z
+	);
 }
 
 

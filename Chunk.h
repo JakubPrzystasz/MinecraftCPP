@@ -31,12 +31,12 @@ public:
 	
 	void Draw(Camera &camera);
 
-	bool FindAdjacent(vec3 position);
+	bool FindAdjacent(vec3 position) const;
 
 	void ChunkUpdate();
 
 	Face AddPosToFace(vec3 pos, Face& face);
 
-	glm::vec3 ToWorldPosition(vec3 pos);
+	inline glm::vec3 ToWorldPosition(vec3 pos);
 };
 

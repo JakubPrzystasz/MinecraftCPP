@@ -19,6 +19,10 @@ struct vec3 {
 		return vec3(this->x + other.x, this->y + other.y, this->z + other.z);
 	}
 
+	vec3 operator+(const glm::vec3& other) const noexcept {
+		return vec3(this->x + other.x, this->y + other.y, this->z + other.z);
+	}
+
 	vec3& operator+=(const vec3& other) noexcept {
 		this->x += other.x;
 		this->y += other.y;
