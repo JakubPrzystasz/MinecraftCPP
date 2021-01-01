@@ -7,27 +7,51 @@
 
 class World
 {
-	GLuint chunkSize;
-	std::unordered_map<vec2,Chunk> Chunks;
+private:
+	
+	World() {};
+
+	static World* instance;
+
+	static GLuint chunkSize;
+	
+	static std::unordered_map<vec2,Chunk*> Chunks;
+
 public:
 	
-	World() {
-		Chunks = std::unordered_map<vec2, Chunk>();
-	};
+	/// <summary>
+	/// Do not allow to copy an object
+	/// </summary>
+	/// <param name="object"></param>
+	World(World& object) = delete;
 
-	World(GLuint chunkSize) {
-		this->chunkSize = chunkSize;
-		Chunks = std::unordered_map<vec2, Chunk>();
-	}
+	/// <summary>
+	/// Do not allow to assign a instance to new object
+	/// </summary>
+	/// <param name=""></param>
+	void operator=(const World&) = delete;
 
-	void DrawChunks(Camera &camera);
+	/// <summary>
+	/// On first run, creates static object of class 
+	/// every next use of this function returns pointer to the same object.
+	/// </summary>
+	/// <returns>Pointer to Singleton instance of ResourceManager</returns>
+	static World* GetInstance();
 
-	void GenerateWorld();
+	static void SetChunkSize(GLuint chunkSize);
 
-	void SetBlock(glm::vec3 pos, BlockName block);
+	static void DrawChunks(Camera &camera);
 
-	//BlockPos* GetBlock(glm::vec3 pos);
-	bool IsBlock(glm::vec3 pos);
+	static void GenerateWorld();
 
+	static void SetBlock(glm::vec3 pos, BlockName block);
+
+	static bool IsBlock(glm::vec3 pos);
+
+	inline static Chunk* GetChunk(vec2 chunkPos);
+
+	inline static vec2 GetChunkPosition(glm::vec3 pos);
+
+	static vec3 ToChunkPosition(glm::vec3 worldPos);
 };
 

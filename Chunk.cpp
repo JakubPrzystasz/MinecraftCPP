@@ -126,7 +126,7 @@ glm::vec3 Chunk::ToWorldPosition(vec3 pos)
 { 
 	return glm::vec3(\
 		chunkPosition.x * chunkSize + pos.x, \
-		0 + pos.y, \
+		pos.y, \
 		chunkPosition.y * chunkSize + pos.z
 	);
 }

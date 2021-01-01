@@ -1,9 +1,25 @@
 #include "World.h"
 
+World* World::instance = nullptr;
+GLuint World::chunkSize = 16;
+std::unordered_map<vec2, Chunk*> World::Chunks;
+
+World* World::GetInstance()
+{
+	if (instance == nullptr)
+		instance = new World();
+	return instance;
+}
+
+void World::SetChunkSize(GLuint chunkSize)
+{
+	GetInstance()->chunkSize = chunkSize;
+}
+
 void World::DrawChunks(Camera& camera)
 {
 	for (auto &chunk:Chunks){
-		chunk.second.Draw(camera);
+		chunk.second->Draw(camera);
 	}
 }
 
@@ -13,10 +29,10 @@ void World::GenerateWorld()
 		float xpos, ypos;
 		xpos = i / chunkSize;
 		ypos = i % chunkSize;
-		Chunk tmp = Chunk();
-		tmp.Init();
-		tmp.chunkPosition = vec2(xpos,ypos);
-		tmp.chunkSize = chunkSize;
+		Chunk *tmp = new Chunk();
+		tmp->Init();
+		tmp->chunkPosition = vec2(xpos,ypos);
+		tmp->chunkSize = chunkSize;
 
 		float grassHeight;
 		float dirtHeight;
@@ -31,14 +47,14 @@ void World::GenerateWorld()
 
 					for (int y = 0; y < grassHeight; y++) {
 						if (y < dirtHeight) {
-							tmp.PutBlock(BlockName::Stone, x, y, z);
+							tmp->PutBlock(BlockName::Stone, x, y, z);
 							continue;
 						}
 						if (y + 1 < grassHeight) {
-							tmp.PutBlock(BlockName::Dirt, x, y, z);
+							tmp->PutBlock(BlockName::Dirt, x, y, z);
 							continue;
 						}
-						tmp.PutBlock(BlockName::Grass, x, y, z);
+						tmp->PutBlock(BlockName::Grass, x, y, z);
 					}
 
 				}
@@ -50,26 +66,15 @@ void World::GenerateWorld()
 
 void World::SetBlock(glm::vec3 pos, BlockName _block)
 {
- //	Vec2 chunkPos = Vec2((int)pos.x/chunkSize,(int)pos.y/chunkSize);
-	//for (auto const& chunk:Chunks) {
-	//	if (chunk.first == chunkPos) {
-	//		glm::vec3 blockPos = glm::vec3(0);
-	//		blockPos.x = (int)(pos.x - chunkPos.x * chunkSize);
-	//		blockPos.z = (int)(pos.z - chunkPos.y * chunkSize);
-	//		blockPos.y = (int)pos.y;
-	//		for (int x = 0; x < chunk.second.blocks.size(); x++) {
-	//			if (chunk.second.blocks[x].pos == blockPos) {
-	//				switch (_block)
-	//				{
-	//				case BlockName::Air:
-	//					//chunk.second.blocks.erase(chunk.second.blocks[x].pos);// = BlockName::Air;
-	//					//chunk.second.ChunkUpdate();
-	//					return;
-	//				}
-	//			}
-	//		}
-	//	}
-	//}
+	auto chunkPos = GetChunkPosition(pos);
+	if (Chunks.find(chunkPos) != Chunks.end()) {
+		auto chunk = Chunks.at(chunkPos);
+		auto block = chunk->blocks.find(ToChunkPosition(pos));
+		if (block != chunk->blocks.end()) {
+			chunk->blocks.erase(block);
+			chunk->ChunkUpdate();
+		}
+	}
 }
 
 //BlockPos* World::GetBlock(glm::vec3 pos)
@@ -94,20 +99,19 @@ void World::SetBlock(glm::vec3 pos, BlockName _block)
 
 bool World::IsBlock(glm::vec3 pos)
 {
-	/*glm::vec2 chunkPos = glm::vec2((int)pos.x / chunkSize, (int)pos.z / chunkSize);
-	for (int i = 0; i < Chunks.size(); i++) {
-		if (Chunks[i].Position == chunkPos) {
-			glm::vec3 blockPos = glm::vec3(0);
-			blockPos.x = (int)(pos.x - chunkPos.x * chunkSize);
-			blockPos.z = (int)(pos.z - chunkPos.y * chunkSize);
-			blockPos.y = (int)pos.y;
-			for (int x = 0; x < Chunks[i].chunk.blocks.size(); x++) {
-				if (Chunks[i].chunk.blocks[x].pos == blockPos) {
-					return true;
-				}
-			}
-		}
-	}
-	return false;*/
 	return false;
+}
+
+Chunk* World::GetChunk(vec2 chunkPos)
+{
+	return (Chunk*)Chunks.at(chunkPos);
+}
+
+vec2 World::GetChunkPosition(glm::vec3 pos) {
+	return vec2((int)((int)pos.x) / chunkSize, (int)((int)pos.z) / chunkSize);
+}
+
+vec3 World::ToChunkPosition(glm::vec3 worldPos)
+{
+	return vec3((int)ceil(((int)worldPos.x)%chunkSize),(int)floor(worldPos.y),(int)ceil(((int)worldPos.z)%chunkSize));
 }

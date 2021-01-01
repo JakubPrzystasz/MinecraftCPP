@@ -62,10 +62,13 @@ void Engine::updateWindow()
 	//	}
 	//}
 	//
-	//if (input->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
-	//{
-	//	world.SetBlock(camera.Position,BlockName::Air);
-	//}
+
+	world->SetBlock(camera.Position, BlockName::Air);
+
+	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
+	{
+		
+	}
 
 
 	if (timer.printDebug()) {
@@ -80,7 +83,7 @@ void Engine::updateWindow()
 
 void Engine::renderFrame()
 {
-	world.DrawChunks(camera);
+	world->DrawChunks(camera);
 }
 
 void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
@@ -142,8 +145,9 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	rs->AddBlock(BlockName::Stone, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 });
 	rs->GetBlock(BlockName::Stone)->BindFaces();
 
-	world = World(4);
-	world.GenerateWorld();
+	world = World::GetInstance();
+	world->SetChunkSize(2);
+	world->GenerateWorld();
 
 }
 

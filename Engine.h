@@ -59,7 +59,7 @@ protected:
 	/// </summary>
 	static void windowSizeCallback(GLFWwindow* window, int width, int height);
 
-	World world;
+	World* world;
 	Chunk chunk;
 	bool poly = false;
 	glm::vec3 posDelta;
