@@ -8,6 +8,7 @@
 #include "Model.h"
 #include "Cube.h"
 
+
 /// <summary>
 /// Resource Manager is singleton class, that manages all resources for application
 /// </summary>

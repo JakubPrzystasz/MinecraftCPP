@@ -185,6 +185,7 @@
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TextureCache.h" />
+    <ClInclude Include="Vectors.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>

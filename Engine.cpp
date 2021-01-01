@@ -52,23 +52,36 @@ void Engine::updateWindow()
 			break;
 		}
 	}
-	
+
+	posDelta = camera.Position - lastPos;
+	lastPos = camera.Position;
+
+	//if (posDelta.x > 0 || posDelta.y > 0 || posDelta.z > 0) {
+	//	if (world.IsBlock(camera.Position)) {
+
+	//	}
+	//}
+	//
 	//if (input->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
+	//{
+	//	world.SetBlock(camera.Position,BlockName::Air);
+	//}
+
+
 	if (timer.printDebug()) {
 		system("cls");
 		std::cout << "FPS: " << timer.FPS << "  x:" <<
 			camera.Position.x << "  y:" << camera.Position.y << "  z:"
 			<< camera.Position.z << std::endl <<
-			"Dir: " << camera.Front.x << " " << camera.Front.y <<" " << camera.Front.y << std::endl;
+			"Pos delta: " << posDelta.x << " " << posDelta.y <<" " << posDelta.y << std::endl;
 	}
 	
 }
 
 void Engine::renderFrame()
 {
-	for (int i = 0; i < Chunks.size(); i++) {
-		Chunks[i].Draw(camera);
-	}
+	rs->GetBlock(BlockName::Stone)->Draw();
+	world.DrawChunks(camera);
 }
 
 void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
@@ -133,40 +146,9 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	rs->GetBlock(BlockName::Stone)->BindFaces();
 	rs->GetBlock(BlockName::Stone)->BindData();
 
-	Chunks = std::vector<Chunk>();
+	world = World(4);
+	world.GenerateWorld();
 
-	GLuint seed = (GLuint)time(NULL);
-	for (int i = 0; i < 16; i++) {
-		float xpos, ypos;
-		xpos = i/4;
-		ypos = i%4;
-		Chunk tmp = Chunk();
-		tmp.Init();
-		tmp.chunkPosition = glm::vec2(xpos, ypos);
-
-		float grassHeight;
-		float dirtHeight;
-		for (int x = 0; x < 16; x++) {
-			for (int z = 0; z < 16; z++) {
-				grassHeight = stb_perlin_noise3_seed((float)(x + 16 * xpos) / 16.f, 0.f, (float)(z + 16 * ypos) / 16.f, 0, 0, 0, seed) * (-8) + 16;
-				dirtHeight = stb_perlin_noise3_seed((float)(x + 16 * xpos) / 32.f, 0.f, (float)(z + 16 * ypos) / 32, 0, 0, 0, seed) * (-2) + 10;
-
-				for (int y = 0; y < grassHeight; y++) {
-					if (y < dirtHeight) {
-						tmp.PutBlock(BlockName::Stone, x, y, z);
-						continue;
-					}
-					if (y + 1 < grassHeight) {
-						tmp.PutBlock(BlockName::Dirt, x, y, z);
-						continue;
-					}
-					tmp.PutBlock(BlockName::Grass, x, y, z);
-				}
-
-			}
-		}
-		Chunks.push_back(tmp);
-	}
 }
 
 

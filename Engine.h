@@ -10,9 +10,7 @@
 #include "Input.h"
 #include "Time.h"
 #include "Camera.h"
-#include "Chunk.h"
-#include "stb_perlin.h"
-//#include "World.h"
+#include "World.h"
 
 class Engine 
 {
@@ -61,9 +59,11 @@ protected:
 	/// </summary>
 	static void windowSizeCallback(GLFWwindow* window, int width, int height);
 
-	std::vector<Chunk> Chunks;
+	World world;
 
 	bool poly = false;
+	glm::vec3 posDelta;
+	glm::vec3 lastPos;
 
 	Camera camera = Camera((GLfloat)((GLfloat)screenWidth/(GLfloat)screenHeight));
 public:
