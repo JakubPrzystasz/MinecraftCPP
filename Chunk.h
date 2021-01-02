@@ -5,6 +5,8 @@
 #include "Vectors.h"
 #include "World.h"
 
+class World;
+struct vec3;
 
 class Chunk : public Model
 {
@@ -42,5 +44,6 @@ public:
 	Face AddPosToFace(vec3 pos, Face& face);
 
 	inline glm::vec3 ToWorldPosition(vec3 pos);
+	inline glm::vec3 ToWorldPosition(vec3 pos,vec2 chunkPos);
 };
 

@@ -53,30 +53,26 @@ void Engine::updateWindow()
 		}
 	}
 
-	posDelta = camera.Position - lastPos;
-	lastPos = camera.Position;
 
-	//if (posDelta.x > 0 || posDelta.y > 0 || posDelta.z > 0) {
-	//	if (world.IsBlock(camera.Position)) {
-
-	//	}
-	//}
-	//
-
-	world->SetBlock(camera.Position, BlockName::Air);
+	//world->SetBlock(camera.Position, BlockName::Air);
 
 	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
 	{
 		
 	}
 
+	auto chunkPos = world->GetChunkPosition(camera.Position);
+	if (chunkPos - posDelta != vec2(0, 0)) {
+		posDelta = chunkPos;
+		world->SetRenderedChunks(chunkPos);
+	}
 
 	if (timer.printDebug()) {
 		system("cls");
 		std::cout << "FPS: " << timer.FPS << "  x:" <<
 			camera.Position.x << "  y:" << camera.Position.y << "  z:"
 			<< camera.Position.z << std::endl <<
-			"Pos delta: " << posDelta.x << " " << posDelta.y <<" " << posDelta.y << std::endl;
+			"Chunk: " << chunkPos.x << " " << chunkPos.y << "  render: "<< world->RenderedChunks.size() << std::endl;
 	}
 	
 }
@@ -148,7 +144,7 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	world = World::GetInstance();
 	world->SetChunkSize(2);
 	world->GenerateWorld();
-
+	world->SetRenderedChunks(vec2(0, 0));
 }
 
 

@@ -38,13 +38,13 @@ namespace std {
 	{
 		std::size_t operator()(const vec3& vect) const noexcept
 		{
-			std::hash<GLfloat> hasher;
+			std::hash<decltype(vect.x)> hasher;
 
 			auto hash1 = hasher(vect.x);
 			auto hash2 = hasher(vect.y);
 			auto hash3 = hasher(vect.y);
 
-			return std::hash<GLfloat>{}((hash1 ^ hash2 ^ hash3) >> 3);
+			return std::hash<decltype(vect.x)>{}((hash1 ^ hash2 ^ hash3) >> 3);
 		}
 	};
 }
@@ -60,6 +60,14 @@ struct vec2 {
 	bool operator==(const vec2& other) const noexcept
 	{
 		return (other.x == this->x && other.y == this->y);
+	}
+
+	vec2 operator+(const vec2& other) const noexcept {
+		return vec2(this->x + other.x, this->y + other.y);
+	}
+
+	vec2 operator-(const vec2 & other)const noexcept {
+		return vec2(this->x - other.x, this->y - other.y);
 	}
 
 };

@@ -67,24 +67,52 @@ void Chunk::ChunkUpdate()
 		_block = *rs->GetBlock(__block.second);
 
 		//back face 
-		if (__block.first.x == 0) {
-			auto foreginBlock = world->GetBlock(__block.first);
+		if (__block.first.z == 0) {
+			auto tmpPos = __block.first;
+			tmpPos.z = chunkSize - 1;
+			auto x__ = ToWorldPosition(tmpPos, vec2(chunkPosition.x - 1, chunkPosition.y));
+			auto foreginBlock = world->GetBlock(x__);
+			if (foreginBlock == BlockName::Air) {
+				faces++;
+				tmp = AddPosToFace(__block.first, _block.Faces[FaceName::Back]);
+				AddIndices(tmp.indices, 6);
+				AddVertices(tmp.vertices, 4);
+			}
+		}
+		else {
+			//Back
+			if (!FindAdjacent(__block.first + vec3(0, 0, -1))) {
+				faces++;
+				tmp = AddPosToFace(__block.first, _block.Faces[FaceName::Back]);
+				AddIndices(tmp.indices, 6);
+				AddVertices(tmp.vertices, 4);
+			}
 		}
 
-		//Front
-		if (!FindAdjacent(__block.first + vec3(0, 0, 1))) {
-			faces++;
-			tmp = AddPosToFace(__block.first, _block.Faces[FaceName::Front]);
-			AddIndices(tmp.indices, 6);
-			AddVertices(tmp.vertices, 4);
+		if (__block.first.z == chunkSize - 1) {
+
+			auto tmpPos = __block.first;
+			tmpPos.z = 0;
+			auto foreginBlock = world->GetBlock(ToWorldPosition(tmpPos));
+			if (foreginBlock == BlockName::Air) {
+				faces++;
+				tmp = AddPosToFace(__block.first, _block.Faces[FaceName::Back]);
+				AddIndices(tmp.indices, 6);
+				AddVertices(tmp.vertices, 4);
+			}
+
+		}else {
+			//Front
+			if (!FindAdjacent(__block.first + vec3(0, 0, 1))) {
+				faces++;
+				tmp = AddPosToFace(__block.first, _block.Faces[FaceName::Front]);
+				AddIndices(tmp.indices, 6);
+				AddVertices(tmp.vertices, 4);
+			}
 		}
-		//Back
-		if (!FindAdjacent(__block.first + vec3(0, 0, -1))) {
-			faces++;
-			tmp = AddPosToFace(__block.first, _block.Faces[FaceName::Back]);
-			AddIndices(tmp.indices, 6);
-			AddVertices(tmp.vertices, 4);
-		}
+
+
+		
 		//Top
 		if (!FindAdjacent(__block.first + vec3(0, 1, 0))) {
 			faces++;
@@ -125,17 +153,28 @@ Face Chunk::AddPosToFace(vec3 pos, Face& face)
 	for (auto & vert : tmp.vertices) {
 		vert.Position = ToWorldPosition(pos + vert.Position);
 	}
-
 	return tmp;
 }
 
 glm::vec3 Chunk::ToWorldPosition(vec3 pos)
 { 
-	return glm::vec3(\
-		chunkPosition.x * chunkSize + pos.x, \
-		pos.y, \
-		chunkPosition.y * chunkSize + pos.z
+	auto ret = glm::vec3(
+		round((int)chunkPosition.x * (int)chunkSize + pos.x), 
+		round(pos.y), 
+		round((int)chunkPosition.y * (int)chunkSize + pos.z)
 	);
+	return ret;
+}
+
+inline glm::vec3 Chunk::ToWorldPosition(vec3 pos, vec2 chunkPos)
+{
+	auto ret = glm::vec3(
+		round((int)chunkPos.x * (int)chunkSize + pos.x), 
+		round(pos.y), 
+		round((int)chunkPos.y * (int)chunkSize + pos.z)
+	);
+
+	return ret;
 }
 
 

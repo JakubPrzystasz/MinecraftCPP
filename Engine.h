@@ -60,10 +60,9 @@ protected:
 	static void windowSizeCallback(GLFWwindow* window, int width, int height);
 
 	World* world;
-	Chunk chunk;
+	vec2 posDelta;
+
 	bool poly = false;
-	glm::vec3 posDelta;
-	glm::vec3 lastPos;
 
 	Camera camera = Camera((GLfloat)((GLfloat)screenWidth/(GLfloat)screenHeight));
 public:

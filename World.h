@@ -4,12 +4,15 @@
 #include "stb_perlin.h"
 #include <unordered_map>
 
+class Chunk;
 
 class World
 {
 private:
 	
 	World() {};
+
+	static GLuint renderDistance;
 
 	static World* instance;
 
@@ -20,7 +23,7 @@ private:
 	static GLfloat RoundPos(GLfloat x);
 
 public:
-	
+	static std::vector<Chunk*> RenderedChunks;
 	/// <summary>
 	/// Do not allow to copy an object
 	/// </summary>
@@ -54,6 +57,8 @@ public:
 	//Takes world coords as parameter
 	static BlockName GetBlock(glm::vec3 pos);
 	static BlockName GetBlock(vec3 pos);
+
+	static void SetRenderedChunks(vec2 centerChunkPos);
 
 	inline static Chunk* GetChunk(vec2 chunkPos);
 
