@@ -48,9 +48,11 @@ void World::SetBlock(glm::vec3 pos, BlockName _block)
 {
 	auto chunk = GetChunk(GetChunkPosition(pos));
 	auto block = chunk->blocks.find(ToChunkPosition(pos));
-	if (block != chunk->blocks.end()) {
+	if (block != chunk->blocks.end() && _block == BlockName::Air) {
 		chunk->blocks.erase(block);
 		chunk->ChunkUpdate();
+	} else {
+		chunk->PutBlock(_block, ToChunkPosition(pos));
 	}
 
 }

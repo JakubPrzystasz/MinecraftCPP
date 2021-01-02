@@ -53,12 +53,13 @@ void Engine::updateWindow()
 		}
 	}
 
+	auto block = world->GetBlock(camera.Position);
 
 	//world->SetBlock(camera.Position, BlockName::Air);
 
 	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
 	{
-		
+		world->SetBlock(camera.Position, BlockName::Cobble);
 	}
 
 	auto chunkPos = world->GetChunkPosition(camera.Position);
@@ -72,6 +73,7 @@ void Engine::updateWindow()
 		std::cout << "FPS: " << timer.FPS << "  x:" <<
 			camera.Position.x << "  y:" << camera.Position.y << "  z:"
 			<< camera.Position.z << std::endl <<
+			"Block: " << block << std::endl <<
 			"Chunk: " << chunkPos.x << " " << chunkPos.y << "  render: "<< world->RenderedChunks.size() << std::endl;
 	}
 	
@@ -140,9 +142,12 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	//Stone
 	rs->AddBlock(BlockName::Stone, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 });
 	rs->GetBlock(BlockName::Stone)->BindFaces();
+	//Cobble
+	rs->AddBlock(BlockName::Cobble, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 });
+	rs->GetBlock(BlockName::Cobble)->BindFaces();
 
 	world = World::GetInstance();
-	world->SetChunkSize(2);
+	world->SetChunkSize(4);
 	world->GenerateWorld();
 	world->SetRenderedChunks(vec2(0, 0));
 }

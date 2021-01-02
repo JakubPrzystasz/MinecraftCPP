@@ -34,6 +34,8 @@ public:
 	std::unordered_map<vec3,BlockName> blocks;
 	
 	void PutBlock(BlockName blockName, unsigned int x, unsigned int y, unsigned int z);
+	void PutBlock(BlockName blockName, glm::vec3 pos);
+	void PutBlock(BlockName blockName, vec3 pos);
 	
 	void Draw(Camera &camera);
 

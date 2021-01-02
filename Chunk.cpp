@@ -19,6 +19,18 @@ void Chunk::PutBlock(BlockName blockName, unsigned int x, unsigned int y, unsign
 	updateChunk = true;
 }
 
+void Chunk::PutBlock(BlockName blockName, glm::vec3 pos)
+{
+	blocks.emplace(vec3(pos.x, pos.y, pos.z), blockName);
+	updateChunk = true;
+}
+
+void Chunk::PutBlock(BlockName blockName, vec3 pos)
+{
+	blocks.emplace(pos, blockName);
+	updateChunk = true;
+}
+
 void Chunk::Draw(Camera& camera)
 {
 	if (updateChunk)
@@ -66,20 +78,20 @@ void Chunk::ChunkUpdate()
 
 		_block = *rs->GetBlock(__block.second);
 
-		//back face 
-		if (__block.first.z == 0) {
-			auto tmpPos = __block.first;
-			tmpPos.z = chunkSize - 1;
-			auto x__ = ToWorldPosition(tmpPos, vec2(chunkPosition.x - 1, chunkPosition.y));
-			auto foreginBlock = world->GetBlock(x__);
-			if (foreginBlock == BlockName::Air) {
-				faces++;
-				tmp = AddPosToFace(__block.first, _block.Faces[FaceName::Back]);
-				AddIndices(tmp.indices, 6);
-				AddVertices(tmp.vertices, 4);
-			}
-		}
-		else {
+		////back face 
+		//if (__block.first.z == 0) {
+		//	auto tmpPos = __block.first;
+		//	tmpPos.z = chunkSize - 1;
+		//	auto x__ = ToWorldPosition(tmpPos, vec2(chunkPosition.x, chunkPosition.y+1));
+		//	auto foreginBlock = world->GetBlock(x__);
+		//	if (foreginBlock == BlockName::Air) {
+		//		faces++;
+		//		tmp = AddPosToFace(__block.first, _block.Faces[FaceName::Back]);
+		//		AddIndices(tmp.indices, 6);
+		//		AddVertices(tmp.vertices, 4);
+		//	}
+		//}
+		//else {
 			//Back
 			if (!FindAdjacent(__block.first + vec3(0, 0, -1))) {
 				faces++;
@@ -87,21 +99,8 @@ void Chunk::ChunkUpdate()
 				AddIndices(tmp.indices, 6);
 				AddVertices(tmp.vertices, 4);
 			}
-		}
 
-		if (__block.first.z == chunkSize - 1) {
-
-			auto tmpPos = __block.first;
-			tmpPos.z = 0;
-			auto foreginBlock = world->GetBlock(ToWorldPosition(tmpPos));
-			if (foreginBlock == BlockName::Air) {
-				faces++;
-				tmp = AddPosToFace(__block.first, _block.Faces[FaceName::Back]);
-				AddIndices(tmp.indices, 6);
-				AddVertices(tmp.vertices, 4);
-			}
-
-		}else {
+		
 			//Front
 			if (!FindAdjacent(__block.first + vec3(0, 0, 1))) {
 				faces++;
@@ -109,9 +108,6 @@ void Chunk::ChunkUpdate()
 				AddIndices(tmp.indices, 6);
 				AddVertices(tmp.vertices, 4);
 			}
-		}
-
-
 		
 		//Top
 		if (!FindAdjacent(__block.first + vec3(0, 1, 0))) {
