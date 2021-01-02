@@ -122,6 +122,8 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 		glfwDestroyWindow(window);
 		return;
 	}
+
+	glEnable(GL_BLEND);
 	///Window resize callback
 	glfwSetWindowSizeCallback(window, windowSizeCallback);
 
@@ -146,9 +148,8 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	rs->AddBlock(BlockName::Stone, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 });
 	rs->GetBlock(BlockName::Stone)->BindFaces();
 	//Cobble
-	rs->AddBlock(BlockName::Cobble, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 });
+	rs->AddBlock(BlockName::Cobble, { 2,0 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 });
 	rs->GetBlock(BlockName::Cobble)->BindFaces();
-	rs->GetBlock(BlockName::Cobble)->BindData();
 
 
 	crossHair = Model();
@@ -158,14 +159,14 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	crossHair.shadingProgram->Use();
 	crossHair.Textures["tex"]->Init();
 	crossHair.shadingProgram->SetData("texture1", crossHair.Textures["tex"]->GetId());
-	crossHair.Textures["tex"]->Bind(GL_TEXTURE1);
+	crossHair.Textures["tex"]->Bind(GL_TEXTURE2);
 	GLuint ind[6] = { 1, 2, 3, // right bottom -> left bottom -> left top 
 				  0, 1, 3 }; // right top -> right bottom -> left top};
 	crossHair.AddIndices(ind, 6);
-	crossHair.AddVertex(Vertex(glm::vec3(0.01, 0.01, 0), glm::vec2(1.0f, 1.0f))); //right top
-	crossHair.AddVertex(Vertex(glm::vec3(0.01, -0.01, 0), glm::vec2(1.0f, 0.0f)));//right bottom
-	crossHair.AddVertex(Vertex(glm::vec3(-0.01, -0.01, 0), glm::vec2(0.0f, 0.0f)));//left bottom
-	crossHair.AddVertex(Vertex(glm::vec3(-0.01, 0.01, 0), glm::vec2(0.0f, 1.0f)));//left top
+	crossHair.AddVertex(Vertex(glm::vec3(0.02, 0.03, 0), glm::vec2(1.0f, 1.0f))); //right top
+	crossHair.AddVertex(Vertex(glm::vec3(0.02, -0.03, 0), glm::vec2(1.0f, 0.0f)));//right bottom
+	crossHair.AddVertex(Vertex(glm::vec3(-0.02, -0.03, 0), glm::vec2(0.0f, 0.0f)));//left bottom
+	crossHair.AddVertex(Vertex(glm::vec3(-0.02, 0.03, 0), glm::vec2(0.0f, 1.0f)));//left top
 	crossHair.BindData();
 
 
