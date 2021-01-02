@@ -53,16 +53,20 @@ void Engine::updateWindow()
 		}
 	}
 
-	auto block = world->GetBlock(camera.Position);
-
-	//world->SetBlock(camera.Position, BlockName::Air);
+	//auto block = world->GetBlock(camera.Position);
+	auto chunkPos = world->GetChunkPosition(camera.Position);
+	auto __tmp__ = world->GetChunk(chunkPos);
+	auto __x__ = World::ToChunkPosition(camera.Position);
+	auto __y__ = __tmp__->ToWorldPosition(__x__);
 
 	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
-	{
 		world->SetBlock(camera.Position, BlockName::Cobble);
+
+	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
+	{
+		world->SetBlock(camera.Position, BlockName::Air);
 	}
 
-	auto chunkPos = world->GetChunkPosition(camera.Position);
 	if (chunkPos - posDelta != vec2(0, 0)) {
 		posDelta = chunkPos;
 		world->SetRenderedChunks(chunkPos);
@@ -70,10 +74,16 @@ void Engine::updateWindow()
 
 	if (timer.printDebug()) {
 		system("cls");
-		std::cout << "FPS: " << timer.FPS << "  x:" <<
-			camera.Position.x << "  y:" << camera.Position.y << "  z:"
-			<< camera.Position.z << std::endl <<
-			"Block: " << block << std::endl <<
+		std::cout << "FPS: " << timer.FPS << std::endl << 
+			"x: " << camera.Position.x << 
+			" y: " << camera.Position.y << 
+			" z: " << camera.Position.z << std::endl <<
+			"x: " << __x__.x <<
+			" y: " << __x__.y <<
+			" z: " << __x__.z << std::endl <<
+			"x: " << __y__.x <<
+			" y: " << __y__.y <<
+			" z: " << __y__.z << std::endl <<
 			"Chunk: " << chunkPos.x << " " << chunkPos.y << "  render: "<< world->RenderedChunks.size() << std::endl;
 	}
 	
@@ -148,7 +158,7 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	rs->AddBlock(BlockName::Stone, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 });
 	rs->GetBlock(BlockName::Stone)->BindFaces();
 	//Cobble
-	rs->AddBlock(BlockName::Cobble, { 2,0 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 });
+	rs->AddBlock(BlockName::Cobble, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 });
 	rs->GetBlock(BlockName::Cobble)->BindFaces();
 
 
@@ -173,7 +183,6 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 
 	world = World::GetInstance();
 	world->SetChunkSize(4);
-	world->GenerateWorld();
 	world->SetRenderedChunks(vec2(0, 0));
 }
 

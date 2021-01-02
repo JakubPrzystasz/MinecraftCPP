@@ -6,6 +6,10 @@ GLuint World::renderDistance = 4;
 std::unordered_map<vec2, Chunk*> World::Chunks;
 std::vector<Chunk*> World::RenderedChunks;
 
+int World::RoundInt(GLfloat x) {
+	return (int)trunc(x);
+}
+
 GLfloat World::RoundPos(GLfloat x)
 {
 	if (x >= 0)
@@ -31,16 +35,6 @@ void World::DrawChunks(Camera& camera)
 {
 	for (auto& chunk : RenderedChunks) {
 		chunk->Draw(camera);
-	}
-}
-
-void World::GenerateWorld()
-{
-	GLuint tmp = 2;
-	for (int i = 0; i < tmp * tmp; i++) {
-		int x = i / 2;
-		int y = i % 2;
-		GenerateChunk(vec2(x, y));
 	}
 }
 
@@ -71,9 +65,14 @@ void World::GenerateChunk(vec2 chunkPos)
 
 	for (int x = 0; x < chunkSize; x++) {
 		for (int z = 0; z < chunkSize; z++) {
-			grassHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 2048 ) )/16.f, 0.f, (float)(z + chunkSize * (chunkPos.y+2048))/16.f , 0, 0, 0, seed) * (-8) + 16;
-			dirtHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 2048)) /16.f, 0.f, (float)(z + chunkSize * (chunkPos.y+2048))/16.f, 0, 0, 0, seed) * (-2) + 10;
-
+			grassHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 2048)) / 16.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 2048)) / 16.f, 0, 0, 0, seed) * (-8) + 16;
+			dirtHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 2048)) / 16.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 2048)) / 16.f, 0, 0, 0, seed) * (-2) + 10;
+			/*if (x == 0 && z == 0)
+			{
+				for (int y = 0; y < 100; y++)
+					tmp->PutBlock(BlockName::Stone, x, y, z);
+				continue;
+			}*/
 			for (int y = 0; y < grassHeight; y++) {
 				if (y < dirtHeight) {
 					tmp->PutBlock(BlockName::Stone, x, y, z);
@@ -121,6 +120,7 @@ BlockName World::GetBlock(vec3 pos)
 void World::SetRenderedChunks(vec2 centerChunkPos)
 {
 	RenderedChunks.clear();
+
 	vec2 tmp; 
 	Chunk* chunk;// GetChunk(centerChunkPos);
 	for (int y = -4; y < 5; y++) {
@@ -143,17 +143,29 @@ Chunk* World::GetChunk(vec2 chunkPos)
 }
 
 vec2 World::GetChunkPosition(glm::vec3 pos) {
-	auto ret = vec2((int)(pos.x / chunkSize), (int)(pos.z / chunkSize));
+	auto ret = vec2(RoundInt(pos.x / chunkSize), RoundInt(pos.z / chunkSize));
+	if (pos.x < 0)
+		ret.x -= 1;
+	if (pos.z < 0)
+		ret.y -= 1;
 	return ret;
 }
 
 vec2 World::GetChunkPosition(vec3 pos) {
-	auto ret = vec2((int)(pos.x / chunkSize), (int)(pos.z / chunkSize));
+	auto ret = vec2(RoundInt(pos.x / chunkSize), RoundInt(pos.z / chunkSize));
+	if (pos.x < 0)
+		ret.x -= 1;
+	if (pos.z < 0)
+		ret.y -= 1;
 	return ret;
 }
 
 vec3 World::ToChunkPosition(glm::vec3 worldPos)
 {
+	if (worldPos.x < 0)
+		worldPos.x -= 1;
+	if (worldPos.z < 0)
+		worldPos.z -= 1;
 	return vec3(RoundPos((int)worldPos.x % chunkSize), \
 		RoundPos((int)worldPos.y), \
 		RoundPos((int)worldPos.z % chunkSize));

@@ -22,6 +22,8 @@ private:
 
 	static GLfloat RoundPos(GLfloat x);
 
+	static int RoundInt(GLfloat x);
+
 public:
 	static std::vector<Chunk*> RenderedChunks;
 	/// <summary>
@@ -47,8 +49,6 @@ public:
 
 	static void DrawChunks(Camera &camera);
 
-	static void GenerateWorld();
-
 	static void SetBlock(glm::vec3 pos, BlockName block);
 
 	static void GenerateChunk(vec2 chunkPos);
@@ -67,5 +67,7 @@ public:
 
 	inline static vec3 ToChunkPosition(glm::vec3 worldPos);
 	inline static vec3 ToChunkPosition(vec3 worldPos);
+
+	friend Chunk;
 };
 

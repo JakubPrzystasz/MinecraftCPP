@@ -1,6 +1,7 @@
 #pragma once
 #include <GLFW/glfw3.h>
 #include <iomanip>
+#include <iostream>
 
 struct vec3 {
 	GLfloat x, y, z;
@@ -9,6 +10,11 @@ struct vec3 {
 		this->x = x;
 		this->y = y;
 		this->z = z;
+	}
+	vec3(glm::vec3 in) {
+		x = (int)in.x;
+		y = (int)in.y;
+		z = (int)in.z;
 	}
 	bool operator==(const vec3& other) const noexcept
 	{
@@ -29,6 +35,7 @@ struct vec3 {
 		this->z += other.z;
 		return *this;
 	}
+
 };
 
 namespace std {
@@ -55,6 +62,10 @@ struct vec2 {
 	vec2(int _x, int _y) {
 		x = _x;
 		y = _y;
+	}
+	vec2(glm::vec2 in) {
+		x = (int)in.x;
+		y = (int)in.y;
 	}
 
 	bool operator==(const vec2& other) const noexcept

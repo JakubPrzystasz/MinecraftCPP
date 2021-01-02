@@ -29,7 +29,7 @@ public:
 
 	vec2 chunkPosition;
 
-	GLuint chunkSize = 16;
+	int chunkSize = 16;
 
 	std::unordered_map<vec3,BlockName> blocks;
 	

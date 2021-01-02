@@ -5,7 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <map>
-
+#include "Vectors.h"
 #include "Texture.h"
 #include "ShadingProgram.h"
 #include "Camera.h"

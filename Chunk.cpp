@@ -155,9 +155,9 @@ Face Chunk::AddPosToFace(vec3 pos, Face& face)
 glm::vec3 Chunk::ToWorldPosition(vec3 pos)
 { 
 	auto ret = glm::vec3(
-		round((int)chunkPosition.x * (int)chunkSize + pos.x), 
+		round((int)chunkPosition.x * chunkSize + pos.x), 
 		round(pos.y), 
-		round((int)chunkPosition.y * (int)chunkSize + pos.z)
+		round((int)chunkPosition.y * chunkSize + pos.z)
 	);
 	return ret;
 }
@@ -165,9 +165,9 @@ glm::vec3 Chunk::ToWorldPosition(vec3 pos)
 inline glm::vec3 Chunk::ToWorldPosition(vec3 pos, vec2 chunkPos)
 {
 	auto ret = glm::vec3(
-		round((int)chunkPos.x * (int)chunkSize + pos.x), 
+		round((int)chunkPos.x * chunkSize + pos.x), 
 		round(pos.y), 
-		round((int)chunkPos.y * (int)chunkSize + pos.z)
+		round((int)chunkPos.y * chunkSize + pos.z)
 	);
 
 	return ret;
