@@ -92,6 +92,12 @@ void Model::AddVertex(Vertex* vert)
 	vertices.push_back(tmp);
 }
 
+void Model::AddVertex(Vertex vert)
+{
+	Vertex tmp = Vertex(vert);
+	vertices.push_back(tmp);
+}
+
 void Model::AddVertices(Vertex* vert,GLuint length)
 {
 	for (GLuint i = 0; i < length; i++) {
@@ -105,7 +111,7 @@ void Model::BindData()
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_DYNAMIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
@@ -132,8 +138,10 @@ void Model::Init()
 
 void Model::Draw()
 {
-	if (vertices.size() < 1 || VBO == 0)
-		std::cout << "ERROR:MODEL::NO DATA "<< std::endl;
+	if (vertices.size() < 1 || VBO == 0) {
+		std::cout << "ERROR:MODEL::NO DATA " << std::endl;
+		return;
+	}
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
 	glBindVertexArray(0);

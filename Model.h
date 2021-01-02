@@ -47,6 +47,7 @@ public:
 	void SetIndicies(GLuint *indices, GLuint length);
 	void AddIndices(GLuint* indices, GLuint length);
 	void AddVertex(Vertex* vert);
+	void AddVertex(Vertex vert);
 	void AddVertices(Vertex* vert, GLuint length);
 
 	/// <summary>

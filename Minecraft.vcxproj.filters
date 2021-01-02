@@ -160,10 +160,16 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Shaders\shader.vert">
+    <None Include="Shaders\block.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="Shaders\shader.frag">
+    <None Include="Shaders\block.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\crosshair.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\crosshair.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>
