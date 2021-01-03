@@ -5,26 +5,10 @@ GLuint World::chunkSize = 16;
 GLuint World::renderDistance = 4;
 std::unordered_map<vec2, Chunk*> World::Chunks;
 std::vector<Chunk*> World::RenderedChunks;
-std::vector<vec2> World::RequestedGenChunks;
-std::vector<vec2> World::RequestedUpdateChunks;
-std::mutex World::generateMutex;
-std::mutex World::updateMutex;
-std::thread World::generator;
+
 
 int World::RoundInt(GLfloat x) {
 	return static_cast<int>(trunc(x));
-}
-
-void World::generatorFunc(World* world)
-{
-	while (true) {
-		if (world->RequestedGenChunks.size() > 0) {
-			auto chunk = world->RequestedGenChunks.back();
-			world->GenerateChunk(chunk)->ChunkUpdate();
-			world->RequestedGenChunks.pop_back();
-			std::cout << "Generated chunk at: " << chunk.x << "  " << chunk.y << std::endl;
-		}
-	}
 }
 
 World* World::GetInstance()
@@ -32,11 +16,6 @@ World* World::GetInstance()
 	if (instance == nullptr)
 		instance = new World();
 	return instance;
-}
-
-void World::StartThreads()
-{
-	generator = std::thread(generatorFunc, instance);
 }
 
 void World::SetChunkSize(GLuint chunkSize)
@@ -156,9 +135,7 @@ void World::RequestChunkUpdate(vec2 chunkPos)
 
 void World::RequestChunkGen(vec2 chunkPos)
 {
-	generateMutex.lock();
-	RequestedGenChunks.push_back(chunkPos);
-	generateMutex.unlock();
+	GenerateChunk(chunkPos);
 }
 
 void World::SetRenderedChunks(vec2 centerChunkPos)
@@ -167,8 +144,8 @@ void World::SetRenderedChunks(vec2 centerChunkPos)
 
 	vec2 tmp; 
 	Chunk* chunk;
-	for (int y = -4; y < 5; y++) {
-		for (int x = -4; x < 5; x++) {
+	for (int y = -8; y < 9; y++) {
+		for (int x = -8; x < 9; x++) {
 			tmp = centerChunkPos + vec2(x, y);
 			chunk = GetChunk(tmp);
 			RenderedChunks.push_back(chunk);

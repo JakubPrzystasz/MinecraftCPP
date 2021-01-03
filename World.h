@@ -23,20 +23,9 @@ private:
 	
 	static std::unordered_map<vec2,Chunk*> Chunks;
 
-	inline static int RoundInt(GLfloat x);
-
 	static std::vector<Chunk*> RenderedChunks;
 
-	static std::vector<vec2> RequestedGenChunks;
-
-	static std::vector<vec2> RequestedUpdateChunks;
-
-	static std::mutex generateMutex;
-	static std::mutex updateMutex;
-
-	static std::thread generator;
-
-	static void generatorFunc(World* world);
+	inline static int RoundInt(GLfloat x);
 
 public:
 	
@@ -60,8 +49,6 @@ public:
 	/// </summary>
 	/// <returns>Pointer to Singleton instance of ResourceManager</returns>
 	static World* GetInstance();
-
-	static void StartThreads();
 
 	static void SetChunkSize(GLuint chunkSize);
 
