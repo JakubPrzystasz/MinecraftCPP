@@ -186,7 +186,8 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	//Crosshair
 
 	world = World::GetInstance();
-	world->SetChunkSize(10);
+	world->StartThreads();
+	world->SetChunkSize(2);
 	world->SetRenderedChunks(vec2(0, 0));
 }
 
@@ -226,6 +227,7 @@ void Engine::WindowLoop()
 			/// </summary>	
 			glfwPollEvents();
 		}
+		world->StopThreads();
 	}
 }
 

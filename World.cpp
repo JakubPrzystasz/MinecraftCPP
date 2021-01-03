@@ -6,10 +6,55 @@ GLuint World::renderDistance = 4;
 std::unordered_map<vec2, Chunk*> World::Chunks;
 std::vector<Chunk*> World::RenderedChunks;
 
+std::vector<vec2> World::Data;
+std::vector<std::thread> World::Threads;
+std::vector<std::pair<std::function<void(vec2)>, vec2>> World::Jobs;
+std::mutex World::Mutex;
+std::atomic<bool> World::Run = true;
+
 
 int World::RoundInt(GLfloat x) {
 	return static_cast<int>(trunc(x));
 }
+
+void World::RunThreads() {
+	while (Run) {
+		Mutex.lock();
+		if (Jobs.size() > 0) {
+			auto tmp = Jobs.back();
+			std::cout << "Generating: " << tmp.second.x << "  " << tmp.second.y << std::endl;
+			Jobs.pop_back();
+			Mutex.unlock();
+			tmp.first(tmp.second);
+			continue;
+		}
+		else {
+			Mutex.unlock();
+		}
+	}
+}
+
+void World::StartThreads()
+{
+	for (int i = 0; i < 1; i++) {
+		Threads.push_back(std::thread(RunThreads));
+	}
+}
+
+void World::StopThreads()
+{
+	Run = false;
+	for (auto& thread : Threads)
+		thread.join();
+}
+
+//void World::AddJob(vec2 val, int test) {
+//	Mutex.lock();
+//	std::function<void(vec2)> func;
+//	auto tmp = std::make_pair(func, val);
+//	Jobs.push_back(tmp);
+//	Mutex.unlock();
+//}
 
 World* World::GetInstance()
 {
@@ -26,7 +71,7 @@ void World::SetChunkSize(GLuint chunkSize)
 void World::DrawChunks(Camera& camera)
 {
 	for (auto& chunk : RenderedChunks) {
-		if(chunk != nullptr)
+		if (chunk != nullptr)
 			chunk->Draw(camera);
 	}
 }
@@ -39,15 +84,16 @@ void World::SetBlock(glm::vec3 pos, BlockName _block)
 	auto block = chunk->blocks.find(ToChunkPosition(pos));
 	if (block != chunk->blocks.end() && _block == BlockName::Air) {
 		chunk->blocks.erase(block);
-	} else {
+	}
+	else {
 		chunk->PutBlock(_block, ToChunkPosition(pos));
 	}
 
 	RequestChunkUpdate(chunk->chunkPosition);
 	if (chunk->chunkPosition.x == 0)
 		RequestChunkUpdate(chunk->chunkPosition + vec2(-1, 0));
-	
-	if (chunk->chunkPosition.x == chunkSize-1)
+
+	if (chunk->chunkPosition.x == chunkSize - 1)
 		RequestChunkUpdate(chunk->chunkPosition + vec2(1, 0));
 
 	if (chunk->chunkPosition.y == 0)
@@ -57,8 +103,11 @@ void World::SetBlock(glm::vec3 pos, BlockName _block)
 		RequestChunkUpdate(chunk->chunkPosition + vec2(0, 1));
 }
 
-Chunk* World::GenerateChunk(vec2 chunkPos)
+void World::GenerateChunk(vec2 chunkPos)
 {
+	if (GetChunk(chunkPos) == nullptr) {
+		return;
+	}
 	Chunk* tmp = new Chunk();
 	tmp->Init();
 	tmp->chunkPosition = chunkPos;
@@ -94,9 +143,9 @@ Chunk* World::GenerateChunk(vec2 chunkPos)
 		}
 
 	}
-
-	Chunks.emplace(chunkPos, tmp);
-	return tmp;
+	Mutex.lock();
+	Chunks.emplace(chunkPos, std::move(tmp));
+	Mutex.unlock();
 }
 
 BlockName World::GetBlock(Chunk* chunk, vec3 pos)
@@ -130,19 +179,29 @@ BlockName World::GetBlock(vec3 pos)
 
 void World::RequestChunkUpdate(vec2 chunkPos)
 {
-	GetChunk(chunkPos)->ChunkUpdate();
+	//GetChunk(chunkPos)->ChunkUpdate();
 }
 
 void World::RequestChunkGen(vec2 chunkPos)
 {
-	GenerateChunk(chunkPos);
+	if (GetChunk(chunkPos) != nullptr)
+		return;
+	std::function<void(vec2)> func;
+	func = &GenerateChunk;
+	auto tmp = std::make_pair(func, chunkPos);
+	Mutex.lock();
+	if (Jobs.size() > 16) {
+		Mutex.unlock();
+		return;
+	}
+	Jobs.push_back(tmp);
+	Mutex.unlock();
 }
 
 void World::SetRenderedChunks(vec2 centerChunkPos)
 {
 	RenderedChunks.clear();
-
-	vec2 tmp; 
+	vec2 tmp;
 	Chunk* chunk;
 	for (int y = -8; y < 9; y++) {
 		for (int x = -8; x < 9; x++) {
@@ -155,10 +214,13 @@ void World::SetRenderedChunks(vec2 centerChunkPos)
 
 Chunk* World::GetChunk(vec2 chunkPos)
 {
+	Mutex.lock();
 	auto tmp = Chunks.find(chunkPos);
-	if (tmp != Chunks.end())
+	if (tmp != Chunks.end()) {
+		Mutex.unlock();
 		return tmp->second;
-
+	}
+	Mutex.unlock();
 	RequestChunkGen(chunkPos);
 	return nullptr;
 }

@@ -6,6 +6,8 @@
 #include <thread>
 #include <mutex>
 #include <chrono>
+#include <functional>
+#include <future>
 
 class Chunk;
 
@@ -27,9 +29,22 @@ private:
 
 	inline static int RoundInt(GLfloat x);
 
+	static std::vector<std::thread> Threads;
+
+	static std::vector<std::pair<std::function<void(vec2)>, vec2>> Jobs;
+
+	static std::vector<vec2> Data;
+
+	static std::mutex Mutex;
+
+	static std::atomic<bool> Run;
+
+	static void RunThreads();
+
 public:
 	
-
+	static void StartThreads();
+	static void StopThreads();
 
 	/// <summary>
 	/// Do not allow to copy an object
@@ -56,7 +71,8 @@ public:
 
 	static void SetBlock(glm::vec3 pos, BlockName block);
 
-	static Chunk* GenerateChunk(vec2 chunkPos);
+	static void GenerateChunk(vec2 chunkPos);
+
 	//Takes in chunk coords as parameter
 	static BlockName GetBlock(Chunk* chunk,vec3 pos);
 	//Takes world coords as parameter
