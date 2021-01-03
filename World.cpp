@@ -5,9 +5,26 @@ GLuint World::chunkSize = 16;
 GLuint World::renderDistance = 4;
 std::unordered_map<vec2, Chunk*> World::Chunks;
 std::vector<Chunk*> World::RenderedChunks;
+std::vector<vec2> World::RequestedGenChunks;
+std::vector<vec2> World::RequestedUpdateChunks;
+std::mutex World::generateMutex;
+std::mutex World::updateMutex;
+std::thread World::generator;
 
 int World::RoundInt(GLfloat x) {
 	return static_cast<int>(trunc(x));
+}
+
+void World::generatorFunc(World* world)
+{
+	while (true) {
+		if (world->RequestedGenChunks.size() > 0) {
+			auto chunk = world->RequestedGenChunks.back();
+			world->GenerateChunk(chunk)->ChunkUpdate();
+			world->RequestedGenChunks.pop_back();
+			std::cout << "Generated chunk at: " << chunk.x << "  " << chunk.y << std::endl;
+		}
+	}
 }
 
 World* World::GetInstance()
@@ -15,6 +32,11 @@ World* World::GetInstance()
 	if (instance == nullptr)
 		instance = new World();
 	return instance;
+}
+
+void World::StartThreads()
+{
+	generator = std::thread(generatorFunc, instance);
 }
 
 void World::SetChunkSize(GLuint chunkSize)
@@ -25,24 +47,38 @@ void World::SetChunkSize(GLuint chunkSize)
 void World::DrawChunks(Camera& camera)
 {
 	for (auto& chunk : RenderedChunks) {
-		chunk->Draw(camera);
+		if(chunk != nullptr)
+			chunk->Draw(camera);
 	}
 }
 
 void World::SetBlock(glm::vec3 pos, BlockName _block)
 {
 	auto chunk = GetChunk(GetChunkPosition(pos));
+	if (chunk == nullptr)
+		return;
 	auto block = chunk->blocks.find(ToChunkPosition(pos));
 	if (block != chunk->blocks.end() && _block == BlockName::Air) {
 		chunk->blocks.erase(block);
-		chunk->ChunkUpdate();
 	} else {
 		chunk->PutBlock(_block, ToChunkPosition(pos));
 	}
 
+	RequestChunkUpdate(chunk->chunkPosition);
+	if (chunk->chunkPosition.x == 0)
+		RequestChunkUpdate(chunk->chunkPosition + vec2(-1, 0));
+	
+	if (chunk->chunkPosition.x == chunkSize-1)
+		RequestChunkUpdate(chunk->chunkPosition + vec2(1, 0));
+
+	if (chunk->chunkPosition.y == 0)
+		RequestChunkUpdate(chunk->chunkPosition + vec2(0, -1));
+
+	if (chunk->chunkPosition.y == chunkSize - 1)
+		RequestChunkUpdate(chunk->chunkPosition + vec2(0, 1));
 }
 
-void World::GenerateChunk(vec2 chunkPos)
+Chunk* World::GenerateChunk(vec2 chunkPos)
 {
 	Chunk* tmp = new Chunk();
 	tmp->Init();
@@ -58,12 +94,12 @@ void World::GenerateChunk(vec2 chunkPos)
 		for (int z = 0; z < chunkSize; z++) {
 			grassHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 2048)) / 16.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 2048)) / 16.f, 0, 0, 0, seed) * (-8) + 16;
 			dirtHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 2048)) / 16.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 2048)) / 16.f, 0, 0, 0, seed) * (-2) + 10;
-			if (x == 0 && z == 0)
-			{
-				for (int y = 0; y < 30; y++)
-					tmp->PutBlock(BlockName::Cobble, x, y, z);
-				continue;
-			}
+			//if (x == 0 && z == 0)
+			//{
+			//	for (int y = 0; y < 30; y++)
+			//		tmp->PutBlock(BlockName::Cobble, x, y, z);
+			//	continue;
+			//}
 			for (int y = 0; y < grassHeight; y++) {
 				if (y < dirtHeight) {
 					tmp->PutBlock(BlockName::Stone, x, y, z);
@@ -80,7 +116,8 @@ void World::GenerateChunk(vec2 chunkPos)
 
 	}
 
-	Chunks.emplace(chunkPos, std::move(tmp));
+	Chunks.emplace(chunkPos, tmp);
+	return tmp;
 }
 
 BlockName World::GetBlock(Chunk* chunk, vec3 pos)
@@ -97,6 +134,8 @@ BlockName World::GetBlock(Chunk* chunk, vec3 pos)
 BlockName World::GetBlock(glm::vec3 pos)
 {
 	auto chunk = GetChunk(GetChunkPosition(pos));
+	if (chunk == nullptr)
+		return BlockName::Air;
 	auto _pos = ToChunkPosition(pos);
 	return GetBlock(chunk, _pos);
 }
@@ -104,8 +143,22 @@ BlockName World::GetBlock(glm::vec3 pos)
 BlockName World::GetBlock(vec3 pos)
 {
 	auto chunk = GetChunk(GetChunkPosition(pos));
+	if (chunk == nullptr)
+		return BlockName::Air;
 	auto _pos = ToChunkPosition(pos);
 	return GetBlock(chunk, _pos);
+}
+
+void World::RequestChunkUpdate(vec2 chunkPos)
+{
+	GetChunk(chunkPos)->ChunkUpdate();
+}
+
+void World::RequestChunkGen(vec2 chunkPos)
+{
+	generateMutex.lock();
+	RequestedGenChunks.push_back(chunkPos);
+	generateMutex.unlock();
 }
 
 void World::SetRenderedChunks(vec2 centerChunkPos)
@@ -113,7 +166,7 @@ void World::SetRenderedChunks(vec2 centerChunkPos)
 	RenderedChunks.clear();
 
 	vec2 tmp; 
-	Chunk* chunk;// GetChunk(centerChunkPos);
+	Chunk* chunk;
 	for (int y = -4; y < 5; y++) {
 		for (int x = -4; x < 5; x++) {
 			tmp = centerChunkPos + vec2(x, y);
@@ -129,8 +182,8 @@ Chunk* World::GetChunk(vec2 chunkPos)
 	if (tmp != Chunks.end())
 		return tmp->second;
 
-	GenerateChunk(chunkPos);
-	return GetChunk(chunkPos);
+	RequestChunkGen(chunkPos);
+	return nullptr;
 }
 
 vec2 World::GetChunkPosition(glm::vec3 pos) {

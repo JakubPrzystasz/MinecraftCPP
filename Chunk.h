@@ -12,15 +12,19 @@ class Chunk : public Model
 {
 private:
 	bool updateChunk;
+	void ChunkUpdate();
+
 public:
 	Chunk() {
 		updateChunk = true;
 		chunkPosition = vec2(0,0);
+		world = nullptr;
 	};
 
 	Chunk(vec2 chunkPos) {
 		updateChunk = true;
 		chunkPosition = chunkPos;
+		world = nullptr;
 	};
 
 	void Init();
@@ -41,11 +45,11 @@ public:
 	
 	void Draw(Camera &camera);
 
-	void ChunkUpdate();
-
 	Face AddPosToFace(vec3 pos, Face& face);
 
 	inline glm::vec3 ToWorldPosition(vec3 pos);
 	inline glm::vec3 ToWorldPosition(vec3 pos,vec2 chunkPos);
+
+	friend World;
 };
 

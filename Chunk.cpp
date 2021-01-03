@@ -41,7 +41,10 @@ BlockName Chunk::GetBlock(vec3 position)
 void Chunk::Draw(Camera& camera)
 {
 	if (updateChunk)
-		ChunkUpdate();
+	{
+		world->RequestChunkUpdate(chunkPosition);
+		return;
+	}
 	if (indices.size() < 1)
 		return;
 	BindData();
@@ -95,12 +98,14 @@ void Chunk::ChunkUpdate()
 			auto foreginBlockPos = chunkBlock.first;
 			foreginBlockPos.z = 0;
 			auto foreginChunk = world->GetChunk(chunkPosition + vec2(0, 1));
-			auto foreginBlock = foreginChunk->GetBlock(foreginBlockPos);
-			if (foreginBlock == BlockName::Air) {
-				faces++;
-				tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Front]);
-				AddIndices(tmpFace.indices, 6);
-				AddVertices(tmpFace.vertices, 4);
+			if (foreginChunk != nullptr) {
+				auto foreginBlock = foreginChunk->GetBlock(foreginBlockPos);
+				if (foreginBlock == BlockName::Air) {
+					faces++;
+					tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Front]);
+					AddIndices(tmpFace.indices, 6);
+					AddVertices(tmpFace.vertices, 4);
+				}
 			}
 		}
 		else if (GetBlock(chunkBlock.first + vec3(0, 0, 1)) == BlockName::Air) {
@@ -116,12 +121,14 @@ void Chunk::ChunkUpdate()
 			auto foreginBlockPos = chunkBlock.first;
 			foreginBlockPos.z = chunkSize - 1;
 			auto foreginChunk = world->GetChunk(chunkPosition + vec2(0, -1));
-			auto foreginBlock = foreginChunk->GetBlock(foreginBlockPos);
-			if (foreginBlock == BlockName::Air) {
-				faces++;
-				tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Back]);
-				AddIndices(tmpFace.indices, 6);
-				AddVertices(tmpFace.vertices, 4);
+			if (foreginChunk != nullptr) {
+				auto foreginBlock = foreginChunk->GetBlock(foreginBlockPos);
+				if (foreginBlock == BlockName::Air) {
+					faces++;
+					tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Back]);
+					AddIndices(tmpFace.indices, 6);
+					AddVertices(tmpFace.vertices, 4);
+				}
 			}
 		}
 		else if (GetBlock(chunkBlock.first + vec3(0, 0, -1)) == BlockName::Air) {
@@ -136,12 +143,14 @@ void Chunk::ChunkUpdate()
 			auto foreginBlockPos = chunkBlock.first;
 			foreginBlockPos.x = chunkSize - 1;
 			auto foreginChunk = world->GetChunk(chunkPosition + vec2(-1, 0));
-			auto foreginBlock = foreginChunk->GetBlock(foreginBlockPos);
-			if (foreginBlock == BlockName::Air) {
-				faces++;
-				tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Left]);
-				AddIndices(tmpFace.indices, 6);
-				AddVertices(tmpFace.vertices, 4);
+			if (foreginChunk != nullptr) {
+				auto foreginBlock = foreginChunk->GetBlock(foreginBlockPos);
+				if (foreginBlock == BlockName::Air) {
+					faces++;
+					tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Left]);
+					AddIndices(tmpFace.indices, 6);
+					AddVertices(tmpFace.vertices, 4);
+				}
 			}
 		}
 		else if (GetBlock(chunkBlock.first + vec3(-1, 0, 0)) == BlockName::Air) {
@@ -155,12 +164,14 @@ void Chunk::ChunkUpdate()
 			auto foreginBlockPos = chunkBlock.first;
 			foreginBlockPos.x = 0;
 			auto foreginChunk = world->GetChunk(chunkPosition + vec2(1, 0));
-			auto foreginBlock = foreginChunk->GetBlock(foreginBlockPos);
-			if (foreginBlock == BlockName::Air) {
-				faces++;
-				tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Right]);
-				AddIndices(tmpFace.indices, 6);
-				AddVertices(tmpFace.vertices, 4);
+			if (foreginChunk != nullptr) {
+				auto foreginBlock = foreginChunk->GetBlock(foreginBlockPos);
+				if (foreginBlock == BlockName::Air) {
+					faces++;
+					tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Right]);
+					AddIndices(tmpFace.indices, 6);
+					AddVertices(tmpFace.vertices, 4);
+				}
 			}
 		}
 		else if (GetBlock(chunkBlock.first + vec3(1, 0, 0)) == BlockName::Air) {

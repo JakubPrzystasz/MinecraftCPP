@@ -3,6 +3,9 @@
 #include "Chunk.h"
 #include "stb_perlin.h"
 #include <unordered_map>
+#include <thread>
+#include <mutex>
+#include <chrono>
 
 class Chunk;
 
@@ -22,8 +25,23 @@ private:
 
 	inline static int RoundInt(GLfloat x);
 
-public:
 	static std::vector<Chunk*> RenderedChunks;
+
+	static std::vector<vec2> RequestedGenChunks;
+
+	static std::vector<vec2> RequestedUpdateChunks;
+
+	static std::mutex generateMutex;
+	static std::mutex updateMutex;
+
+	static std::thread generator;
+
+	static void generatorFunc(World* world);
+
+public:
+	
+
+
 	/// <summary>
 	/// Do not allow to copy an object
 	/// </summary>
@@ -43,18 +61,24 @@ public:
 	/// <returns>Pointer to Singleton instance of ResourceManager</returns>
 	static World* GetInstance();
 
+	static void StartThreads();
+
 	static void SetChunkSize(GLuint chunkSize);
 
 	static void DrawChunks(Camera &camera);
 
 	static void SetBlock(glm::vec3 pos, BlockName block);
 
-	static void GenerateChunk(vec2 chunkPos);
+	static Chunk* GenerateChunk(vec2 chunkPos);
 	//Takes in chunk coords as parameter
 	static BlockName GetBlock(Chunk* chunk,vec3 pos);
 	//Takes world coords as parameter
 	static BlockName GetBlock(glm::vec3 pos);
 	static BlockName GetBlock(vec3 pos);
+
+	static void RequestChunkUpdate(vec2 chunkPos);
+
+	static void RequestChunkGen(vec2 chunkPos);
 
 	static void SetRenderedChunks(vec2 centerChunkPos);
 

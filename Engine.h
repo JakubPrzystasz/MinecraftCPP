@@ -11,8 +11,10 @@
 #include "Time.h"
 #include "Camera.h"
 #include "World.h"
+#include <thread>
+#include <mutex>
 
-class Engine 
+class Engine
 {
 private:
 
@@ -23,7 +25,7 @@ private:
 	static Engine* instance;
 
 protected:
-	
+
 	/// <summary>
 	/// Main window
 	/// </summary>
@@ -62,12 +64,12 @@ protected:
 	World* world;
 	vec2 posDelta;
 
-	bool poly = false;
+	bool polygonRenderMode = false;
 
 	Model crossHair;
 	Text text;
 
-	Camera camera = Camera((GLfloat)((GLfloat)screenWidth/(GLfloat)screenHeight));
+	Camera camera = Camera((GLfloat)((GLfloat)screenWidth / (GLfloat)screenHeight));
 public:
 	/// <summary>
 	/// Process input
@@ -88,7 +90,7 @@ public:
 	/// This initializes required libraries,
 	/// OpenGL version 3.3 and creates all buffers
 	/// </summary>
-	void InitializeWindow(GLuint width, GLuint height,std::string title);
+	void InitializeWindow(GLuint width, GLuint height, std::string title);
 
 	/// <summary>
 	/// Main loop for render and input processing

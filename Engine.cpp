@@ -4,7 +4,7 @@ Engine* Engine::instance = nullptr;
 
 void Engine::updateWindow()
 {
-	//Update internal timer
+
 	timer.update(glfwGetTime());
 	input->Update(window);
 
@@ -32,9 +32,8 @@ void Engine::updateWindow()
 		glfwSetWindowShouldClose(window, true);
 
 	if (input->IsKeyDown(Key::KEY_I)) {
-		std::cout << "Shwitch polygon mode" << std::endl;
-		poly = !poly;
-		if (!poly)
+		polygonRenderMode = !polygonRenderMode;
+		if (!polygonRenderMode)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		else
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -53,14 +52,17 @@ void Engine::updateWindow()
 		}
 	}
 
-	//auto block = world->GetBlock(camera.Position);
 	auto chunkPos = world->GetChunkPosition(camera.Position);
 	auto __tmp__ = world->GetChunk(chunkPos);
+	if (__tmp__ == nullptr)
+		return;
 	auto __x__ = World::ToChunkPosition(camera.Position);
 	auto __y__ = __tmp__->ToWorldPosition(__x__);
 
 	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
+	{
 		world->SetBlock(camera.Position, BlockName::Cobble);
+	}
 
 	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
 	{
@@ -72,11 +74,11 @@ void Engine::updateWindow()
 		world->SetRenderedChunks(chunkPos);
 	}
 
-	if (timer.printDebug()) {
+	/*if (timer.printDebug()) {
 		system("cls");
-		std::cout << "FPS: " << timer.FPS << std::endl << 
-			"x: " << camera.Position.x << 
-			" y: " << camera.Position.y << 
+		std::cout << "FPS: " << timer.FPS << std::endl <<
+			"x: " << camera.Position.x <<
+			" y: " << camera.Position.y <<
 			" z: " << camera.Position.z << std::endl <<
 			"x: " << __x__.x <<
 			" y: " << __x__.y <<
@@ -84,14 +86,14 @@ void Engine::updateWindow()
 			"x: " << __y__.x <<
 			" y: " << __y__.y <<
 			" z: " << __y__.z << std::endl <<
-			"Chunk: " << chunkPos.x << " " << chunkPos.y << "  render: "<< world->RenderedChunks.size() << std::endl;
-	}
-	
+			"Chunk: " << chunkPos.x << " " << chunkPos.y << std::endl;
+	}*/
+
 }
 
 void Engine::renderFrame()
 {
-    world->DrawChunks(camera);
+	world->DrawChunks(camera);
 	crossHair.Draw();
 	text.RenderText("This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
 }
@@ -100,6 +102,7 @@ void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
+
 
 void Engine::InitializeWindow(GLuint width, GLuint height, const std::string title)
 {
@@ -183,8 +186,10 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	//Crosshair
 
 	world = World::GetInstance();
-	world->SetChunkSize(4);
+	world->SetChunkSize(8);
 	world->SetRenderedChunks(vec2(0, 0));
+	world->StartThreads();
+	
 }
 
 

@@ -14,8 +14,8 @@ Face Cube::BackFace = Face(
 	Vertex(glm::vec3(1, 0, 0), glm::vec2(0.0f, 0.0f)),//left bottom
 	Vertex(glm::vec3(0, 0, 0), glm::vec2(1.0f, 0.0f)),//right bottom
 	Vertex(glm::vec3(0, 1, 0), glm::vec2(1.0f, 1.0f)),//right top
-	1, 2, 3, // right bottom -> left bottom -> left top 
-	0, 1, 3  // right top -> right bottom -> left top
+	3, 2, 1, // right bottom -> left bottom -> left top 
+	3, 1, 0  // right top -> right bottom -> left top
 );
 
 Face Cube::TopFace = Face(
@@ -32,8 +32,8 @@ Face Cube::BottomFace = Face(
 	Vertex(glm::vec3(1, 0, 1), glm::vec2(0.0f, 0.0f)),//right bottom
 	Vertex(glm::vec3(0, 0, 1), glm::vec2(1.0f, 0.0f)),//left bottom
 	Vertex(glm::vec3(0, 0, 0), glm::vec2(1.0f, 1.0f)),//left top
-	1, 2, 3, // right bottom -> left bottom -> left top 
-	0, 1, 3  // right top -> right bottom -> left top
+	3, 2, 1, // right bottom -> left bottom -> left top 
+	3, 1, 0  // right top -> right bottom -> left top
 );
 
 Face Cube::RightFace = Face(
