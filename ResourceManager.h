@@ -7,7 +7,9 @@
 #include "ShadingProgram.h"
 #include "Model.h"
 #include "Cube.h"
+#include "Text.h"
 
+struct Character;
 
 /// <summary>
 /// Resource Manager is singleton class, that manages all resources for application
@@ -46,6 +48,8 @@ private:
     static std::map<std::string, Model*> Models;
 
     static std::map<BlockName, Cube*> Blocks;
+
+    static std::map<GLchar, Character*> Characters;
 
     /// <summary>
     /// Load specified texture from file
@@ -136,6 +140,10 @@ public:
     /// <param name="ShaderName">Name of shader file</param>
     /// <returns></returns>
     static Cube* GetBlock(BlockName blockName);
+
+    static void AddCharacter(GLchar _char, Character* character);
+
+    static Character* GetCharacter(GLchar character);
 
     /// <summary>
     /// Removes all data from memory

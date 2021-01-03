@@ -20,9 +20,7 @@ private:
 	
 	static std::unordered_map<vec2,Chunk*> Chunks;
 
-	static GLfloat RoundPos(GLfloat x);
-
-	static int RoundInt(GLfloat x);
+	inline static int RoundInt(GLfloat x);
 
 public:
 	static std::vector<Chunk*> RenderedChunks;

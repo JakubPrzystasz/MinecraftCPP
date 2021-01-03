@@ -65,6 +65,7 @@ protected:
 	bool poly = false;
 
 	Model crossHair;
+	Text text;
 
 	Camera camera = Camera((GLfloat)((GLfloat)screenWidth/(GLfloat)screenHeight));
 public:

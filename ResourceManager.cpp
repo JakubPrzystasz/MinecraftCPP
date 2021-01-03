@@ -6,6 +6,7 @@ std::map<std::string, Shader*> ResourceManager::Shaders;
 std::map<std::string, ShadingProgram*> ResourceManager::ShadingPrograms;
 std::map<std::string, Model*> ResourceManager::Models;
 std::map<BlockName, Cube*> ResourceManager::Blocks;
+std::map<GLchar, Character*> ResourceManager::Characters;
 
 void ResourceManager::LoadTexture(std::string TextureName)
 {
@@ -92,9 +93,9 @@ void ResourceManager::AddBlock(BlockName blockName, FaceTexture front, FaceTextu
     RS->Blocks[blockName]->SetShadingProgram(RS->GetShadingProgram("block"));
     RS->Blocks[blockName]->AddTexture("face", RS->GetTexture("Textures/terrain.png"));
     RS->Blocks[blockName]->shadingProgram->Use();
-    RS->Blocks[blockName]->Textures["face"]->Init();
+    RS->Blocks[blockName]->Textures["face"]->Init(1);
     RS->Blocks[blockName]->shadingProgram->SetData("texture1", RS->Blocks[blockName]->Textures["face"]->GetId());
-    RS->Blocks[blockName]->Textures["face"]->Bind(GL_TEXTURE1);
+    RS->Blocks[blockName]->Textures["face"]->Bind();
     RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Faces[FaceName::Front], front);
     RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Faces[FaceName::Back], back);
     RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Faces[FaceName::Top], top);
@@ -112,28 +113,42 @@ Cube* ResourceManager::GetBlock(BlockName blockName)
 
 void ResourceManager::FreeResources()
 {
-    for (auto const& x : Textures)
+    for (auto& x : Textures)
     {
         x.second->~Texture();
     }
 
-    for (auto const& x : ShadingPrograms)
+    for (auto& x : ShadingPrograms)
     {
         x.second->~ShadingProgram();
     }
 
-    for (auto const& x : Shaders)
+    for (auto& x : Shaders)
     {
         x.second->~Shader();
     }
 
-    for (auto const& x : Models)
+    for (auto& x : Models)
     {
         x.second->~Model();
     }
 
-    for (auto const& x : Blocks)
+    for (auto& x : Blocks)
     {
         x.second->~Cube();
     }
+}
+
+Character* ResourceManager::GetCharacter(GLchar character)
+{
+    if (!(Characters.count(character) <= 0))
+        return Characters.at(character);
+    return nullptr;
+}
+
+void ResourceManager::AddCharacter(GLchar _char, Character* char_)
+{
+    auto rs = ResourceManager::GetInstance();
+    Character *tmp = new Character(char_);
+    rs->Characters.insert(std::make_pair(_char,tmp));
 }

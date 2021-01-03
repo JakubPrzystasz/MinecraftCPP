@@ -95,7 +95,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Users\jakub\Documents\C++\Library\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -115,7 +115,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Users\jakub\Documents\C++\Library\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -154,6 +154,7 @@
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="stb_image.c" />
     <ClCompile Include="stb_perlin .c" />
+    <ClCompile Include="Text.cpp" />
     <ClCompile Include="Time.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Input.cpp" />
@@ -174,6 +175,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="stb_perlin.h" />
+    <ClInclude Include="Text.h" />
     <ClInclude Include="Time.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Key.h" />
@@ -193,6 +195,8 @@
     <None Include="Shaders\block.vert" />
     <None Include="Shaders\crosshair.frag" />
     <None Include="Shaders\crosshair.vert" />
+    <None Include="Shaders\text.frag" />
+    <None Include="Shaders\text.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

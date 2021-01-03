@@ -55,13 +55,9 @@ public:
 	/// </summary>
 	~Texture();
 
-	/// <summary>
-	/// Bind texture to GL context
-	/// </summary>
-	void Bind(GLenum index);
 
 	/// <summary>
-	/// Bind texture to GL context to 0 index
+	/// Bind texture to GL context
 	/// </summary>
 	void Bind();
 
@@ -79,6 +75,6 @@ public:
 
 
 	//Initialize texture
-	void Init();
+	void Init(GLuint index);
 };
 

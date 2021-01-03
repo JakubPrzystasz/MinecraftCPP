@@ -13,16 +13,10 @@ Texture::~Texture()
 		glDeleteTextures(1, &this->id);
 }
 
-void Texture::Bind(GLenum index)
-{
-	this->index = index;
-	glActiveTexture(index);
-	glBindTexture(target, id);
-}
-
 void Texture::Bind()
 {
-	Bind(GL_TEXTURE1);
+	glActiveTexture(index);
+	glBindTexture(target, id);
 }
 
 void Texture::Unbind(GLuint target)
@@ -35,18 +29,23 @@ unsigned int Texture::GetId()
 	return id;
 }
 
-void Texture::Init()
+void Texture::Init(GLuint index)
 {
 	if (id != 0)
 		return;
 
+	this->index = GL_TEXTURE0 + index;
 	glGenTextures(1, &id);
+	glActiveTexture(this->index);
 	glBindTexture(target, id);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMin);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMag);
+
+	if (fileNamePath == "")
+		return;
 
 	if (LoadResource() == 0) {
 		if(colorChannels == 3)

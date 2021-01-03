@@ -11,7 +11,7 @@ struct FaceTexture {
 	}
 };
 
-enum FaceName {
+enum class FaceName{
 	Front,
 	Back,
 	Top,
@@ -38,7 +38,7 @@ struct Face {
 	Face() {};
 };
 
-enum BlockName {
+enum class BlockName {
 	Air,
 	Grass,
 	Dirt,

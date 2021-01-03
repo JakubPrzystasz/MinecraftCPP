@@ -7,9 +7,9 @@ void Chunk::Init()
 	SetShadingProgram(RS->GetShadingProgram("block"));
 	AddTexture("face", RS->GetTexture("Textures/terrain.png"));
 	shadingProgram->Use();
-	Textures["face"]->Init();
+	Textures["face"]->Init(0);
+	Textures["face"]->Bind();
 	shadingProgram->SetData("texture1", Textures["face"]->GetId());
-	Textures["face"]->Bind(GL_TEXTURE1);
 	world = World::GetInstance();
 }
 
@@ -42,6 +42,7 @@ void Chunk::Draw(Camera& camera)
 	shadingProgram->SetData("projection", camera.Projection);
 	shadingProgram->SetData("view", camera.GetViewMatrix());
 	shadingProgram->SetData("model", glm::mat4(1.0f));
+	Textures["face"]->Bind();
 	Model::Draw();
 }
 
@@ -155,9 +156,9 @@ Face Chunk::AddPosToFace(vec3 pos, Face& face)
 glm::vec3 Chunk::ToWorldPosition(vec3 pos)
 { 
 	auto ret = glm::vec3(
-		round((int)chunkPosition.x * chunkSize + pos.x), 
-		round(pos.y), 
-		round((int)chunkPosition.y * chunkSize + pos.z)
+		World::RoundInt(World::RoundInt(chunkPosition.x) * chunkSize + pos.x),
+		World::RoundInt(pos.y),
+		World::RoundInt(World::RoundInt(chunkPosition.y) * chunkSize + pos.z)
 	);
 	return ret;
 }
@@ -165,9 +166,9 @@ glm::vec3 Chunk::ToWorldPosition(vec3 pos)
 inline glm::vec3 Chunk::ToWorldPosition(vec3 pos, vec2 chunkPos)
 {
 	auto ret = glm::vec3(
-		round((int)chunkPos.x * chunkSize + pos.x), 
-		round(pos.y), 
-		round((int)chunkPos.y * chunkSize + pos.z)
+		World::RoundInt(World::RoundInt(chunkPos.x) * chunkSize + pos.x),
+		World::RoundInt(pos.y),
+		World::RoundInt(World::RoundInt(chunkPos.y) * chunkSize + pos.z)
 	);
 
 	return ret;

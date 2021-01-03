@@ -11,10 +11,11 @@ struct vec3 {
 		this->y = y;
 		this->z = z;
 	}
+
 	vec3(glm::vec3 in) {
-		x = (int)in.x;
-		y = (int)in.y;
-		z = (int)in.z;
+		x = (GLfloat)in.x;
+		y = (GLfloat)in.y;
+		z = (GLfloat)in.z;
 	}
 	bool operator==(const vec3& other) const noexcept
 	{

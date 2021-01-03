@@ -17,7 +17,10 @@ struct Vertex {
 		Position = pos;
 		TexCoords = tex;
 	}
-	Vertex() {};
+	Vertex() {
+		Position = glm::vec3(0);
+		TexCoords = glm::vec2(0);
+	};
 };
 
 class Model

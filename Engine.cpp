@@ -93,7 +93,9 @@ void Engine::renderFrame()
 {
     world->DrawChunks(camera);
 	crossHair.shadingProgram->Use();
+	crossHair.Textures["tex"]->Bind();
 	crossHair.Draw();
+	//text.RenderText("This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
 }
 
 void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
@@ -146,6 +148,7 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	//Load shaders
 	rs->AddShadingProgram("block", "Shaders/block.vert", "Shaders/block.frag");
 	rs->AddShadingProgram("crossHair", "Shaders/crosshair.vert", "Shaders/crosshair.frag");
+	rs->AddShadingProgram("text", "Shaders/text.vert", "Shaders/text.frag");
 
 	//Add blocks
 	//Grass
@@ -161,15 +164,18 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	rs->AddBlock(BlockName::Cobble, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 });
 	rs->GetBlock(BlockName::Cobble)->BindFaces();
 
+	//Text
+	//text.Init();
 
+	//Crosshair
 	crossHair = Model();
 	crossHair.Init();
 	crossHair.SetShadingProgram(rs->GetShadingProgram("crossHair"));
 	crossHair.AddTexture("tex", rs->GetTexture("Textures/crosshair.png"));
 	crossHair.shadingProgram->Use();
-	crossHair.Textures["tex"]->Init();
+	crossHair.Textures["tex"]->Init(3);
+	crossHair.Textures["tex"]->Bind();
 	crossHair.shadingProgram->SetData("texture1", crossHair.Textures["tex"]->GetId());
-	crossHair.Textures["tex"]->Bind(GL_TEXTURE2);
 	GLuint ind[6] = { 1, 2, 3, // right bottom -> left bottom -> left top 
 				  0, 1, 3 }; // right top -> right bottom -> left top};
 	crossHair.AddIndices(ind, 6);
@@ -178,8 +184,7 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	crossHair.AddVertex(Vertex(glm::vec3(-0.02, -0.03, 0), glm::vec2(0.0f, 0.0f)));//left bottom
 	crossHair.AddVertex(Vertex(glm::vec3(-0.02, 0.03, 0), glm::vec2(0.0f, 1.0f)));//left top
 	crossHair.BindData();
-
-
+	//Crosshair
 
 	world = World::GetInstance();
 	world->SetChunkSize(4);
