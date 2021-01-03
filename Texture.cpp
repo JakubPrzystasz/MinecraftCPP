@@ -1,9 +1,10 @@
 #include "Texture.h"
 
 
-Texture::Texture(std::string fileNamePath)
+Texture::Texture(std::string fileNamePath,GLuint index)
 {
 	this->fileNamePath = fileNamePath;
+	Init(index);
 }
 
 Texture::~Texture()
@@ -24,6 +25,11 @@ void Texture::Unbind(GLuint target)
 	glBindTexture(target, 0);
 }
 
+void Texture::Unbind()
+{
+	glBindTexture(target, 0);
+}
+
 unsigned int Texture::GetId()
 {
 	return id;
@@ -36,8 +42,8 @@ void Texture::Init(GLuint index)
 
 	this->index = GL_TEXTURE0 + index;
 	glGenTextures(1, &id);
-	glActiveTexture(this->index);
-	glBindTexture(target, id);
+	
+	Bind();
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
@@ -50,7 +56,7 @@ void Texture::Init(GLuint index)
 	if (LoadResource() == 0) {
 		if(colorChannels == 3)
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		if(colorChannels == 4)
+		else
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(target);
 	}
@@ -60,5 +66,7 @@ void Texture::Init(GLuint index)
 	}
 
 	FreeResource();
+
+	Unbind();
 
 }

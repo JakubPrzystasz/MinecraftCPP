@@ -13,7 +13,7 @@ void ResourceManager::LoadTexture(std::string TextureName)
     ResourceManager* RS = ResourceManager::GetInstance();
     if (RS->Textures.count(TextureName) > 0)
         return;
-    Texture *texture = new Texture(TextureName);
+    Texture *texture = new Texture(TextureName,Textures.size()+1);
     RS->Textures.insert(std::pair<std::string,Texture*>(TextureName,texture));
 }
 
@@ -93,9 +93,7 @@ void ResourceManager::AddBlock(BlockName blockName, FaceTexture front, FaceTextu
     RS->Blocks[blockName]->SetShadingProgram(RS->GetShadingProgram("block"));
     RS->Blocks[blockName]->AddTexture("face", RS->GetTexture("Textures/terrain.png"));
     RS->Blocks[blockName]->shadingProgram->Use();
-    RS->Blocks[blockName]->Textures["face"]->Init(1);
-    RS->Blocks[blockName]->shadingProgram->SetData("texture1", RS->Blocks[blockName]->Textures["face"]->GetId());
-    RS->Blocks[blockName]->Textures["face"]->Bind();
+    RS->Blocks[blockName]->shadingProgram->SetData("blockTexture", RS->Blocks[blockName]->Textures["face"]->GetId());
     RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Faces[FaceName::Front], front);
     RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Faces[FaceName::Back], back);
     RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Faces[FaceName::Top], top);

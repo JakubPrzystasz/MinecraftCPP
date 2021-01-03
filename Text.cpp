@@ -93,7 +93,7 @@ void Text::RenderText(std::string text, float x, float y, float scale, glm::vec3
 {
 	shadingProgram->Use();
 	shadingProgram->SetData("textColor", color.x, color.y, color.z);
-	glActiveTexture(GL_TEXTURE0+3);
+	glActiveTexture(GL_TEXTURE0+7);
 	glBindVertexArray(VAO);
 
 	// iterate through all characters

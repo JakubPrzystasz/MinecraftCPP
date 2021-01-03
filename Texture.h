@@ -42,13 +42,16 @@ private:
 	GLuint filterMag = GL_NEAREST;
 
 	GLenum index = GL_TEXTURE0;
+
+	//Initialize texture
+	void Init(GLuint index);
 	
 public:
 	/// <summary>
 	/// Constructor for Texture class, file name is required
 	/// </summary>
 	/// <param name="fileNamePath">Texture file name path</param>
-	Texture(std::string fileNamePath);
+	Texture(std::string fileNamePath, GLuint index);
 
 	/// <summary>
 	/// Destructor for Texture class
@@ -66,15 +69,13 @@ public:
 	/// </summary>
 	/// <param name="target">Texture target eg. GL_TEXTURE_2D</param>
 	static void Unbind(GLuint target);
+	
+	void Unbind();
 
 	/// <summary>
 	/// Returns ID of Texure for GLcontext
 	/// </summary>
 	/// <returns>Uniqure id of texture</returns>
 	GLuint GetId();
-
-
-	//Initialize texture
-	void Init(GLuint index);
 };
 

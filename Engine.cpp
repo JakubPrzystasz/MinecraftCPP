@@ -95,7 +95,11 @@ void Engine::renderFrame()
 	crossHair.shadingProgram->Use();
 	crossHair.Textures["tex"]->Bind();
 	crossHair.Draw();
-	//text.RenderText("This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+	crossHair.Textures["tex"]->Unbind();
+	rs->GetBlock(BlockName::Cobble)->shadingProgram->Use();
+	rs->GetBlock(BlockName::Cobble)->Textures["face"]->Bind();
+	rs->GetBlock(BlockName::Cobble)->Draw();
+	text.RenderText("This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
 }
 
 void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
@@ -135,7 +139,6 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 		return;
 	}
 
-	glEnable(GL_BLEND);
 	///Window resize callback
 	glfwSetWindowSizeCallback(window, windowSizeCallback);
 
@@ -163,19 +166,19 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	//Cobble
 	rs->AddBlock(BlockName::Cobble, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 });
 	rs->GetBlock(BlockName::Cobble)->BindFaces();
+	rs->GetBlock(BlockName::Cobble)->BindData();
 
 	//Text
-	//text.Init();
+	text.Init();
 
 	//Crosshair
+	glEnable(GL_BLEND);
 	crossHair = Model();
 	crossHair.Init();
 	crossHair.SetShadingProgram(rs->GetShadingProgram("crossHair"));
-	crossHair.AddTexture("tex", rs->GetTexture("Textures/crosshair.png"));
+	crossHair.AddTexture("tex", rs->GetTexture("Textures/crossHair.png"));
 	crossHair.shadingProgram->Use();
-	crossHair.Textures["tex"]->Init(3);
-	crossHair.Textures["tex"]->Bind();
-	crossHair.shadingProgram->SetData("texture1", crossHair.Textures["tex"]->GetId());
+	crossHair.shadingProgram->SetData("corssHairTexture", crossHair.Textures["tex"]->GetId());
 	GLuint ind[6] = { 1, 2, 3, // right bottom -> left bottom -> left top 
 				  0, 1, 3 }; // right top -> right bottom -> left top};
 	crossHair.AddIndices(ind, 6);

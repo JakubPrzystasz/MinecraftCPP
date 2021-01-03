@@ -157,14 +157,14 @@ vec3 World::ToChunkPosition(glm::vec3 worldPos)
 		worldPos.x -= 1;
 	if (worldPos.z < 0)
 		worldPos.z -= 1;
-	return vec3(RoundInt((int)worldPos.x % chunkSize), \
-		RoundInt((int)worldPos.y), \
-		RoundInt((int)worldPos.z % chunkSize));
+	return vec3(RoundInt(static_cast<int>(worldPos.x) % chunkSize), \
+		RoundInt(static_cast<int>(worldPos.y)), \
+		RoundInt(static_cast<int>(worldPos.z) % chunkSize));
 }
 
 vec3 World::ToChunkPosition(vec3 worldPos)
 {
-	return vec3(RoundInt((int)worldPos.x % chunkSize), \
-		RoundInt((int)worldPos.y), \
-		RoundInt((int)worldPos.z % chunkSize));
+	return vec3(RoundInt(static_cast<int>(worldPos.x) % chunkSize), \
+		RoundInt(static_cast<int>(worldPos.y)), \
+		RoundInt(static_cast<int>(worldPos.z) % chunkSize));
 }

@@ -7,9 +7,8 @@ void Chunk::Init()
 	SetShadingProgram(RS->GetShadingProgram("block"));
 	AddTexture("face", RS->GetTexture("Textures/terrain.png"));
 	shadingProgram->Use();
-	Textures["face"]->Init(0);
 	Textures["face"]->Bind();
-	shadingProgram->SetData("texture1", Textures["face"]->GetId());
+	shadingProgram->SetData("blockTexture", Textures["face"]->GetId());
 	world = World::GetInstance();
 }
 
@@ -44,6 +43,7 @@ void Chunk::Draw(Camera& camera)
 	shadingProgram->SetData("model", glm::mat4(1.0f));
 	Textures["face"]->Bind();
 	Model::Draw();
+	Textures["face"]->Unbind();
 }
 
 bool Chunk::FindAdjacent(vec3 position) const {
