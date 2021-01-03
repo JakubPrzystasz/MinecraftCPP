@@ -36,10 +36,10 @@ public:
 	void PutBlock(BlockName blockName, unsigned int x, unsigned int y, unsigned int z);
 	void PutBlock(BlockName blockName, glm::vec3 pos);
 	void PutBlock(BlockName blockName, vec3 pos);
+
+	inline BlockName GetBlock(vec3 position);
 	
 	void Draw(Camera &camera);
-
-	bool FindAdjacent(vec3 position) const;
 
 	void ChunkUpdate();
 

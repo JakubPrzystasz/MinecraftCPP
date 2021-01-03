@@ -58,12 +58,12 @@ void World::GenerateChunk(vec2 chunkPos)
 		for (int z = 0; z < chunkSize; z++) {
 			grassHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 2048)) / 16.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 2048)) / 16.f, 0, 0, 0, seed) * (-8) + 16;
 			dirtHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 2048)) / 16.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 2048)) / 16.f, 0, 0, 0, seed) * (-2) + 10;
-			/*if (x == 0 && z == 0)
+			if (x == 0 && z == 0)
 			{
-				for (int y = 0; y < 100; y++)
-					tmp->PutBlock(BlockName::Stone, x, y, z);
+				for (int y = 0; y < 30; y++)
+					tmp->PutBlock(BlockName::Cobble, x, y, z);
 				continue;
-			}*/
+			}
 			for (int y = 0; y < grassHeight; y++) {
 				if (y < dirtHeight) {
 					tmp->PutBlock(BlockName::Stone, x, y, z);

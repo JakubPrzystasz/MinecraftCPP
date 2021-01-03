@@ -93,7 +93,6 @@ void Engine::renderFrame()
 {
     world->DrawChunks(camera);
 	crossHair.Draw();
-	rs->GetBlock(BlockName::Cobble)->Draw();
 	text.RenderText("This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
 }
 
@@ -159,9 +158,8 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	rs->AddBlock(BlockName::Stone, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 });
 	rs->GetBlock(BlockName::Stone)->BindFaces();
 	//Cobble
-	rs->AddBlock(BlockName::Cobble, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 });
+	rs->AddBlock(BlockName::Cobble, { 0,2 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 1,10 });
 	rs->GetBlock(BlockName::Cobble)->BindFaces();
-	rs->GetBlock(BlockName::Cobble)->BindData();
 
 	//Text
 	text.Init();
