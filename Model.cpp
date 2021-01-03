@@ -138,6 +138,10 @@ void Model::Init()
 
 void Model::Draw()
 {
+	shadingProgram->Use();
+	for (auto& texture : Textures) {
+		texture.second->Bind();
+	}
 	if (vertices.size() < 1 || VBO == 0) {
 		std::cout << "ERROR:MODEL::NO DATA " << std::endl;
 		return;
@@ -145,4 +149,7 @@ void Model::Draw()
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
 	glBindVertexArray(0);
+	for (auto& texture : Textures) {
+		texture.second->Unbind();
+	}
 }

@@ -92,12 +92,7 @@ void Engine::updateWindow()
 void Engine::renderFrame()
 {
     world->DrawChunks(camera);
-	crossHair.shadingProgram->Use();
-	crossHair.Textures["tex"]->Bind();
 	crossHair.Draw();
-	crossHair.Textures["tex"]->Unbind();
-	rs->GetBlock(BlockName::Cobble)->shadingProgram->Use();
-	rs->GetBlock(BlockName::Cobble)->Textures["face"]->Bind();
 	rs->GetBlock(BlockName::Cobble)->Draw();
 	text.RenderText("This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
 }
@@ -176,8 +171,8 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	crossHair = Model();
 	crossHair.Init();
 	crossHair.SetShadingProgram(rs->GetShadingProgram("crossHair"));
-	crossHair.AddTexture("tex", rs->GetTexture("Textures/crossHair.png"));
 	crossHair.shadingProgram->Use();
+	crossHair.AddTexture("tex", rs->GetTexture("Textures/crossHair.png"));
 	crossHair.shadingProgram->SetData("corssHairTexture", crossHair.Textures["tex"]->GetId());
 	GLuint ind[6] = { 1, 2, 3, // right bottom -> left bottom -> left top 
 				  0, 1, 3 }; // right top -> right bottom -> left top};

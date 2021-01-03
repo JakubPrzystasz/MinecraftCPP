@@ -41,9 +41,8 @@ void Chunk::Draw(Camera& camera)
 	shadingProgram->SetData("projection", camera.Projection);
 	shadingProgram->SetData("view", camera.GetViewMatrix());
 	shadingProgram->SetData("model", glm::mat4(1.0f));
-	Textures["face"]->Bind();
 	Model::Draw();
-	Textures["face"]->Unbind();
+
 }
 
 bool Chunk::FindAdjacent(vec3 position) const {
