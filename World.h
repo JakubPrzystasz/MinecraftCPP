@@ -1,13 +1,17 @@
 #pragma once
 #include "ResourceManager.h"
 #include "Chunk.h"
+#include "Model.h"
+#include "Cube.h"
 #include "stb_perlin.h"
 #include <unordered_map>
 #include <thread>
 #include <mutex>
 #include <chrono>
+#include <functional>
 
 class Chunk;
+class Model;
 
 class World
 {
@@ -29,10 +33,14 @@ private:
 
 	inline static int RoundInt(GLuint x);
 
+	static std::vector<std::thread> Threads;
+	static std::vector<std::pair<std::function<void(vec2)>, vec2>> Jobs;
+	static std::mutex Mutex;
+	static std::atomic<bool> Run;
+	static void RunThreads();
+
 public:
 	
-
-
 	/// <summary>
 	/// Do not allow to copy an object
 	/// </summary>
@@ -58,16 +66,16 @@ public:
 
 	static void SetBlock(glm::vec3 pos, BlockName block);
 
-	static Chunk* GenerateChunk(vec2 chunkPos);
+	static Chunk* GenerateChunk(vec2 chunkPos,Model *model);
 	//Takes in chunk coords as parameter
 	static BlockName GetBlock(Chunk* chunk,vec3 pos);
 	//Takes world coords as parameter
 	static BlockName GetBlock(glm::vec3 pos);
 	static BlockName GetBlock(vec3 pos);
 
-	static void RequestChunkUpdate(vec2 chunkPos);
+	static void UpdateMesh(vec2 ChunkPoition);
 
-	static void RequestChunkGen(vec2 chunkPos);
+	static void RequestChunkGenerate(vec2 chunkPos);
 
 	static void SetRenderedChunks(vec2 centerChunkPos);
 

@@ -107,7 +107,8 @@ void Model::AddVertices(Vertex* vert,GLuint length)
 
 void Model::BindData()
 {
-
+	if (vertices.size() == 0)
+		return;
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 

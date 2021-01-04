@@ -52,13 +52,6 @@ void Engine::updateWindow()
 		}
 	}
 
-	auto chunkPos = world->GetChunkPosition(camera.Position);
-	auto __tmp__ = world->GetChunk(chunkPos);
-	if (__tmp__ == nullptr)
-		return;
-	auto __x__ = World::ToChunkPosition(camera.Position);
-	auto __y__ = __tmp__->ToWorldPosition(__x__);
-
 	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
 	{
 		world->SetBlock(camera.Position, BlockName::Cobble);
@@ -69,10 +62,18 @@ void Engine::updateWindow()
 		world->SetBlock(camera.Position, BlockName::Air);
 	}
 
+	auto chunkPos = world->GetChunkPosition(camera.Position);
 	if (chunkPos - posDelta != vec2(0, 0)) {
 		posDelta = chunkPos;
 		world->SetRenderedChunks(chunkPos);
 	}
+
+
+	auto __tmp__ = world->GetChunk(chunkPos);
+	if (__tmp__ == nullptr)
+		return;
+	auto __x__ = World::ToChunkPosition(camera.Position);
+	auto __y__ = __tmp__->ToWorldPosition(__x__);
 
 	if (timer.printDebug()) {
 		system("cls");
@@ -94,7 +95,7 @@ void Engine::updateWindow()
 void Engine::renderFrame()
 {
 	world->DrawChunks(camera);
-	crossHair.Draw();
+	//crossHair.Draw();
 	//text.RenderText("This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
 }
 

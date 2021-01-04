@@ -1,10 +1,19 @@
 #include "World.h"
 
-World* World::instance = nullptr;
-GLuint World::chunkSize = 16;
 GLuint World::renderDistance = 4;
+
+World* World::instance = nullptr;
+
+GLuint World::chunkSize = 16;
+
 std::unordered_map<vec2, Chunk*> World::Chunks;
+
 std::vector<Chunk*> World::RenderedChunks;
+
+std::vector<std::thread> World::Threads;
+std::vector<std::pair<std::function<void(vec2)>, vec2>> World::Jobs;
+std::mutex World::Mutex;
+std::atomic<bool> World::Run = true;
 
 
 int World::RoundInt(GLfloat x) {
@@ -30,13 +39,17 @@ void World::SetChunkSize(GLuint chunkSize)
 void World::DrawChunks(Camera& camera)
 {
 	for (auto& chunk : RenderedChunks) {
-		if(chunk != nullptr)
-			chunk->Draw(camera);
+		chunk->model->BindData();
+		chunk->model->shadingProgram->Use();
+		chunk->model->shadingProgram->SetData("projection", camera.Projection);
+		chunk->model->shadingProgram->SetData("view", camera.GetViewMatrix());
+		chunk->model->shadingProgram->SetData("model", glm::mat4(1.0f));
+		chunk->model->Draw();
 	}
 }
 
 void World::SetBlock(glm::vec3 pos, BlockName _block)
- {
+{
 	auto chunk = GetChunk(GetChunkPosition(pos));
 	if (chunk == nullptr)
 		return;
@@ -44,30 +57,30 @@ void World::SetBlock(glm::vec3 pos, BlockName _block)
 	auto block = chunk->blocks.find(blockInChunkPos);
 	if (block != chunk->blocks.end() && _block == BlockName::Air) {
 		chunk->blocks.erase(block);
-	} else {
+	}
+	else {
 		chunk->PutBlock(_block, ToChunkPosition(pos));
 	}
 
-	RequestChunkUpdate(chunk->chunkPosition);
+	chunk->updateChunk = true;
+
+	UpdateMesh(chunk->chunkPosition);
 	if (blockInChunkPos.x == 0)
-		RequestChunkUpdate(chunk->chunkPosition + vec2(-1, 0));
-	
-	if (blockInChunkPos.x == chunkSize-1)
-		RequestChunkUpdate(chunk->chunkPosition + vec2(1, 0));
+		UpdateMesh(chunk->chunkPosition + vec2(-1, 0));
+
+	if (blockInChunkPos.x == chunkSize - 1)
+		UpdateMesh(chunk->chunkPosition + vec2(1, 0));
 
 	if (blockInChunkPos.z == 0)
-		RequestChunkUpdate(chunk->chunkPosition + vec2(0, -1));
+		UpdateMesh(chunk->chunkPosition + vec2(0, -1));
 
 	if (blockInChunkPos.z == chunkSize - 1)
-		RequestChunkUpdate(chunk->chunkPosition + vec2(0, 1));
+		UpdateMesh(chunk->chunkPosition + vec2(0, 1));
 }
 
-Chunk* World::GenerateChunk(vec2 chunkPos)
+Chunk* World::GenerateChunk(vec2 chunkPos,Model* newModel)
 {
-	Chunk* tmp = new Chunk();
-	tmp->Init();
-	tmp->chunkPosition = chunkPos;
-	tmp->chunkSize = chunkSize;
+	Chunk* newChunk = new Chunk(chunkPos,newModel);
 
 	float grassHeight;
 	float dirtHeight;
@@ -80,22 +93,23 @@ Chunk* World::GenerateChunk(vec2 chunkPos)
 			dirtHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 2048)) / 16.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 2048)) / 16.f, 0, 0, 0, seed) * (-2) + 10;
 			for (int y = 0; y < grassHeight; y++) {
 				if (y < dirtHeight) {
-					tmp->PutBlock(BlockName::Stone, x, y, z);
+					newChunk->PutBlock(BlockName::Stone, x, y, z);
 					continue;
 				}
 				if (y + 1 < grassHeight) {
-					tmp->PutBlock(BlockName::Dirt, x, y, z);
+					newChunk->PutBlock(BlockName::Dirt, x, y, z);
 					continue;
 				}
-				tmp->PutBlock(BlockName::Grass, x, y, z);
+				newChunk->PutBlock(BlockName::Grass, x, y, z);
 			}
 
 		}
 
 	}
 
-	Chunks.emplace(chunkPos, tmp);
-	return tmp;
+	newChunk->updateChunk = true;
+	Chunks.emplace(chunkPos, newChunk);
+	return newChunk;
 }
 
 BlockName World::GetBlock(Chunk* chunk, vec3 pos)
@@ -127,31 +141,46 @@ BlockName World::GetBlock(vec3 pos)
 	return GetBlock(chunk, _pos);
 }
 
-void World::RequestChunkUpdate(vec2 chunkPos)
+void World::UpdateMesh(vec2 ChunkPosition)
 {
-	GetChunk(chunkPos)->ChunkUpdate();
+	Chunk* chunk = GetChunk(ChunkPosition);
+	if(chunk != nullptr)
+		chunk->BuildMesh();
 }
 
-void World::RequestChunkGen(vec2 chunkPos)
+void World::RequestChunkGenerate(vec2 chunkPos)
 {
-	GenerateChunk(chunkPos);
+	auto RS = ResourceManager::GetInstance();
+	Model* newModel = new Model();
+	newModel->Init();
+	newModel->SetShadingProgram(RS->GetShadingProgram("block"));
+	newModel->AddTexture("face", RS->GetTexture("Textures/terrain.png"));
+	newModel->shadingProgram->Use();
+	newModel->Textures["face"]->Bind();
+	newModel->shadingProgram->SetData("blockTexture", newModel->Textures["face"]->GetId());
+
+	GenerateChunk(chunkPos,newModel);
 }
 
 void World::SetRenderedChunks(vec2 centerChunkPos)
 {
 	RenderedChunks.clear();
-
-	vec2 tmp; 
+	vec2 tmp;
 	Chunk* chunk;
-	int distx = renderDistance;
-	distx *= -1;
-	int disty = renderDistance;
-	for (int y = distx; y <= disty; y++) {
-		for (int x = distx; x <= disty; x++) {
+	int _renderDistance = renderDistance;
+	for (int y = -8; y <= 8; y++) {
+		for (int x = -8; x <= 8; x++) {
 			tmp = centerChunkPos + vec2(x, y);
 			chunk = GetChunk(tmp);
-			RenderedChunks.push_back(chunk);
+			if (chunk != nullptr) 
+				RenderedChunks.push_back(chunk);
+			else
+				RequestChunkGenerate(tmp);
 		}
+	}
+	for (auto& chunk : RenderedChunks) {
+		chunk->updateChunk = true;
+		chunk->BuildMesh();
 	}
 }
 
@@ -160,8 +189,6 @@ Chunk* World::GetChunk(vec2 chunkPos)
 	auto tmp = Chunks.find(chunkPos);
 	if (tmp != Chunks.end())
 		return tmp->second;
-
-	RequestChunkGen(chunkPos);
 	return nullptr;
 }
 
