@@ -5,7 +5,7 @@
 
 struct vec3 {
 	GLfloat x, y, z;
-	
+
 	vec3() { x = 0; y = 0; z = 0; }
 
 	vec3(GLfloat x, GLfloat y, GLfloat z) {
@@ -25,8 +25,6 @@ struct vec3 {
 		this->y = static_cast<GLfloat>(y);
 		this->z = static_cast<GLfloat>(z);
 	}
-
-
 
 	vec3(glm::vec3 in) {
 		x = static_cast<GLfloat>(in.x);
@@ -95,7 +93,7 @@ struct vec2 {
 		return vec2(this->x + other.x, this->y + other.y);
 	}
 
-	vec2 operator-(const vec2 & other)const noexcept {
+	vec2 operator-(const vec2& other)const noexcept {
 		return vec2(this->x - other.x, this->y - other.y);
 	}
 
@@ -117,5 +115,3 @@ namespace std {
 		}
 	};
 }
-
-
