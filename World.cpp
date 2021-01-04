@@ -59,11 +59,14 @@ void World::SetBlock(glm::vec3 pos, BlockName _block)
 		return;
 	auto blockInChunkPos = ToChunkPosition(pos);
 	auto block = chunk->blocks.find(blockInChunkPos);
-	if (block != chunk->blocks.end() && _block == BlockName::Air) {
+	if ((block != chunk->blocks.end()) && _block == BlockName::Air) {
 		chunk->blocks.erase(block);
 	}
-	else {
+	else if (_block != BlockName::Air){
 		chunk->PutBlock(_block, ToChunkPosition(pos));
+	}
+	else {
+		return;
 	}
 
 	chunk->updateChunk = true;
@@ -278,10 +281,10 @@ void World::RunThreadsGen() {
 			GenJobs.pop_back();
 			GenMutex.unlock();
 			GenerateChunk(tmp.first, tmp.second)->BuildMesh();
-			/*UpdateMesh(tmp.first + vec2(1, 0));
+			UpdateMesh(tmp.first + vec2(1, 0));
 			UpdateMesh(tmp.first + vec2(-1, 0));
 			UpdateMesh(tmp.first + vec2(0, 1));
-			UpdateMesh(tmp.first + vec2(0, -1));*/
+			UpdateMesh(tmp.first + vec2(0, -1));
 			continue;
 		}
 		GenMutex.unlock();

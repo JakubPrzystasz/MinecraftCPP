@@ -63,10 +63,7 @@ void Engine::updateWindow()
 	}
 
 	auto chunkPos = world->GetChunkPosition(camera.Position);
-	if (chunkPos - posDelta != vec2(0, 0)) {
-		posDelta = chunkPos;
-		world->SetRenderedChunks(chunkPos);
-	}
+	world->SetRenderedChunks(chunkPos);
 
 
 	auto __tmp__ = world->GetChunk(chunkPos);
