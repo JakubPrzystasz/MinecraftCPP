@@ -1,6 +1,6 @@
 #include "World.h"
 
-GLuint World::renderDistance = 4;
+GLuint World::renderDistance = 2;
 
 World* World::instance = nullptr;
 
@@ -11,8 +11,10 @@ std::unordered_map<vec2, Chunk*> World::Chunks;
 std::vector<Chunk*> World::RenderedChunks;
 
 std::vector<std::thread> World::Threads;
-std::vector<std::pair<std::function<void(vec2)>, vec2>> World::Jobs;
-std::mutex World::Mutex;
+std::vector<std::pair<vec2, Model*>> World::GenJobs;
+std::vector<Chunk*> World::BuildJobs;
+std::mutex World::GenMutex;
+std::mutex World::BuildMutex;
 std::atomic<bool> World::Run = true;
 
 
@@ -38,7 +40,8 @@ void World::SetChunkSize(GLuint chunkSize)
 
 void World::DrawChunks(Camera& camera)
 {
-	for (auto& chunk : RenderedChunks) {
+	BuildMutex.lock();
+	for (auto* chunk : RenderedChunks) {
 		chunk->model->BindData();
 		chunk->model->shadingProgram->Use();
 		chunk->model->shadingProgram->SetData("projection", camera.Projection);
@@ -46,6 +49,7 @@ void World::DrawChunks(Camera& camera)
 		chunk->model->shadingProgram->SetData("model", glm::mat4(1.0f));
 		chunk->model->Draw();
 	}
+	BuildMutex.unlock();
 }
 
 void World::SetBlock(glm::vec3 pos, BlockName _block)
@@ -64,7 +68,7 @@ void World::SetBlock(glm::vec3 pos, BlockName _block)
 
 	chunk->updateChunk = true;
 
-	UpdateMesh(chunk->chunkPosition);
+	UpdateMesh(chunk);
 	if (blockInChunkPos.x == 0)
 		UpdateMesh(chunk->chunkPosition + vec2(-1, 0));
 
@@ -78,9 +82,9 @@ void World::SetBlock(glm::vec3 pos, BlockName _block)
 		UpdateMesh(chunk->chunkPosition + vec2(0, 1));
 }
 
-Chunk* World::GenerateChunk(vec2 chunkPos,Model* newModel)
+Chunk* World::GenerateChunk(vec2 chunkPos, Model* model)
 {
-	Chunk* newChunk = new Chunk(chunkPos,newModel);
+	Chunk* newChunk = new Chunk(chunkPos,model);
 
 	float grassHeight;
 	float dirtHeight;
@@ -108,7 +112,9 @@ Chunk* World::GenerateChunk(vec2 chunkPos,Model* newModel)
 	}
 
 	newChunk->updateChunk = true;
+	GenMutex.lock();
 	Chunks.emplace(chunkPos, newChunk);
+	GenMutex.unlock();
 	return newChunk;
 }
 
@@ -143,13 +149,27 @@ BlockName World::GetBlock(vec3 pos)
 
 void World::UpdateMesh(vec2 ChunkPosition)
 {
-	Chunk* chunk = GetChunk(ChunkPosition);
-	if(chunk != nullptr)
-		chunk->BuildMesh();
+ 	Chunk* chunk = GetChunk(ChunkPosition);
+	if (chunk == nullptr)
+		return;
+	BuildMutex.lock();
+	BuildJobs.push_back(chunk);
+	BuildMutex.unlock();
+}
+
+void World::UpdateMesh(Chunk* chunk)
+{
+	if (chunk == nullptr)
+		return;
+	BuildMutex.lock();
+	BuildJobs.push_back(chunk);
+	BuildMutex.unlock();
 }
 
 void World::RequestChunkGenerate(vec2 chunkPos)
 {
+	if (GetChunk(chunkPos) != nullptr)
+		return;
 	auto RS = ResourceManager::GetInstance();
 	Model* newModel = new Model();
 	newModel->Init();
@@ -159,7 +179,9 @@ void World::RequestChunkGenerate(vec2 chunkPos)
 	newModel->Textures["face"]->Bind();
 	newModel->shadingProgram->SetData("blockTexture", newModel->Textures["face"]->GetId());
 
-	GenerateChunk(chunkPos,newModel);
+	GenMutex.lock();
+	GenJobs.push_back(std::make_pair(chunkPos,newModel));
+	GenMutex.unlock();
 }
 
 void World::SetRenderedChunks(vec2 centerChunkPos)
@@ -168,8 +190,8 @@ void World::SetRenderedChunks(vec2 centerChunkPos)
 	vec2 tmp;
 	Chunk* chunk;
 	int _renderDistance = renderDistance;
-	for (int y = -8; y <= 8; y++) {
-		for (int x = -8; x <= 8; x++) {
+	for (int y = -1*_renderDistance; y <= _renderDistance; y++) {
+		for (int x = -1*_renderDistance; x <= _renderDistance; x++) {
 			tmp = centerChunkPos + vec2(x, y);
 			chunk = GetChunk(tmp);
 			if (chunk != nullptr) 
@@ -178,17 +200,20 @@ void World::SetRenderedChunks(vec2 centerChunkPos)
 				RequestChunkGenerate(tmp);
 		}
 	}
-	for (auto& chunk : RenderedChunks) {
-		chunk->updateChunk = true;
-		chunk->BuildMesh();
-	}
+	/*for (auto& chunk : RenderedChunks) {
+		UpdateMesh(chunk);
+	}*/
 }
 
 Chunk* World::GetChunk(vec2 chunkPos)
 {
+	GenMutex.lock();
 	auto tmp = Chunks.find(chunkPos);
-	if (tmp != Chunks.end())
+	if (tmp != Chunks.end()) {
+		GenMutex.unlock();
 		return tmp->second;
+	}
+	GenMutex.unlock();
 	return nullptr;
 }
 
@@ -226,4 +251,57 @@ vec3 World::ToChunkPosition(vec3 worldPos)
 	return vec3(RoundInt(static_cast<int>(worldPos.x) % chunkSize), \
 		RoundInt(worldPos.y), \
 		RoundInt(static_cast<int>(worldPos.z) % chunkSize));
+}
+
+void World::StartThreads()
+{
+	for (int i = 0; i < 1; i++) {
+		Threads.push_back(std::thread(RunThreadsGen));
+	}
+	for (int i = 0; i < 1; i++) {
+		Threads.push_back(std::thread(RunThreadsBuild));
+	}
+}
+
+void World::StopThreads()
+{
+	Run = false;
+	for (auto& thread : Threads)
+		thread.join();
+}
+
+void World::RunThreadsGen() {
+	while (Run) {
+		GenMutex.lock();
+		if (GenJobs.size() > 0) {
+			auto tmp = GenJobs.back();
+			GenJobs.pop_back();
+			GenMutex.unlock();
+			GenerateChunk(tmp.first, tmp.second)->BuildMesh();
+			/*UpdateMesh(tmp.first + vec2(1, 0));
+			UpdateMesh(tmp.first + vec2(-1, 0));
+			UpdateMesh(tmp.first + vec2(0, 1));
+			UpdateMesh(tmp.first + vec2(0, -1));*/
+			continue;
+		}
+		GenMutex.unlock();
+		using namespace std::chrono_literals;
+		std::this_thread::sleep_for(1ms);
+	}
+}
+
+void World::RunThreadsBuild() {
+	while (Run) {
+		BuildMutex.lock();
+		if (BuildJobs.size() > 0) {
+			auto tmp = BuildJobs.back();
+			BuildJobs.pop_back();
+			BuildMutex.unlock();
+			tmp->BuildMesh();
+			continue;
+		}
+		BuildMutex.unlock();
+		using namespace std::chrono_literals;
+		std::this_thread::sleep_for(1ms);
+	}
 }

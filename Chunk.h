@@ -28,16 +28,26 @@ private:
 	GLuint faces;
 
 	Model* model;
+	std::vector<Vertex>* backVertices;
+	std::vector<GLuint>* backIndices;
+
 
 	void BuildMesh();
 public:
 
-	Chunk(vec2 ChunkPos, Model* _Model) {
+	Chunk(vec2 ChunkPos, Model* _model) {
 		chunkPosition = ChunkPos;
-		model = _Model;
+		model = _model;
 		faces = static_cast<GLuint>(0); 
 		blocks = std::unordered_map<vec3, BlockName>();
+		backVertices = new std::vector<Vertex>;
+		backIndices = new std::vector<GLuint>;
 	};
+
+	~Chunk() {
+		delete backIndices;
+		delete backVertices;
+	}
 	
 	void PutBlock(BlockName blockName, vec3 pos);
 	void PutBlock(BlockName blockName, GLuint x, GLuint y, GLuint z);

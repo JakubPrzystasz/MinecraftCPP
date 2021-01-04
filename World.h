@@ -9,6 +9,7 @@
 #include <mutex>
 #include <chrono>
 #include <functional>
+#include <memory>
 
 class Chunk;
 class Model;
@@ -34,10 +35,13 @@ private:
 	inline static int RoundInt(GLuint x);
 
 	static std::vector<std::thread> Threads;
-	static std::vector<std::pair<std::function<void(vec2)>, vec2>> Jobs;
-	static std::mutex Mutex;
+	static std::vector<std::pair<vec2,Model*>> GenJobs;
+	static std::vector<Chunk*> BuildJobs;
+	static std::mutex GenMutex;
+	static std::mutex BuildMutex;
 	static std::atomic<bool> Run;
-	static void RunThreads();
+	static void RunThreadsGen();
+	static void RunThreadsBuild();
 
 public:
 	
@@ -66,7 +70,7 @@ public:
 
 	static void SetBlock(glm::vec3 pos, BlockName block);
 
-	static Chunk* GenerateChunk(vec2 chunkPos,Model *model);
+	static Chunk* GenerateChunk(vec2 chunkPos, Model* model);
 	//Takes in chunk coords as parameter
 	static BlockName GetBlock(Chunk* chunk,vec3 pos);
 	//Takes world coords as parameter
@@ -74,6 +78,7 @@ public:
 	static BlockName GetBlock(vec3 pos);
 
 	static void UpdateMesh(vec2 ChunkPoition);
+	static void UpdateMesh(Chunk* chunk);
 
 	static void RequestChunkGenerate(vec2 chunkPos);
 
@@ -86,6 +91,9 @@ public:
 
 	inline static vec3 ToChunkPosition(glm::vec3 worldPos);
 	inline static vec3 ToChunkPosition(vec3 worldPos);
+
+	static void StartThreads();
+	static void StopThreads();
 
 	friend Chunk;
 };
