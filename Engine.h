@@ -1,5 +1,4 @@
 #pragma once
-#pragma warning( disable : 4005 )
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <ctime>
@@ -11,8 +10,6 @@
 #include "Time.h"
 #include "Camera.h"
 #include "World.h"
-#include <thread>
-#include <mutex>
 
 class Engine
 {

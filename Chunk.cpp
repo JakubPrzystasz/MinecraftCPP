@@ -94,7 +94,7 @@ void Chunk::ChunkUpdate()
 		}
 
 		//FRONT
-		if (chunkBlock.first.z == chunkSize - 1) {
+		if (chunkBlock.first.z == static_cast<GLfloat>(chunkSize - 1)) {
 			auto foreginBlockPos = chunkBlock.first;
 			foreginBlockPos.z = 0;
 			auto foreginChunk = world->GetChunk(chunkPosition + vec2(0, 1));
@@ -119,7 +119,7 @@ void Chunk::ChunkUpdate()
 		//BACK
 		if (chunkBlock.first.z == 0) {
 			auto foreginBlockPos = chunkBlock.first;
-			foreginBlockPos.z = chunkSize - 1;
+			foreginBlockPos.z = static_cast<GLfloat>(chunkSize - 1);
 			auto foreginChunk = world->GetChunk(chunkPosition + vec2(0, -1));
 			if (foreginChunk != nullptr) {
 				auto foreginBlock = foreginChunk->GetBlock(foreginBlockPos);
@@ -141,7 +141,7 @@ void Chunk::ChunkUpdate()
 
 		if (chunkBlock.first.x == 0) {
 			auto foreginBlockPos = chunkBlock.first;
-			foreginBlockPos.x = chunkSize - 1;
+			foreginBlockPos.x = static_cast<GLfloat>(chunkSize - 1);
 			auto foreginChunk = world->GetChunk(chunkPosition + vec2(-1, 0));
 			if (foreginChunk != nullptr) {
 				auto foreginBlock = foreginChunk->GetBlock(foreginBlockPos);
@@ -160,7 +160,7 @@ void Chunk::ChunkUpdate()
 			AddVertices(tmpFace.vertices, 4);
 		}
 
-		if (chunkBlock.first.x == chunkSize - 1) {
+		if (chunkBlock.first.x == static_cast<GLfloat>(chunkSize - 1)) {
 			auto foreginBlockPos = chunkBlock.first;
 			foreginBlockPos.x = 0;
 			auto foreginChunk = world->GetChunk(chunkPosition + vec2(1, 0));
@@ -199,19 +199,19 @@ Face Chunk::AddPosToFace(vec3 pos, Face& face)
 glm::vec3 Chunk::ToWorldPosition(vec3 pos)
 {
 	auto ret = glm::vec3(
-		World::RoundInt(World::RoundInt(chunkPosition.x) * chunkSize + pos.x),
+		World::RoundInt(chunkPosition.x * static_cast<int>(chunkSize) + pos.x),
 		World::RoundInt(pos.y),
-		World::RoundInt(World::RoundInt(chunkPosition.y) * chunkSize + pos.z)
+		World::RoundInt(chunkPosition.y * static_cast<int>(chunkSize) + pos.z)
 	);
 	return ret;
 }
 
-inline glm::vec3 Chunk::ToWorldPosition(vec3 pos, vec2 chunkPos)
+glm::vec3 Chunk::ToWorldPosition(vec3 pos, vec2 chunkPos)
 {
 	auto ret = glm::vec3(
-		World::RoundInt(World::RoundInt(chunkPos.x) * chunkSize + pos.x),
+		World::RoundInt(chunkPos.x * static_cast<int>(chunkSize) + pos.x),
 		World::RoundInt(pos.y),
-		World::RoundInt(World::RoundInt(chunkPos.y) * chunkSize + pos.z)
+		World::RoundInt(chunkPos.y * static_cast<int>(chunkSize) + pos.z)
 	);
 
 	return ret;

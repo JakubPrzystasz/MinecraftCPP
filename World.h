@@ -27,6 +27,8 @@ private:
 
 	inline static int RoundInt(GLfloat x);
 
+	inline static int RoundInt(GLuint x);
+
 public:
 	
 

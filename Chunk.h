@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning( disable : 4506 )
 #include <glm/glm.hpp>
 #include <unordered_map>
 #include "ResourceManager.h"
@@ -13,7 +14,6 @@ class Chunk : public Model
 private:
 	bool updateChunk;
 	void ChunkUpdate();
-
 public:
 	Chunk() {
 		updateChunk = true;
@@ -33,7 +33,7 @@ public:
 
 	vec2 chunkPosition;
 
-	int chunkSize = 16;
+	GLuint chunkSize = 16;
 
 	std::unordered_map<vec3,BlockName> blocks;
 	
