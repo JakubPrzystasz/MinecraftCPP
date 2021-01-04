@@ -84,6 +84,7 @@ void World::GenerateChunk(Chunk* chunk)
 
 	int seed = time(NULL);
 
+<<<<<<< HEAD
 	for (GLuint x = 0; x < chunkSize; x++) {
 		for (GLuint z = 0; z < chunkSize; z++) {
 			grassHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunk->chunkPosition.x + 2048)) / 16.f, 0.f, (float)(z + chunkSize * (chunk->chunkPosition.y + 2048)) / 16.f, 0, 0, 0, seed) * (-8) + 16;
@@ -95,6 +96,19 @@ void World::GenerateChunk(Chunk* chunk)
 			//	continue;
 			//}
 			for (GLuint y = 0; y < grassHeight; y++) {
+=======
+	for (int x = 0; x < chunkSize; x++) {
+		for (int z = 0; z < chunkSize; z++) {
+			grassHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 2048)) / 16.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 2048)) / 16.f, 0, 0, 0, seed) * (-8) + 16;
+			dirtHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 2048)) / 16.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 2048)) / 16.f, 0, 0, 0, seed) * (-2) + 10;
+			/*if (x == 0 && z == 0)
+			{
+				for (int y = 0; y < 100; y++)
+					tmp->PutBlock(BlockName::Stone, x, y, z);
+				continue;
+			}*/
+			for (int y = 0; y < grassHeight; y++) {
+>>>>>>> parent of 439d9a6... Fix chunk mesh generation
 				if (y < dirtHeight) {
 					chunk->PutBlock(BlockName::Stone, x, y, z);
 					continue;
