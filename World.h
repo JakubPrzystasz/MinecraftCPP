@@ -3,15 +3,11 @@
 #include "Chunk.h"
 #include "stb_perlin.h"
 #include <unordered_map>
-#include <chrono>
-#include <atomic>
 #include <thread>
-#include <vector>
 #include <mutex>
-#include <functional>
+#include <chrono>
 
 class Chunk;
-struct vec2;
 
 class World
 {
@@ -30,15 +26,10 @@ private:
 	static std::vector<Chunk*> RenderedChunks;
 
 	inline static int RoundInt(GLfloat x);
-	inline static int RoundInt(GLuint x);
-	inline static int RoundInt(int x);
-
-	static std::vector<std::thread> Threads;
-	static std::mutex Mutex;
-	static std::atomic<bool> Run;
 
 public:
-	static void StopThreads();
+	
+
 
 	/// <summary>
 	/// Do not allow to copy an object
@@ -65,9 +56,7 @@ public:
 
 	static void SetBlock(glm::vec3 pos, BlockName block);
 
-	static void GenerateChunk(Chunk* chunk);
-
-
+	static Chunk* GenerateChunk(vec2 chunkPos);
 	//Takes in chunk coords as parameter
 	static BlockName GetBlock(Chunk* chunk,vec3 pos);
 	//Takes world coords as parameter

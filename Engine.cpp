@@ -74,9 +74,6 @@ void Engine::updateWindow()
 		world->SetRenderedChunks(chunkPos);
 	}
 
-
-
-	/*
 	if (timer.printDebug()) {
 		system("cls");
 		std::cout << "FPS: " << timer.FPS << std::endl <<
@@ -90,7 +87,7 @@ void Engine::updateWindow()
 			" y: " << __y__.y <<
 			" z: " << __y__.z << std::endl <<
 			"Chunk: " << chunkPos.x << " " << chunkPos.y << std::endl;
-	}*/
+	}
 
 }
 
@@ -98,8 +95,7 @@ void Engine::renderFrame()
 {
 	world->DrawChunks(camera);
 	crossHair.Draw();
-	rs->GetBlock(BlockName::Cobble)->Draw();
-	text.RenderText("This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+	//text.RenderText("This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
 }
 
 void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
@@ -165,9 +161,8 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	rs->AddBlock(BlockName::Stone, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 });
 	rs->GetBlock(BlockName::Stone)->BindFaces();
 	//Cobble
-	rs->AddBlock(BlockName::Cobble, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 });
+	rs->AddBlock(BlockName::Cobble, { 0,2 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 1,10 });
 	rs->GetBlock(BlockName::Cobble)->BindFaces();
-	rs->GetBlock(BlockName::Cobble)->BindData();
 
 	//Text
 	text.Init();
@@ -191,7 +186,7 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	//Crosshair
 
 	world = World::GetInstance();
-	world->SetChunkSize(8);
+	world->SetChunkSize(4);
 	world->SetRenderedChunks(vec2(0, 0));
 }
 
@@ -231,7 +226,6 @@ void Engine::WindowLoop()
 			/// </summary>	
 			glfwPollEvents();
 		}
-		world->StopThreads();
 	}
 }
 
