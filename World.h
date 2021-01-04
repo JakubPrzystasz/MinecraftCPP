@@ -3,13 +3,15 @@
 #include "Chunk.h"
 #include "stb_perlin.h"
 #include <unordered_map>
-#include <thread>
-#include <mutex>
 #include <chrono>
+#include <atomic>
+#include <thread>
+#include <vector>
+#include <mutex>
 #include <functional>
-#include <future>
 
 class Chunk;
+struct vec2;
 
 class World
 {
@@ -28,23 +30,12 @@ private:
 	static std::vector<Chunk*> RenderedChunks;
 
 	inline static int RoundInt(GLfloat x);
-
-	static std::vector<std::thread> Threads;
-
-	static std::vector<std::pair<std::function<void(vec2)>, vec2>> Jobs;
-
-	static std::vector<vec2> Data;
+	inline static int RoundInt(GLuint x);
+	inline static int RoundInt(int x);
 
 	static std::mutex Mutex;
 
-	static std::atomic<bool> Run;
-
-	static void RunThreads();
-
 public:
-	
-	static void StartThreads();
-	static void StopThreads();
 
 	/// <summary>
 	/// Do not allow to copy an object
@@ -71,7 +62,8 @@ public:
 
 	static void SetBlock(glm::vec3 pos, BlockName block);
 
-	static void GenerateChunk(vec2 chunkPos);
+	static void GenerateChunk(Chunk* chunk);
+
 
 	//Takes in chunk coords as parameter
 	static BlockName GetBlock(Chunk* chunk,vec3 pos);
@@ -79,6 +71,8 @@ public:
 	static BlockName GetBlock(glm::vec3 pos);
 	static BlockName GetBlock(vec3 pos);
 
+	static void UpdateChunk(Chunk* chunk);
+	
 	static void RequestChunkUpdate(vec2 chunkPos);
 
 	static void RequestChunkGen(vec2 chunkPos);

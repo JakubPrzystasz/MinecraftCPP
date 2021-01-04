@@ -6,15 +6,34 @@ GLuint World::renderDistance = 4;
 std::unordered_map<vec2, Chunk*> World::Chunks;
 std::vector<Chunk*> World::RenderedChunks;
 
-std::vector<vec2> World::Data;
 std::vector<std::thread> World::Threads;
-std::vector<std::pair<std::function<void(vec2)>, vec2>> World::Jobs;
+std::vector<std::pair<std::function<void(Chunk*)>, Chunk*>> World::Jobs;
 std::mutex World::Mutex;
 std::atomic<bool> World::Run = true;
 
 
-int World::RoundInt(GLfloat x) {
-	return static_cast<int>(trunc(x));
+//void World::AddJob(vec2 val, int test) {
+//	Mutex.lock();
+//	std::function<void(vec2)> func;
+//	func = &Test1;
+//	auto tmp = std::make_pair(func, val);
+//	Jobs.push_back(tmp);
+//	Mutex.unlock();
+//}
+
+void World::StopThreads()
+{
+	Run = false;
+
+	for (auto& thread : Threads)
+		thread.join();
+}
+
+void World::StartThreads()
+{
+	for (int i = 0; i < 5; i++) {
+		Threads.push_back(std::thread(RunThreads));
+	}
 }
 
 void World::RunThreads() {
@@ -22,7 +41,6 @@ void World::RunThreads() {
 		Mutex.lock();
 		if (Jobs.size() > 0) {
 			auto tmp = Jobs.back();
-			std::cout << "Generating: " << tmp.second.x << "  " << tmp.second.y << std::endl;
 			Jobs.pop_back();
 			Mutex.unlock();
 			tmp.first(tmp.second);
@@ -34,27 +52,17 @@ void World::RunThreads() {
 	}
 }
 
-void World::StartThreads()
-{
-	for (int i = 0; i < 1; i++) {
-		Threads.push_back(std::thread(RunThreads));
-	}
+int World::RoundInt(GLfloat x) {
+	return static_cast<int>(trunc(x));
 }
 
-void World::StopThreads()
-{
-	Run = false;
-	for (auto& thread : Threads)
-		thread.join();
+int World::RoundInt(GLuint x) {
+	return static_cast<int>(trunc(x));
 }
 
-//void World::AddJob(vec2 val, int test) {
-//	Mutex.lock();
-//	std::function<void(vec2)> func;
-//	auto tmp = std::make_pair(func, val);
-//	Jobs.push_back(tmp);
-//	Mutex.unlock();
-//}
+int World::RoundInt(int x) {
+	return static_cast<int>(trunc(x));
+}
 
 World* World::GetInstance()
 {
@@ -103,48 +111,40 @@ void World::SetBlock(glm::vec3 pos, BlockName _block)
 		RequestChunkUpdate(chunk->chunkPosition + vec2(0, 1));
 }
 
-void World::GenerateChunk(vec2 chunkPos)
+void World::GenerateChunk(Chunk* chunk)
 {
-	if (GetChunk(chunkPos) == nullptr) {
-		return;
-	}
-	Chunk* tmp = new Chunk();
-	tmp->Init();
-	tmp->chunkPosition = chunkPos;
-	tmp->chunkSize = chunkSize;
-
 	float grassHeight;
 	float dirtHeight;
 
 	int seed = time(NULL);
 
-	for (int x = 0; x < chunkSize; x++) {
-		for (int z = 0; z < chunkSize; z++) {
-			grassHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 2048)) / 16.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 2048)) / 16.f, 0, 0, 0, seed) * (-8) + 16;
-			dirtHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 2048)) / 16.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 2048)) / 16.f, 0, 0, 0, seed) * (-2) + 10;
+	for (GLuint x = 0; x < chunkSize; x++) {
+		for (GLuint z = 0; z < chunkSize; z++) {
+			grassHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunk->chunkPosition.x + 2048)) / 16.f, 0.f, (float)(z + chunkSize * (chunk->chunkPosition.y + 2048)) / 16.f, 0, 0, 0, seed) * (-8) + 16;
+			dirtHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunk->chunkPosition.x + 2048)) / 16.f, 0.f, (float)(z + chunkSize * (chunk->chunkPosition.y + 2048)) / 16.f, 0, 0, 0, seed) * (-2) + 10;
 			//if (x == 0 && z == 0)
 			//{
 			//	for (int y = 0; y < 30; y++)
 			//		tmp->PutBlock(BlockName::Cobble, x, y, z);
 			//	continue;
 			//}
-			for (int y = 0; y < grassHeight; y++) {
+			for (GLuint y = 0; y < grassHeight; y++) {
 				if (y < dirtHeight) {
-					tmp->PutBlock(BlockName::Stone, x, y, z);
+					chunk->PutBlock(BlockName::Stone, x, y, z);
 					continue;
 				}
 				if (y + 1 < grassHeight) {
-					tmp->PutBlock(BlockName::Dirt, x, y, z);
+					chunk->PutBlock(BlockName::Dirt, x, y, z);
 					continue;
 				}
-				tmp->PutBlock(BlockName::Grass, x, y, z);
+				chunk->PutBlock(BlockName::Grass, x, y, z);
 			}
 
 		}
 
 	}
 	Mutex.lock();
-	Chunks.emplace(chunkPos, std::move(tmp));
+	Chunks.emplace(chunk->chunkPosition, chunk);
 	Mutex.unlock();
 }
 
@@ -177,36 +177,42 @@ BlockName World::GetBlock(vec3 pos)
 	return GetBlock(chunk, _pos);
 }
 
+void World::UpdateChunk(Chunk* chunk) {
+	chunk->ChunkUpdate();
+}
+
 void World::RequestChunkUpdate(vec2 chunkPos)
 {
-	//GetChunk(chunkPos)->ChunkUpdate();
+	std::function<void(Chunk*)> func;
+	func = &UpdateChunk;
+	auto CHUNK = GetChunk(chunkPos);
+	auto tmp = std::make_pair(func, CHUNK);
+	Mutex.lock();
+	Jobs.push_back(tmp);
+	Mutex.unlock();
 }
 
 void World::RequestChunkGen(vec2 chunkPos)
 {
-	if (GetChunk(chunkPos) != nullptr)
-		return;
-	std::function<void(vec2)> func;
-	func = &GenerateChunk;
-	auto tmp = std::make_pair(func, chunkPos);
-	Mutex.lock();
-	if (Jobs.size() > 16) {
-		Mutex.unlock();
-		return;
-	}
-	Jobs.push_back(tmp);
-	Mutex.unlock();
+	Chunk* CHUNK = new Chunk();
+	CHUNK->Init();
+	CHUNK->chunkPosition = chunkPos;
+	CHUNK->chunkSize = chunkSize;
+	std::thread t
 }
 
 void World::SetRenderedChunks(vec2 centerChunkPos)
 {
 	RenderedChunks.clear();
+
 	vec2 tmp;
 	Chunk* chunk;
-	for (int y = -8; y < 9; y++) {
-		for (int x = -8; x < 9; x++) {
+	for (int y = -1; y < 2; y++) {
+		for (int x = -1; x < 2; x++) {
 			tmp = centerChunkPos + vec2(x, y);
 			chunk = GetChunk(tmp);
+			if (chunk == nullptr)
+				RequestChunkGen(tmp);
 			RenderedChunks.push_back(chunk);
 		}
 	}
@@ -220,8 +226,8 @@ Chunk* World::GetChunk(vec2 chunkPos)
 		Mutex.unlock();
 		return tmp->second;
 	}
-	Mutex.unlock();
-	RequestChunkGen(chunkPos);
+	else
+		Mutex.unlock();
 	return nullptr;
 }
 

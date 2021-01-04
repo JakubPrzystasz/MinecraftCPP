@@ -74,6 +74,9 @@ void Engine::updateWindow()
 		world->SetRenderedChunks(chunkPos);
 	}
 
+
+
+	/*
 	if (timer.printDebug()) {
 		system("cls");
 		std::cout << "FPS: " << timer.FPS << std::endl <<
@@ -87,7 +90,7 @@ void Engine::updateWindow()
 			" y: " << __y__.y <<
 			" z: " << __y__.z << std::endl <<
 			"Chunk: " << chunkPos.x << " " << chunkPos.y << std::endl;
-	}
+	}*/
 
 }
 
@@ -186,9 +189,9 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	//Crosshair
 
 	world = World::GetInstance();
-	world->StartThreads();
-	world->SetChunkSize(2);
+	world->SetChunkSize(8);
 	world->SetRenderedChunks(vec2(0, 0));
+	world->StartThreads();
 }
 
 
