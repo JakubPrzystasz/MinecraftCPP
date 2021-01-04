@@ -7,19 +7,8 @@ std::unordered_map<vec2, Chunk*> World::Chunks;
 std::vector<Chunk*> World::RenderedChunks;
 
 std::vector<std::thread> World::Threads;
-std::vector<std::pair<std::function<void(Chunk*)>, Chunk*>> World::Jobs;
 std::mutex World::Mutex;
 std::atomic<bool> World::Run = true;
-
-
-//void World::AddJob(vec2 val, int test) {
-//	Mutex.lock();
-//	std::function<void(vec2)> func;
-//	func = &Test1;
-//	auto tmp = std::make_pair(func, val);
-//	Jobs.push_back(tmp);
-//	Mutex.unlock();
-//}
 
 void World::StopThreads()
 {
@@ -27,29 +16,6 @@ void World::StopThreads()
 
 	for (auto& thread : Threads)
 		thread.join();
-}
-
-void World::StartThreads()
-{
-	for (int i = 0; i < 5; i++) {
-		Threads.push_back(std::thread(RunThreads));
-	}
-}
-
-void World::RunThreads() {
-	while (Run) {
-		Mutex.lock();
-		if (Jobs.size() > 0) {
-			auto tmp = Jobs.back();
-			Jobs.pop_back();
-			Mutex.unlock();
-			tmp.first(tmp.second);
-			continue;
-		}
-		else {
-			Mutex.unlock();
-		}
-	}
 }
 
 int World::RoundInt(GLfloat x) {
@@ -177,41 +143,31 @@ BlockName World::GetBlock(vec3 pos)
 	return GetBlock(chunk, _pos);
 }
 
-void World::UpdateChunk(Chunk* chunk) {
-	chunk->ChunkUpdate();
-}
-
 void World::RequestChunkUpdate(vec2 chunkPos)
 {
-	std::function<void(Chunk*)> func;
-	func = &UpdateChunk;
-	auto CHUNK = GetChunk(chunkPos);
-	auto tmp = std::make_pair(func, CHUNK);
-	Mutex.lock();
-	Jobs.push_back(tmp);
-	Mutex.unlock();
+	GetChunk(chunkPos)->updateChunk = true;
+	GetChunk(chunkPos)->ChunkUpdate();
 }
 
 void World::RequestChunkGen(vec2 chunkPos)
 {
-	Chunk* CHUNK = new Chunk();
-	CHUNK->Init();
+	auto CHUNK = new Chunk();
 	CHUNK->chunkPosition = chunkPos;
 	CHUNK->chunkSize = chunkSize;
-	std::thread t
+	CHUNK->updateChunk = true;
+	Threads.emplace_back([&]() { GenerateChunk(CHUNK); });
 }
 
 void World::SetRenderedChunks(vec2 centerChunkPos)
 {
 	RenderedChunks.clear();
-
 	vec2 tmp;
 	Chunk* chunk;
-	for (int y = -1; y < 2; y++) {
-		for (int x = -1; x < 2; x++) {
+	for (int y = (-1) * renderDistance; y < renderDistance+1; y++) {
+		for (int x = (-1) * renderDistance; x < renderDistance + 1; x++) {
 			tmp = centerChunkPos + vec2(x, y);
 			chunk = GetChunk(tmp);
-			if (chunk == nullptr)
+			if(chunk == nullptr)
 				RequestChunkGen(tmp);
 			RenderedChunks.push_back(chunk);
 		}

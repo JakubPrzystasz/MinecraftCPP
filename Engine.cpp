@@ -191,7 +191,6 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	world = World::GetInstance();
 	world->SetChunkSize(8);
 	world->SetRenderedChunks(vec2(0, 0));
-	world->StartThreads();
 }
 
 

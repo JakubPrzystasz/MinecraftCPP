@@ -58,6 +58,9 @@ void Chunk::Draw(Camera& camera)
 
 void Chunk::ChunkUpdate()
 {
+
+	if (!updateChunk)
+		return;
 	auto rs = ResourceManager::GetInstance();
 
 	Face tmpFace;

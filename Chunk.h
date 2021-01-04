@@ -11,7 +11,7 @@ struct vec3;
 class Chunk : public Model
 {
 private:
-	bool updateChunk;
+	std::atomic<bool> updateChunk;
 	void ChunkUpdate();
 
 public:

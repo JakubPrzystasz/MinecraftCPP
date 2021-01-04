@@ -33,9 +33,12 @@ private:
 	inline static int RoundInt(GLuint x);
 	inline static int RoundInt(int x);
 
+	static std::vector<std::thread> Threads;
 	static std::mutex Mutex;
+	static std::atomic<bool> Run;
 
 public:
+	static void StopThreads();
 
 	/// <summary>
 	/// Do not allow to copy an object
@@ -71,8 +74,6 @@ public:
 	static BlockName GetBlock(glm::vec3 pos);
 	static BlockName GetBlock(vec3 pos);
 
-	static void UpdateChunk(Chunk* chunk);
-	
 	static void RequestChunkUpdate(vec2 chunkPos);
 
 	static void RequestChunkGen(vec2 chunkPos);
