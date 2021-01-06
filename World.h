@@ -8,7 +8,7 @@
 #include <thread>
 #include <mutex>
 #include <chrono>
-#include <functional>
+#include <queue>
 #include <memory>
 
 class Chunk;
@@ -35,8 +35,8 @@ private:
 	inline static int RoundInt(GLuint x);
 
 	static std::vector<std::thread> Threads;
-	static std::vector<std::pair<vec2,Model*>> GenJobs;
-	static std::vector<Chunk*> BuildJobs;
+	static std::queue<std::pair<vec2,Model*>> GenJobs;
+	static std::queue<Chunk*> BuildJobs;
 	static std::mutex GenMutex;
 	static std::mutex BuildMutex;
 	static std::atomic<bool> Run;
@@ -81,6 +81,8 @@ public:
 	static void UpdateMesh(Chunk* chunk);
 
 	static void RequestChunkGenerate(vec2 chunkPos);
+
+	static std::vector<vec2> CalculateRenderedChunks(GLuint distance);
 
 	static void SetRenderedChunks(vec2 centerChunkPos);
 

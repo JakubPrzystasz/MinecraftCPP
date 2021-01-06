@@ -11,8 +11,8 @@ std::unordered_map<vec2, Chunk*> World::Chunks;
 std::vector<Chunk*> World::RenderedChunks;
 
 std::vector<std::thread> World::Threads;
-std::vector<std::pair<vec2, Model*>> World::GenJobs;
-std::vector<Chunk*> World::BuildJobs;
+std::queue<std::pair<vec2, Model*>> World::GenJobs;
+std::queue<Chunk*> World::BuildJobs;
 std::mutex World::GenMutex;
 std::mutex World::BuildMutex;
 std::atomic<bool> World::Run = true;
@@ -84,7 +84,7 @@ void World::SetBlock(glm::vec3 pos, BlockName _block)
 
 Chunk* World::GenerateChunk(vec2 chunkPos, Model* model)
 {
-	Chunk* newChunk = new Chunk(chunkPos,model);
+	Chunk* newChunk = new Chunk(chunkPos, model);
 
 	float grassHeight;
 	float dirtHeight;
@@ -149,11 +149,11 @@ BlockName World::GetBlock(vec3 pos)
 
 void World::UpdateMesh(vec2 ChunkPosition)
 {
- 	Chunk* chunk = GetChunk(ChunkPosition);
+	Chunk* chunk = GetChunk(ChunkPosition);
 	if (chunk == nullptr)
 		return;
 	BuildMutex.lock();
-	BuildJobs.push_back(chunk);
+	BuildJobs.emplace(chunk);
 	BuildMutex.unlock();
 }
 
@@ -162,7 +162,7 @@ void World::UpdateMesh(Chunk* chunk)
 	if (chunk == nullptr)
 		return;
 	BuildMutex.lock();
-	BuildJobs.push_back(chunk);
+	BuildJobs.emplace(chunk);
 	BuildMutex.unlock();
 }
 
@@ -180,8 +180,72 @@ void World::RequestChunkGenerate(vec2 chunkPos)
 	newModel->shadingProgram->SetData("blockTexture", newModel->Textures["face"]->GetId());
 
 	GenMutex.lock();
-	GenJobs.push_back(std::make_pair(chunkPos,newModel));
+	GenJobs.emplace(std::make_pair(chunkPos, newModel));
 	GenMutex.unlock();
+}
+
+std::vector<vec2> World::CalculateRenderedChunks(GLuint distance)
+{
+	if (distance == 0)
+		return std::vector<vec2>(1, vec2(0, 0));
+
+	int x = 1, y = distance;
+	//
+	bool DirX = true, DirY = false, Dir = true;
+	std::vector<vec2> Result;
+	vec2 StartPos = vec2(0, y);
+	Result.push_back(vec2(x, y));
+	while (true) {
+		if (vec2(x,y) == StartPos)
+			break;
+
+		if (Dir) {
+			if (DirX)
+				x++;
+			else
+				x--;
+
+			if (x > distance)
+				x = distance;
+			if (-x > static_cast<int>(distance))
+				x = static_cast<int>(distance) * (-1);
+
+			if (x == distance) {
+				Dir = false;
+				DirY = false;
+			}
+
+			if (-x == static_cast<int>(distance)) {
+				Dir = false;
+				DirY = true;
+			}
+		}
+		else {
+			if (DirY)
+				y++;
+			else
+				y--;
+
+			if (y > distance)
+				y = distance;
+			if (-y > static_cast<int>(distance))
+				y = static_cast<int>(distance) * (-1);
+
+			if (y == distance) {
+				Dir = true;
+				DirX = true;
+			}
+
+			if (-y == static_cast<int>(distance)) {
+				Dir = true;
+				DirY = false;
+			}
+		}
+
+		Result.push_back(vec2(x,y));
+	}
+
+	return Result;
 }
 
 void World::SetRenderedChunks(vec2 centerChunkPos)
@@ -189,20 +253,23 @@ void World::SetRenderedChunks(vec2 centerChunkPos)
 	RenderedChunks.clear();
 	vec2 tmp;
 	Chunk* chunk;
-	int _renderDistance = renderDistance;
-	for (int y = -1*_renderDistance; y <= _renderDistance; y++) {
-		for (int x = -1*_renderDistance; x <= _renderDistance; x++) {
-			tmp = centerChunkPos + vec2(x, y);
+	std::vector<vec2> chunksPosition;
+	for (GLuint i = 0; i <= renderDistance; i++) {
+		chunksPosition = CalculateRenderedChunks(i);
+		for (auto& pos : chunksPosition) {
+			tmp = centerChunkPos + pos;
 			chunk = GetChunk(tmp);
-			if (chunk != nullptr) 
+			if (chunk != nullptr)
 				RenderedChunks.push_back(chunk);
 			else
 				RequestChunkGenerate(tmp);
 		}
+		if (i == 1)
+			UpdateMesh(centerChunkPos);
+		if(i > 1)
+			UpdateMesh(chunksPosition.front());
 	}
-	/*for (auto& chunk : RenderedChunks) {
-		UpdateMesh(chunk);
-	}*/
+
 }
 
 Chunk* World::GetChunk(vec2 chunkPos)
@@ -274,8 +341,8 @@ void World::RunThreadsGen() {
 	while (Run) {
 		GenMutex.lock();
 		if (GenJobs.size() > 0) {
-			auto tmp = GenJobs.back();
-			GenJobs.pop_back();
+			auto tmp = GenJobs.front();
+			GenJobs.pop();
 			GenMutex.unlock();
 			GenerateChunk(tmp.first, tmp.second)->BuildMesh();
 			UpdateMesh(tmp.first + vec2(1, 0));
@@ -294,8 +361,8 @@ void World::RunThreadsBuild() {
 	while (Run) {
 		BuildMutex.lock();
 		if (BuildJobs.size() > 0) {
-			auto tmp = BuildJobs.back();
-			BuildJobs.pop_back();
+			auto tmp = BuildJobs.front();
+			BuildJobs.pop();
 			BuildMutex.unlock();
 			tmp->BuildMesh();
 			continue;
