@@ -65,34 +65,27 @@ void Engine::updateWindow()
 	auto chunkPos = world->GetChunkPosition(camera.Position);
 	world->SetRenderedChunks(chunkPos);
 
-
-	auto __tmp__ = world->GetChunk(chunkPos);
-	if (__tmp__ == nullptr)
-		return;
-	auto __x__ = World::ToChunkPosition(camera.Position);
-	auto __y__ = __tmp__->ToWorldPosition(__x__);
-
 	if (timer.printDebug()) {
 		system("cls");
 		std::cout << "FPS: " << timer.FPS << std::endl <<
 			"x: " << camera.Position.x <<
 			" y: " << camera.Position.y <<
 			" z: " << camera.Position.z << std::endl <<
-			"x: " << __x__.x <<
-			" y: " << __x__.y <<
-			" z: " << __x__.z << std::endl <<
-			"x: " << __y__.x <<
-			" y: " << __y__.y <<
-			" z: " << __y__.z << std::endl <<
-			"Chunk: " << chunkPos.x << " " << chunkPos.y << std::endl;
+			"FRONT: " << camera.Front.x << " " << camera.Front.y << " " << camera.Front.z << std::endl <<
+			"UP: " << camera.Up.x << " " << camera.Up.y << " " << camera.Up.z << std::endl <<
+			"RIGHT: " << camera.Right.x << " " << camera.Right.y << " " << camera.Right.z << std::endl <<
+			"YAW: " << camera.Yaw << std::endl <<
+			"PITCH: " << camera.Pitch << std::endl <<
+			"Chunk: " << chunkPos.x << " " << chunkPos.y << std::endl <<
+			"Direction: " << static_cast<char>(camera.GetLookDirection()) << std::endl;
 	}
 
 }
 
 void Engine::renderFrame()
 {
-	world->DrawChunks(camera);
-	//crossHair.Draw();
+	world->DrawChunks();
+	crossHair.Draw();
 	//text.RenderText("This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
 }
 
@@ -184,6 +177,7 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	//Crosshair
 
 	world = World::GetInstance();
+	world->SetCamera(&camera);
 	world->SetChunkSize(16);
 	world->StartThreads();
 	world->SetRenderedChunks(vec2(0, 0));

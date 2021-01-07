@@ -7,6 +7,14 @@
 
 #include "Input.h"
 
+enum class WorldDirection {
+    North = 'N',
+    South = 'S',
+    West =  'W',
+    East = 'E',
+    Unknown = 'U'
+};
+
 enum class CameraMovement {
     FORWARD = 0,
     BACKWARD = 1,
@@ -41,5 +49,6 @@ public:
 
     void ProcessMouseMovement(MousePosition mousePos, GLboolean constrainPitch = true);
 
+    WorldDirection GetLookDirection();
 };
 

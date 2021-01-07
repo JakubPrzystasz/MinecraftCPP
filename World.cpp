@@ -6,15 +6,22 @@ World* World::instance = nullptr;
 
 GLuint World::chunkSize = 16;
 
+Camera* World::camera = nullptr;
+
 std::unordered_map<vec2, Chunk*> World::Chunks;
 
 std::vector<Chunk*> World::RenderedChunks;
 
 std::vector<std::thread> World::Threads;
-std::vector<std::pair<vec2, Model*>> World::GenJobs;
-std::vector<Chunk*> World::BuildJobs;
+
+std::queue<std::pair<vec2, Model*>> World::GenJobs;
+
+std::queue<Chunk*> World::BuildJobs;
+
 std::mutex World::GenMutex;
+
 std::mutex World::BuildMutex;
+
 std::atomic<bool> World::Run = true;
 
 
@@ -38,14 +45,19 @@ void World::SetChunkSize(GLuint chunkSize)
 	GetInstance()->chunkSize = chunkSize;
 }
 
-void World::DrawChunks(Camera& camera)
+void World::SetCamera(Camera* camera)
+{
+	GetInstance()->camera = camera;
+}
+
+void World::DrawChunks()
 {
 	BuildMutex.lock();
 	for (auto* chunk : RenderedChunks) {
 		chunk->model->BindData();
 		chunk->model->shadingProgram->Use();
-		chunk->model->shadingProgram->SetData("projection", camera.Projection);
-		chunk->model->shadingProgram->SetData("view", camera.GetViewMatrix());
+		chunk->model->shadingProgram->SetData("projection", camera->Projection);
+		chunk->model->shadingProgram->SetData("view", camera->GetViewMatrix());
 		chunk->model->shadingProgram->SetData("model", glm::mat4(1.0f));
 		chunk->model->Draw();
 	}
@@ -59,15 +71,12 @@ void World::SetBlock(glm::vec3 pos, BlockName _block)
 		return;
 	auto blockInChunkPos = ToChunkPosition(pos);
 	auto block = chunk->blocks.find(blockInChunkPos);
-	if ((block != chunk->blocks.end()) && _block == BlockName::Air) {
+	if ((block != chunk->blocks.end()))
 		chunk->blocks.erase(block);
-	}
-	else if (_block != BlockName::Air){
+	else if (_block != BlockName::Air)
 		chunk->PutBlock(_block, ToChunkPosition(pos));
-	}
-	else {
+	else
 		return;
-	}
 
 	chunk->updateChunk = true;
 
@@ -156,7 +165,7 @@ void World::UpdateMesh(vec2 ChunkPosition)
 	if (chunk == nullptr)
 		return;
 	BuildMutex.lock();
-	BuildJobs.push_back(chunk);
+	BuildJobs.emplace(chunk);
 	BuildMutex.unlock();
 }
 
@@ -165,7 +174,7 @@ void World::UpdateMesh(Chunk* chunk)
 	if (chunk == nullptr)
 		return;
 	BuildMutex.lock();
-	BuildJobs.push_back(chunk);
+	BuildJobs.emplace(chunk);
 	BuildMutex.unlock();
 }
 
@@ -183,7 +192,7 @@ void World::RequestChunkGenerate(vec2 chunkPos)
 	newModel->shadingProgram->SetData("blockTexture", newModel->Textures["face"]->GetId());
 
 	GenMutex.lock();
-	GenJobs.push_back(std::make_pair(chunkPos,newModel));
+	GenJobs.emplace(std::make_pair(chunkPos,newModel));
 	GenMutex.unlock();
 }
 
@@ -203,9 +212,9 @@ void World::SetRenderedChunks(vec2 centerChunkPos)
 				RequestChunkGenerate(tmp);
 		}
 	}
-	/*for (auto& chunk : RenderedChunks) {
+	for (auto& chunk : RenderedChunks) {
 		UpdateMesh(chunk);
-	}*/
+	}
 }
 
 Chunk* World::GetChunk(vec2 chunkPos)
@@ -277,14 +286,10 @@ void World::RunThreadsGen() {
 	while (Run) {
 		GenMutex.lock();
 		if (GenJobs.size() > 0) {
-			auto tmp = GenJobs.back();
-			GenJobs.pop_back();
+			auto tmp = GenJobs.front();
+			GenJobs.pop();
 			GenMutex.unlock();
-			GenerateChunk(tmp.first, tmp.second)->BuildMesh();
-			UpdateMesh(tmp.first + vec2(1, 0));
-			UpdateMesh(tmp.first + vec2(-1, 0));
-			UpdateMesh(tmp.first + vec2(0, 1));
-			UpdateMesh(tmp.first + vec2(0, -1));
+			GenerateChunk(tmp.first, tmp.second);
 			continue;
 		}
 		GenMutex.unlock();
@@ -297,8 +302,8 @@ void World::RunThreadsBuild() {
 	while (Run) {
 		BuildMutex.lock();
 		if (BuildJobs.size() > 0) {
-			auto tmp = BuildJobs.back();
-			BuildJobs.pop_back();
+			auto tmp = BuildJobs.front();
+			BuildJobs.pop();
 			BuildMutex.unlock();
 			tmp->BuildMesh();
 			continue;

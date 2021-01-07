@@ -22,7 +22,7 @@ Camera::Camera(GLfloat screenRatio)
     FOV = 45.0f;
     Yaw = -90.f;
     Pitch = 0.f;
-    MovementSpeed = 50.f;
+    MovementSpeed = 10;
     MouseSensitivity = 0.1f;
     Right = glm::vec3();
     Up = glm::vec3();
@@ -87,4 +87,34 @@ void Camera::ProcessMouseMovement(MousePosition mousePos, GLboolean constrainPit
     }
    
     updateCameraVectors();
+}
+
+WorldDirection Camera::GetLookDirection()
+{
+    if ((Yaw > 0 && Yaw <= 45) || (Yaw > 315 && Yaw <= 0))
+        return WorldDirection::North;
+
+    if (Yaw > 45 && Yaw <= 135)
+        return WorldDirection::East;
+
+    if (Yaw > 135 && Yaw <= 225)
+        return WorldDirection::South;
+
+    if (Yaw > 225 && Yaw <= 315)
+        return WorldDirection::West;
+
+    if (Yaw > -45 || Yaw <= -315)
+        return WorldDirection::North;
+
+    if (Yaw > -135 && Yaw <= -45)
+        return WorldDirection::West;
+
+    if (Yaw > -225 && Yaw <= -135)
+        return WorldDirection::South;
+
+    if (Yaw > -315 && Yaw <= -225)
+        return WorldDirection::East;
+
+    return WorldDirection::Unknown;
+
 }
