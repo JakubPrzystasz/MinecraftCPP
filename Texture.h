@@ -1,8 +1,11 @@
 #pragma once
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <ft2build.h>
 #include <string>
 #include "TextureCache.h"
+#include FT_FREETYPE_H  
 
 /*
 	Texture Class, handles operations over Textures in GLContext
@@ -48,6 +51,10 @@ private:
 
 	//Initialize texture
 	void Init();
+
+	void InitImage();
+
+	void InitFont(const FT_Face glyphFace);
 	
 public:
 	/// <summary>
@@ -60,7 +67,7 @@ public:
 	/// Construct Texture object of glyph
 	/// </summary>
 	/// <param name="fileNamePath">Texture file name path</param>
-	Texture(const std::string fileNamePath,const char Character);
+	Texture(const FT_Face glyphFace);
 
 	/// <summary>
 	/// Destructor for Texture class
