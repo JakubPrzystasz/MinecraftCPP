@@ -149,8 +149,8 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 
 	//Load shaders
 	rs->AddShadingProgram("block", "Shaders/block.vert", "Shaders/block.frag");
-	rs->AddShadingProgram("crossHair", "Shaders/crosshair.vert", "Shaders/crosshair.frag");
 	rs->AddShadingProgram("text", "Shaders/text.vert", "Shaders/text.frag");
+	rs->AddShadingProgram("crossHair", "Shaders/crosshair.vert", "Shaders/crosshair.frag");
 
 	//Add blocks
 	//Grass
@@ -167,7 +167,7 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	rs->GetBlock(BlockName::Cobble)->BindFaces();
 
 	//Text
-	text.Init();
+	//text.Init();
 
 	//Crosshair
 	glEnable(GL_BLEND);
@@ -175,7 +175,7 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	crossHair.Init();
 	crossHair.SetShadingProgram(rs->GetShadingProgram("crossHair"));
 	crossHair.shadingProgram->Use();
-	crossHair.AddTexture("tex", rs->GetTexture("Textures/crossHair.png"));
+	crossHair.AddTexture("tex", rs->GetTexture("Textures/crosshair.png"));
 	crossHair.shadingProgram->SetData("corssHairTexture", crossHair.Textures["tex"]->GetId());
 	GLuint ind[6] = { 1, 2, 3, // right bottom -> left bottom -> left top 
 				  0, 1, 3 }; // right top -> right bottom -> left top};

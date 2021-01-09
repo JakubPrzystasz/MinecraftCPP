@@ -45,7 +45,7 @@ void Texture::Init(GLuint TextureUnitIndex)
 	if (id != 0)
 		return;
 
-	this->textureUnit = static_cast<GLenum>(GL_TEXTURE0 + static_cast<GLenum>(TextureUnitIndex));
+	this->textureUnit = static_cast<GLenum>(static_cast<GLenum>(GL_TEXTURE0) + static_cast<GLenum>(TextureUnitIndex));
 	glGenTextures(1, &id);
 	
 	Bind();
@@ -70,7 +70,7 @@ void Texture::Init(GLuint TextureUnitIndex)
 		return;
 	}
 
-	//FreeResource();
+	FreeResource();
 
 	Unbind();
 

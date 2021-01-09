@@ -38,8 +38,8 @@ glm::mat4 Camera::GetViewMatrix()
 void Camera::SetScreenRatio(vec2 ScreenResolution)
 {
     GLfloat screenRatio = static_cast<GLfloat>(
-        static_cast<GLfloat>(ScreenResolution.x)/ 
-        static_cast<GLfloat>(ScreenResolution.y));
+        static_cast<GLfloat>(ScreenResolution.y)/ 
+        static_cast<GLfloat>(ScreenResolution.x));
     Projection = glm::perspective(FOV, screenRatio, 0.001f, 100.0f);
 }
 
