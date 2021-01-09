@@ -41,17 +41,20 @@ private:
 	/// </summary>
 	GLuint filterMag;
 
-	GLenum index;
+	/// <summary>
+	/// Texture unit in GPU
+	/// </summary>
+	GLenum textureUnit;
 
 	//Initialize texture
-	void Init(GLuint index);
+	void Init(GLuint TextureUnitIndex);
 	
 public:
 	/// <summary>
 	/// Constructor for Texture class, file name is required
 	/// </summary>
 	/// <param name="fileNamePath">Texture file name path</param>
-	Texture(std::string fileNamePath, GLuint index);
+	Texture(std::string fileNamePath, GLuint TextureUnitIndex);
 
 	/// <summary>
 	/// Destructor for Texture class
@@ -73,7 +76,7 @@ public:
 	void Unbind();
 
 	/// <summary>
-	/// Returns ID of Texure for GLcontext
+	/// Returns ID of Texure in GLcontext
 	/// </summary>
 	/// <returns>Uniqure id of texture</returns>
 	GLuint GetId();

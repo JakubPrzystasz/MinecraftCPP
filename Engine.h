@@ -64,6 +64,7 @@ protected:
 	bool polygonRenderMode;
 
 	Model crossHair;
+
 	Text text;
 
 	Camera camera;

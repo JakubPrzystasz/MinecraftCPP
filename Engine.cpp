@@ -170,6 +170,7 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	text.Init();
 
 	//Crosshair
+	glEnable(GL_BLEND);
 	crossHair = Model();
 	crossHair.Init();
 	crossHair.SetShadingProgram(rs->GetShadingProgram("crossHair"));
