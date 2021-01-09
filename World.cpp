@@ -186,10 +186,10 @@ void World::RequestChunkGenerate(vec2 chunkPos)
 	Model* newModel = new Model();
 	newModel->Init();
 	newModel->SetShadingProgram(RS->GetShadingProgram("block"));
-	newModel->AddTexture("face", RS->GetTexture("Textures/terrain.png"));
+	newModel->AddTexture("blockTexture", RS->GetTexture("Textures/terrain.png"));
 	newModel->shadingProgram->Use();
-	newModel->Textures["face"]->Bind();
-	newModel->shadingProgram->SetData("blockTexture", newModel->Textures["face"]->GetId());
+	newModel->Textures["blockTexture"]->Bind();
+	newModel->shadingProgram->SetData("blockTexture", newModel->Textures["blockTexture"]->GetId());
 
 	GenMutex.lock();
 	GenJobs.emplace(std::make_pair(chunkPos,newModel));

@@ -47,14 +47,14 @@ private:
 	GLenum textureUnit;
 
 	//Initialize texture
-	void Init(GLuint TextureUnitIndex);
+	void Init();
 	
 public:
 	/// <summary>
 	/// Constructor for Texture class, file name is required
 	/// </summary>
 	/// <param name="fileNamePath">Texture file name path</param>
-	Texture(std::string fileNamePath, GLuint TextureUnitIndex);
+	Texture(std::string fileNamePath);
 
 	/// <summary>
 	/// Destructor for Texture class
@@ -66,6 +66,11 @@ public:
 	/// Bind texture to GL context
 	/// </summary>
 	void Bind();
+
+	/// <summary>
+	/// Bind texture to GL context
+	/// </summary>
+	void Bind(GLuint TextureUniIndex);
 
 	/// <summary>
 	/// Remove  texture form GL context
@@ -80,5 +85,6 @@ public:
 	/// </summary>
 	/// <returns>Uniqure id of texture</returns>
 	GLuint GetId();
+
 };
 

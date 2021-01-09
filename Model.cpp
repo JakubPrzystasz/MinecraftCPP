@@ -16,7 +16,7 @@ Model::Model(Model* model)
 	this->vertices = std::vector<Vertex>(model->vertices);
 }
 
-void Model::SetShadingProgram(ShadingProgram *sp)
+void Model::SetShadingProgram(ShadingProgram* sp)
 {
 	shadingProgram = sp;
 }
@@ -46,8 +46,8 @@ void Model::SetVertices(GLfloat* vertices, GLuint length)
 		glm::vec3 tmp;
 		for (GLuint i = 0; i < length; i += 3) {
 			tmp.x = vertices[i];
-			tmp.y = vertices[i+1];
-			tmp.z = vertices[i+2];
+			tmp.y = vertices[i + 1];
+			tmp.z = vertices[i + 2];
 			verts.push_back(tmp);
 		}
 		SetVertices(verts);
@@ -58,9 +58,9 @@ void Model::SetVertices(GLfloat* vertices, GLuint length)
 void Model::SetTexturePosition(GLfloat* texPos, GLuint length)
 {
 	for (GLuint i = 0; i < vertices.size(); i++) {
-		if(i < length-1){
+		if (i < length - 1) {
 			vertices[i].TexCoords.x = texPos[i];
-			vertices[i].TexCoords.y = texPos[i+1];
+			vertices[i].TexCoords.y = texPos[i + 1];
 		}
 	}
 
@@ -99,7 +99,7 @@ void Model::AddVertex(Vertex vert)
 	vertices.push_back(tmp);
 }
 
-void Model::AddVertices(Vertex* vert,GLuint length)
+void Model::AddVertices(Vertex* vert, GLuint length)
 {
 	for (GLuint i = 0; i < length; i++) {
 		AddVertex(vert + i);
@@ -141,13 +141,18 @@ void Model::Init()
 void Model::Draw()
 {
 	shadingProgram->Use();
-	for (auto& texture : Textures) {
-		texture.second->Bind();
+
+	GLuint i = 0;
+	for (auto& texture : shadingProgram->ActiveTextures) {
+		if (Textures.count(texture) > 0) {
+			Textures[texture]->Bind(i);
+			shadingProgram->SetData(&texture, i++);
+		}
 	}
-	if (vertices.size() < 1 || VBO == 0) {
-		std::cout << "ERROR:MODEL::NO DATA " << std::endl;
+
+	if (vertices.size() < 1 || VBO == 0)
 		return;
-	}
+
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
 	glBindVertexArray(0);

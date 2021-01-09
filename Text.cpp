@@ -43,9 +43,8 @@ void Text::Init() {
 			continue;
 		}
 		// generate texture
-		GLuint texture;
 		glGenTextures(1, &texture);
-		glActiveTexture(GL_TEXTURE0+3);
+		glActiveTexture(GL_TEXTURE7);
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glTexImage2D(
 			GL_TEXTURE_2D,
@@ -70,7 +69,7 @@ void Text::Init() {
 			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
 			static_cast<unsigned int>(face->glyph->advance.x)
 		};
-		//Characters.insert(std::pair<char, Character>(c, character));
+		Characters.insert(std::pair<char, Character>(c, character));
 	}
 	glBindTexture(GL_TEXTURE_2D, 0);
 	// destroy FreeType once we're finished
@@ -93,7 +92,8 @@ void Text::RenderText(std::string text, float x, float y, float scale, glm::vec3
 {
 	shadingProgram->Use();
 	shadingProgram->SetData("textColor", color.x, color.y, color.z);
-	glActiveTexture(GL_TEXTURE0+7);
+	shadingProgram->SetData("text", texture);
+	glActiveTexture(GL_TEXTURE7);
 	glBindVertexArray(VAO);
 
 	// iterate through all characters

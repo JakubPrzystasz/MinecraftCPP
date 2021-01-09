@@ -86,7 +86,7 @@ void Engine::renderFrame()
 {
 	world->DrawChunks();
 	crossHair.Draw();
-	//text.RenderText("This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+	text.RenderText("This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
 }
 
 void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
@@ -167,24 +167,26 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	rs->GetBlock(BlockName::Cobble)->BindFaces();
 
 	//Text
-	//text.Init();
+	text.Init();
 
 	//Crosshair
-	glEnable(GL_BLEND);
-	crossHair = Model();
-	crossHair.Init();
-	crossHair.SetShadingProgram(rs->GetShadingProgram("crossHair"));
-	crossHair.shadingProgram->Use();
-	crossHair.AddTexture("tex", rs->GetTexture("Textures/crosshair.png"));
-	crossHair.shadingProgram->SetData("corssHairTexture", crossHair.Textures["tex"]->GetId());
-	GLuint ind[6] = { 1, 2, 3, // right bottom -> left bottom -> left top 
-				  0, 1, 3 }; // right top -> right bottom -> left top};
-	crossHair.AddIndices(ind, 6);
-	crossHair.AddVertex(Vertex(glm::vec3(0.02, 0.03, 0), glm::vec2(1.0f, 1.0f))); //right top
-	crossHair.AddVertex(Vertex(glm::vec3(0.02, -0.03, 0), glm::vec2(1.0f, 0.0f)));//right bottom
-	crossHair.AddVertex(Vertex(glm::vec3(-0.02, -0.03, 0), glm::vec2(0.0f, 0.0f)));//left bottom
-	crossHair.AddVertex(Vertex(glm::vec3(-0.02, 0.03, 0), glm::vec2(0.0f, 1.0f)));//left top
-	crossHair.BindData();
+	{
+		glEnable(GL_BLEND);
+		crossHair = Model();
+		crossHair.Init();
+		crossHair.SetShadingProgram(rs->GetShadingProgram("crossHair"));
+		crossHair.shadingProgram->Use();
+		crossHair.AddTexture("corssHairTexture", rs->GetTexture("Textures/crosshair.png"));
+		crossHair.shadingProgram->SetData("corssHairTexture", crossHair.Textures["corssHairTexture"]->GetId());
+		GLuint ind[6] = { 1, 2, 3, // right bottom -> left bottom -> left top 
+					  0, 1, 3 }; // right top -> right bottom -> left top};
+		crossHair.AddIndices(ind, 6);
+		crossHair.AddVertex(Vertex(glm::vec3(0.02, 0.03, 0), glm::vec2(1.0f, 1.0f))); //right top
+		crossHair.AddVertex(Vertex(glm::vec3(0.02, -0.03, 0), glm::vec2(1.0f, 0.0f)));//right bottom
+		crossHair.AddVertex(Vertex(glm::vec3(-0.02, -0.03, 0), glm::vec2(0.0f, 0.0f)));//left bottom
+		crossHair.AddVertex(Vertex(glm::vec3(-0.02, 0.03, 0), glm::vec2(0.0f, 1.0f)));//left top
+		crossHair.BindData();
+	}
 	//Crosshair
 
 	world = World::GetInstance();

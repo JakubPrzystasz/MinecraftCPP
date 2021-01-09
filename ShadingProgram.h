@@ -1,10 +1,11 @@
 #pragma once
-#include "Shader.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <string>
+#include <vector>
+#include "Shader.h"
 
 /// <summary>
 /// This class contains methods that manages
@@ -47,6 +48,8 @@ public:
 	/// </summary>
 	~ShadingProgram();
 
+	std::vector<std::string> ActiveTextures;
+
 	/// <summary>
 	/// Bind shading program to GL context
 	/// </summary>
@@ -79,6 +82,7 @@ public:
 	void SetData(const GLchar* name, const glm::mat4& matrix);
 	/// Texture
 	void SetData(const GLchar* name, const GLuint &value);
+	void SetData(const std::string* name, const GLuint& value);
 
 };
 

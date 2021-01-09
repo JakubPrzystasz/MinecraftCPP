@@ -1,7 +1,7 @@
 #include "Texture.h"
 
 
-Texture::Texture(std::string fileNamePath,GLuint index)
+Texture::Texture(std::string fileNamePath)
 {
 	target = GL_TEXTURE_2D;
 	wrapS = GL_REPEAT;
@@ -9,7 +9,7 @@ Texture::Texture(std::string fileNamePath,GLuint index)
 	filterMin = GL_NEAREST;
 	filterMag = GL_NEAREST;
 	this->fileNamePath = fileNamePath;
-	Init(index);
+	Init();
 }
 
 Texture::~Texture()
@@ -21,6 +21,14 @@ Texture::~Texture()
 
 void Texture::Bind()
 {
+	glActiveTexture(textureUnit);
+	glBindTexture(target, id);
+}
+
+
+void Texture::Bind(GLuint TextureUnitIndex)
+{
+	textureUnit = static_cast<GLenum>(static_cast<GLenum>(GL_TEXTURE0) + static_cast<GLenum>(TextureUnitIndex));
 	glActiveTexture(textureUnit);
 	glBindTexture(target, id);
 }
@@ -40,12 +48,11 @@ unsigned int Texture::GetId()
 	return id;
 }
 
-void Texture::Init(GLuint TextureUnitIndex)
+void Texture::Init()
 {
 	if (id != 0)
 		return;
 
-	this->textureUnit = static_cast<GLenum>(static_cast<GLenum>(GL_TEXTURE0) + static_cast<GLenum>(TextureUnitIndex));
 	glGenTextures(1, &id);
 	
 	Bind();

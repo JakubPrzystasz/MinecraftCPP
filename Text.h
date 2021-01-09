@@ -29,8 +29,7 @@ struct Character {
 
 class Text : public Model {
     std::map<GLchar, Character> Characters;
-    unsigned int VAO, VBO;
-    Shader* shader;
+    GLuint texture;
 public:
     Text() {};
     void Init();
