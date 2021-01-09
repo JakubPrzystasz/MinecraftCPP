@@ -177,7 +177,6 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 		crossHair.SetShadingProgram(rs->GetShadingProgram("crossHair"));
 		crossHair.shadingProgram->Use();
 		crossHair.AddTexture("corssHairTexture", rs->GetTexture("Textures/crosshair.png"));
-		crossHair.shadingProgram->SetData("corssHairTexture", crossHair.Textures["corssHairTexture"]->GetId());
 		GLuint ind[6] = { 1, 2, 3, // right bottom -> left bottom -> left top 
 					  0, 1, 3 }; // right top -> right bottom -> left top};
 		crossHair.AddIndices(ind, 6);

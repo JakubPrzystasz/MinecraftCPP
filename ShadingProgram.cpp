@@ -108,16 +108,10 @@ void ShadingProgram::SetData(const GLchar* name, const glm::mat4& matrix)
 void ShadingProgram::SetData(const GLchar* name, const GLuint& value)
 {
 	glUniform1i(glGetUniformLocation(id, name), value);
-	auto val = std::find(ActiveTextures.begin(), ActiveTextures.end(), std::string(name));
-	if (val == ActiveTextures.end())
-		ActiveTextures.push_back(std::string(name));
 }
 
 void ShadingProgram::SetData(const std::string* name, const GLuint& value)
 {
 	glUniform1i(glGetUniformLocation(id, name->c_str()), value);
-	auto val = std::find(ActiveTextures.begin(), ActiveTextures.end(), *name);
-	if (val == ActiveTextures.end())
-		ActiveTextures.push_back(*name);
 }
 

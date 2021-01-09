@@ -51,10 +51,16 @@ private:
 	
 public:
 	/// <summary>
-	/// Constructor for Texture class, file name is required
+	/// Construct Texture object of image
 	/// </summary>
 	/// <param name="fileNamePath">Texture file name path</param>
-	Texture(std::string fileNamePath);
+	Texture(const std::string fileNamePath);
+
+	/// <summary>
+	/// Construct Texture object of glyph
+	/// </summary>
+	/// <param name="fileNamePath">Texture file name path</param>
+	Texture(const std::string fileNamePath,const char Character);
 
 	/// <summary>
 	/// Destructor for Texture class

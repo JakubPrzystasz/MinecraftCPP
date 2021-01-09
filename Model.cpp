@@ -24,6 +24,7 @@ void Model::SetShadingProgram(ShadingProgram* sp)
 void Model::AddTexture(std::string name, Texture* tex)
 {
 	Textures[name] = tex;
+	shadingProgram->SetData(name.c_str(), tex->GetId());
 }
 
 void Model::SetVertices(std::vector<glm::vec3>& vertices)
@@ -143,11 +144,9 @@ void Model::Draw()
 	shadingProgram->Use();
 
 	GLuint i = 0;
-	for (auto& texture : shadingProgram->ActiveTextures) {
-		if (Textures.count(texture) > 0) {
-			Textures[texture]->Bind(i);
-			shadingProgram->SetData(&texture, i++);
-		}
+	for (auto& texture : Textures) {
+		texture.second->Bind(i);
+		shadingProgram->SetData(texture.first.c_str(), i++);
 	}
 
 	if (vertices.size() < 1 || VBO == 0)

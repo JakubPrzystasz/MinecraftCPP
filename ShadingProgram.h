@@ -48,8 +48,6 @@ public:
 	/// </summary>
 	~ShadingProgram();
 
-	std::vector<std::string> ActiveTextures;
-
 	/// <summary>
 	/// Bind shading program to GL context
 	/// </summary>

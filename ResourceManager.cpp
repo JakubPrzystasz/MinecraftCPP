@@ -93,7 +93,6 @@ void ResourceManager::AddBlock(BlockName blockName, FaceTexture front, FaceTextu
     RS->Blocks[blockName]->SetShadingProgram(RS->GetShadingProgram("block"));
     RS->Blocks[blockName]->AddTexture("blockTexture", RS->GetTexture("Textures/terrain.png"));
     RS->Blocks[blockName]->shadingProgram->Use();
-    RS->Blocks[blockName]->shadingProgram->SetData("blockTexture", RS->Blocks[blockName]->Textures["blockTexture"]->GetId());
     RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Faces[FaceName::Front], front);
     RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Faces[FaceName::Back], back);
     RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Faces[FaceName::Top], top);

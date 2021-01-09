@@ -189,8 +189,6 @@ void World::RequestChunkGenerate(vec2 chunkPos)
 	newModel->AddTexture("blockTexture", RS->GetTexture("Textures/terrain.png"));
 	newModel->shadingProgram->Use();
 	newModel->Textures["blockTexture"]->Bind();
-	newModel->shadingProgram->SetData("blockTexture", newModel->Textures["blockTexture"]->GetId());
-
 	GenMutex.lock();
 	GenJobs.emplace(std::make_pair(chunkPos,newModel));
 	GenMutex.unlock();
