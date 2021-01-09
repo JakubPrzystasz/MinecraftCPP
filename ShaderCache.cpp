@@ -7,6 +7,11 @@
 
 ShaderCache::ShaderCache(std::string fileNamePath)
 {
+    inMemory = false;
+    dataSize = 0;
+    data = nullptr;
+    fileNamePath = "";
+
     if (fileNamePath.length() > 0)
         this->fileNamePath = fileNamePath;
     else

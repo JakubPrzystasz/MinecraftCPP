@@ -56,6 +56,8 @@ Face Cube::LeftFace = Face(
 
 Cube::Cube()
 {
+	faceTextureSize = 128;
+	textureWidth = 2048;
 	Faces.insert(std::pair<FaceName, Face>(FaceName::Front,FrontFace));	
 	Faces.insert(std::pair<FaceName, Face>(FaceName::Back,BackFace));	
 	Faces.insert(std::pair<FaceName, Face>(FaceName::Top,TopFace));	

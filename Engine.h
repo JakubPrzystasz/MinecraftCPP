@@ -31,12 +31,12 @@ protected:
 	/// <summary>
 	/// Width of screen and viewport
 	/// </summary>
-	GLuint screenWidth = 800;
+	GLuint screenWidth;
 
 	/// <summary>
 	/// Height of screen and viewport
 	/// </summary>
-	GLuint screenHeight = 600;
+	GLuint screenHeight;
 
 	/// <summary>
 	/// Title of main program window
@@ -61,13 +61,15 @@ protected:
 	World* world;
 	vec2 posDelta;
 
-	bool polygonRenderMode = false;
+	bool polygonRenderMode;
 
 	Model crossHair;
 	Text text;
 
-	Camera camera = Camera((GLfloat)((GLfloat)screenWidth / (GLfloat)screenHeight));
+	Camera camera;
 public:
+	Engine();
+
 	/// <summary>
 	/// Process input
 	/// </summary>

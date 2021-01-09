@@ -16,12 +16,12 @@ private:
 	/// <summary>
 	/// Holds vertex shader 
 	/// </summary>
-	Shader* vert = 0;
+	Shader* vert;
 
 	/// <summary>
 	/// Holds fragment shader
 	/// </summary>
-	Shader* frag = 0;
+	Shader* frag;
 
 	/// <summary>
 	/// Checks if compilation succeeds, 
@@ -32,7 +32,7 @@ private:
 	/// <summary>
 	/// Unique id of shading program
 	/// </summary>
-	GLuint id = 0;
+	GLuint id;
 public:
 
 	/// <summary>

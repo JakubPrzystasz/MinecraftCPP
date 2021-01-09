@@ -152,6 +152,7 @@
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Cube.cpp" />
+    <ClCompile Include="DataCache.cpp" />
     <ClCompile Include="stb_image.c" />
     <ClCompile Include="stb_perlin .c" />
     <ClCompile Include="Text.cpp" />
@@ -179,7 +180,6 @@
     <ClInclude Include="Time.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Key.h" />
-    <ClInclude Include="NonCopyable.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderCache.h" />

@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "Input.h"
+#include "Vectors.h"
 
 enum class WorldDirection {
     North = 'N',
@@ -29,6 +30,9 @@ class Camera
 private:
     void updateCameraVectors();
 public:
+
+    Camera();
+
     glm::vec3 Position;
     glm::vec3 Front;
     glm::vec3 Up;
@@ -41,9 +45,9 @@ public:
     GLfloat MouseSensitivity;
     glm::mat4 Projection;
 
-    Camera(GLfloat screenRatio);
-
     glm::mat4 GetViewMatrix();
+
+    void SetScreenRatio(vec2 ScreenResolution);
 
     void ProcessKeyboard(CameraMovement direction, GLfloat deltaTime);
 

@@ -19,24 +19,24 @@ private:
     /// <summary>
     /// If property is true, the resoruce is stored in memory 
     /// </summary>
-    bool inMemory = false;
+    bool inMemory;
     
     /// <summary>
     /// Stores actual width of texture
     /// </summary>
-    int width = 0;
+    int width;
 
     /// <summary>
     /// Stores actual height of texture
     /// </summary>
-    int height = 0;
+    int height;
 
     /// <summary>
     /// Stores number of color channels of texture file
     /// </summary>
-    int colorChannels = 0;
+    int colorChannels;
 
-    bool flipVertically = false;
+    bool flipVertically;
 
 public:
     /// <summary>
@@ -60,13 +60,13 @@ public:
     /// reads its data to memory pointed by data property.
     /// </summary>
     /// <returns>0 when succeeds, other value when fails</returns>
-    int LoadResource();
+    int LoadResource() override;
     
     /// <summary>
     /// Removes data from memory
     /// </summary>
     /// <returns>0 when succeeds, other value when fails</returns>
-    int FreeResource();
+    int FreeResource() override;
 
     /// <returns>Returns width of the texture</returns>
     GLuint GetWith();

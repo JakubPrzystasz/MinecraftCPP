@@ -10,17 +10,17 @@ protected:
 	/// <summary>
 	/// Stores file name path
 	/// </summary>
-	std::string fileNamePath = "";
+	std::string fileNamePath;
 	
 	/// <summary>
 	/// Stores size of file
 	/// </summary>
-	unsigned long dataSize = 0;
+	unsigned long dataSize;
 	
 	/// <summary>
 	/// Points to file stored in memory
 	/// </summary>
-	void* data = nullptr;
+	void* data;
 
 	/// <summary>
 	/// Virtual function 

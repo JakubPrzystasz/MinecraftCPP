@@ -14,7 +14,7 @@ private:
     /// <summary>
     /// If property is true, the resoruce is stored in memory 
     /// </summary>
-    bool inMemory = false;
+    bool inMemory;
 
 public:
 
@@ -39,12 +39,12 @@ public:
    /// reads its data to memory pointed by data property.
    /// </summary>
    /// <returns>0 when succeeds, other value when fails</returns>
-    int LoadResource();
+    int LoadResource() override;
 
     /// <summary>
     /// Removes data from memory
     /// </summary>
     /// <returns>0 when succeeds, other value when fails</returns>
-    int FreeResource();
+    int FreeResource() override;
 };
 

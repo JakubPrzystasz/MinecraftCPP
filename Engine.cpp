@@ -94,6 +94,15 @@ void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
+Engine::Engine()
+{
+	camera = Camera();
+	polygonRenderMode = true;
+	screenHeight = 600;
+	screenWidth = 800;
+	camera.SetScreenRatio(vec2(screenHeight, screenWidth));
+}
+
 
 void Engine::InitializeWindow(GLuint width, GLuint height, const std::string title)
 {
@@ -105,6 +114,8 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	this->screenWidth = width;
 	this->screenHeight = height;
 	this->windowTitle = title;
+
+	camera.SetScreenRatio(vec2(screenHeight, screenWidth));
 
 	//Make random seed 
 	srand((unsigned int)time(NULL));
@@ -159,7 +170,6 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	text.Init();
 
 	//Crosshair
-	glEnable(GL_BLEND);
 	crossHair = Model();
 	crossHair.Init();
 	crossHair.SetShadingProgram(rs->GetShadingProgram("crossHair"));

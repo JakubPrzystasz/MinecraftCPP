@@ -14,25 +14,33 @@ void Camera::updateCameraVectors()
     Up = glm::normalize(glm::cross(Right, Front));
 }
 
-Camera::Camera(GLfloat screenRatio)
+
+Camera::Camera()
 {
-    Position = glm::vec3({0,25,0});
+    Position = glm::vec3({ 0,25,0 });
     WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
-    Front = glm::vec3({0.f,0.f,-1.f});
+    Front = glm::vec3({ 0.f,0.f,-1.f });
     FOV = 45.0f;
     Yaw = -90.f;
     Pitch = 0.f;
     MovementSpeed = 10;
     MouseSensitivity = 0.1f;
-    Right = glm::vec3();
-    Up = glm::vec3();
-    //SETUP projection matrix
-    Projection = glm::perspective(FOV, screenRatio, 0.001f, 100.0f);
+    Right = glm::vec3(0);
+    Up = glm::vec3(0);
+    Projection = glm::mat4(0);
 }
 
 glm::mat4 Camera::GetViewMatrix()
 {
     return glm::lookAt(Position, Position + Front, Up);
+}
+
+void Camera::SetScreenRatio(vec2 ScreenResolution)
+{
+    GLfloat screenRatio = static_cast<GLfloat>(
+        static_cast<GLfloat>(ScreenResolution.x)/ 
+        static_cast<GLfloat>(ScreenResolution.y));
+    Projection = glm::perspective(FOV, screenRatio, 0.001f, 100.0f);
 }
 
 void Camera::ProcessKeyboard(CameraMovement direction, GLfloat deltaTime)

@@ -49,8 +49,8 @@ enum class BlockName {
 
 class Cube : public Model {
 private:
-	GLuint faceTextureSize = 128;
-	GLuint textureWidth = 2048;
+	GLuint faceTextureSize;
+	GLuint textureWidth;
 public:
 	Cube();
 

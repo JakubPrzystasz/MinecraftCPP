@@ -2,6 +2,7 @@
 
 Model::Model()
 {
+	VBO = 0;
 	VAO = 0;
 	EBO = 0;
 }

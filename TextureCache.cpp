@@ -3,6 +3,15 @@
 
 TextureCache::TextureCache(std::string fileNamePath)
 {
+    inMemory = false;
+    dataSize = 0;
+    data = nullptr;
+    fileNamePath = "";
+	width = 0;
+	height = 0;
+	colorChannels = 0;
+	flipVertically = false;
+
 	if (fileNamePath.length() > 0)
 	{
 		this->fileNamePath = fileNamePath;

@@ -30,7 +30,7 @@ public:
 	Model();
 	Model(Model* model);
 
-	GLuint VBO = 0, VAO, EBO;
+	GLuint VBO, VAO, EBO;
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
 

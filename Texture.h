@@ -14,34 +14,34 @@ private:
 	/// <summary>
 	/// Unique identifier of texture 
 	/// </summary>
-	GLuint id = 0;
+	GLuint id;
 
 	/// <summary>
 	/// Specifies target texture ( 1D array, 2D, CUBEMAP)
 	/// </summary>
-	GLuint target = GL_TEXTURE_2D;
+	GLuint target;
 
 	/// <summary>
 	/// Wrap mode in S ( X axis)
 	/// </summary>
-	GLuint wrapS = GL_REPEAT;
+	GLuint wrapS;
 
 	/// <summary>
 	/// Wrap mode in T ( Y axis)
 	/// </summary>
-	GLuint wrapT = GL_REPEAT;
+	GLuint wrapT;
 
 	/// <summary>
 	/// Texture interpolation mode when scalling down
 	/// </summary>
-	GLuint filterMin = GL_NEAREST;
+	GLuint filterMin;
 
 	/// <summary>
 	/// Texture interpolation mode when scalling up
 	/// </summary>
-	GLuint filterMag = GL_NEAREST;
+	GLuint filterMag;
 
-	GLenum index = GL_TEXTURE0;
+	GLenum index;
 
 	//Initialize texture
 	void Init(GLuint index);

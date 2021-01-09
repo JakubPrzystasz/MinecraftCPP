@@ -31,11 +31,6 @@ private:
 	int CheckCompileError();
 
 
-	/// <summary>
-	/// Create shader in GL Context
-	/// </summary>
-	/// <returns>0 when succeeds</returns>
-	int CreateShader(void);
 public:
 	/// <summary>
 	/// Constructor for Shader class, file name is required
