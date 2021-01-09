@@ -3,6 +3,12 @@
 
 Texture::Texture(std::string fileNamePath,GLuint index)
 {
+	target = GL_TEXTURE_2D;
+	wrapS = GL_REPEAT;
+	wrapT = GL_REPEAT;
+	filterMin = GL_NEAREST;
+	filterMag = GL_NEAREST;
+	index = GL_TEXTURE0;
 	this->fileNamePath = fileNamePath;
 	Init(index);
 }
@@ -65,7 +71,7 @@ void Texture::Init(GLuint index)
 		return;
 	}
 
-	FreeResource();
+	//FreeResource();
 
 	Unbind();
 
