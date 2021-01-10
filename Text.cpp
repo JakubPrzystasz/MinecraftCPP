@@ -16,7 +16,7 @@ void Text::Init(glm::mat4 &ProjectionMatrix) {
 	}
 
 	// find path to font
-	std::string font_name = "Fonts/Antonio-Bold.ttf";
+	std::string font_name = "Fonts/Minecraft.ttf";
 	if (font_name.empty())
 	{
 		std::cout << "ERROR::FREETYPE: Failed to load font_name" << std::endl;

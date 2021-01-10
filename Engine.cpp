@@ -10,6 +10,24 @@ void Engine::updateWindow()
 
 	camera.ProcessMouseMovement(input->GetMouseOffset());
 
+	if (camera.Position.x < 0)
+		onBlockPosition.x = 1 + (static_cast<GLfloat>(camera.Position.x) - static_cast<int>(camera.Position.x));
+	else
+		onBlockPosition.x = static_cast<GLfloat>(camera.Position.x) - static_cast<int>(camera.Position.x);
+
+
+	if (camera.Position.y < 0)
+		onBlockPosition.y = 1 + (static_cast<GLfloat>(camera.Position.y) - static_cast<int>(camera.Position.y));
+	else
+		onBlockPosition.y = static_cast<GLfloat>(camera.Position.y) - static_cast<int>(camera.Position.y);
+
+
+	if (camera.Position.z < 0)
+		onBlockPosition.z = 1 + (static_cast<GLfloat>(camera.Position.z) - static_cast<int>(camera.Position.z));
+	else
+		onBlockPosition.z = static_cast<GLfloat>(camera.Position.z) - static_cast<int>(camera.Position.z);
+
+
 	bool CAN_MOVE_DOWN = false;
 
 	if (world->GetBlock(vec3(camera.Position) + vec3(0, -2, 0)) == BlockName::Air)
@@ -44,6 +62,9 @@ void Engine::updateWindow()
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 
+	if (input->IsKeyDown(Key::KEY_O))
+		showDebugData = !showDebugData;
+
 	if (input->IsKeyDown(Key::KEY_G))
 	{
 		int inputMode = glfwGetInputMode(window, GLFW_CURSOR);
@@ -70,28 +91,38 @@ void Engine::updateWindow()
 	auto chunkPos = world->GetChunkPosition(camera.Position);
 	world->SetRenderedChunks(chunkPos);
 
-	/*if (timer.printDebug()) {
-		system("cls");
-		std::cout << "FPS: " << timer.FPS << std::endl <<
-			"x: " << camera.Position.x <<
-			" y: " << camera.Position.y <<
-			" z: " << camera.Position.z << std::endl <<
-			"FRONT: " << camera.Front.x << " " << camera.Front.y << " " << camera.Front.z << std::endl <<
-			"UP: " << camera.Up.x << " " << camera.Up.y << " " << camera.Up.z << std::endl <<
-			"RIGHT: " << camera.Right.x << " " << camera.Right.y << " " << camera.Right.z << std::endl <<
-			"YAW: " << camera.Yaw << std::endl <<
-			"PITCH: " << camera.Pitch << std::endl <<
-			"Chunk: " << chunkPos.x << " " << chunkPos.y << std::endl <<
-			"Direction: " << static_cast<char>(camera.GetLookDirection()) << std::endl;
-	}*/
-
+	std::stringstream STRING;
+	STRING << "FPS: " << timer.FPS;
+	DebugData[0] = STRING.str();
+	std::stringstream().swap(STRING);
+	STRING << "Player position (X,Y,Z): " <<
+		std::fixed << std::setprecision(1) << camera.Position.x << ", " <<
+		std::fixed << std::setprecision(1) << camera.Position.y << ", " <<
+		std::fixed << std::setprecision(1) << camera.Position.z;
+	DebugData[1] = STRING.str();
+	std::stringstream().swap(STRING);
+	STRING << "Chunk (X,Y): " << chunkPos.x << ", " << chunkPos.y << "   " << " Direction: " << static_cast<char>(camera.GetLookDirection());
+	DebugData[2] = STRING.str();
+	std::stringstream().swap(STRING);
+	STRING << "On block position (X,Y,Z): " <<
+		std::fixed << std::setprecision(1) << onBlockPosition.x << ", " <<
+		std::fixed << std::setprecision(1) << onBlockPosition.y << ", " <<
+		std::fixed << std::setprecision(1) << onBlockPosition.z;
+	DebugData[3] = STRING.str();
 }
 
 void Engine::renderFrame()
 {
 	world->DrawChunks();
+	
 	crossHair.Draw();
-	text.RenderText("HelloWorld!", 120.0f, 300.0f, 1.0f, glm::vec3(0.3, 0.2, .7));
+	
+	if (showDebugData) {
+		int line = 0;
+		for (std::string& str : DebugData) {
+			text.RenderText(str, 5, 585-(line++*25), 0.4, glm::vec3(0, 0, 0));
+		}
+	}
 }
 
 void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
@@ -103,9 +134,11 @@ Engine::Engine()
 {
 	camera = Camera();
 	polygonRenderMode = true;
+	showDebugData = false;
 	screenHeight = 600;
 	screenWidth = 800;
 	crossHairSize = 8;
+	onBlockPosition = vec3(0,0,0);
 }
 
 
@@ -124,6 +157,10 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 
 	ProjectionMatrix = glm::ortho(0.0f, static_cast<float>(screenWidth), 0.0f, static_cast<float>(screenHeight));
 
+	DebugData[0] = std::string("");
+	DebugData[1] = std::string("");
+	DebugData[2] = std::string("");
+	DebugData[3] = std::string("");
 
 	//Make random seed 
 	srand((unsigned int)time(NULL));

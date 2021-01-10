@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <ctime>
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 #include <algorithm> 
 #include <glm/glm.hpp>
@@ -75,6 +76,12 @@ protected:
 
 	bool polygonRenderMode;
 
+	bool showDebugData;
+
+	std::array<std::string, 4> DebugData;
+
+	//collitions
+	vec3 onBlockPosition;
 
 public:
 	Engine();
