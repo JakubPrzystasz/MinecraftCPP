@@ -82,6 +82,7 @@ protected:
 
 	//collitions
 	vec3 onBlockPosition;
+	vec3 lastPosition;
 
 public:
 	Engine();

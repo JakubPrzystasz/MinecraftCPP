@@ -28,11 +28,6 @@ void Engine::updateWindow()
 		onBlockPosition.z = static_cast<GLfloat>(camera.Position.z) - static_cast<int>(camera.Position.z);
 
 
-	bool CAN_MOVE_DOWN = false;
-
-	if (world->GetBlock(vec3(camera.Position) + vec3(0, -2, 0)) == BlockName::Air)
-		CAN_MOVE_DOWN = true;
-
 	if (input->GetKeyState(Key::KEY_W))
 		camera.ProcessKeyboard(CameraMovement::FORWARD, (GLfloat)timer.deltaTime);
 
@@ -45,7 +40,7 @@ void Engine::updateWindow()
 	if (input->GetKeyState(Key::KEY_D))
 		camera.ProcessKeyboard(CameraMovement::RIGHT, (GLfloat)timer.deltaTime);
 
-	if (input->GetKeyState(Key::KEY_LEFT_SHIFT) && CAN_MOVE_DOWN)
+	if (input->GetKeyState(Key::KEY_LEFT_SHIFT))
 		camera.ProcessKeyboard(CameraMovement::DOWN, (GLfloat)timer.deltaTime);
 
 	if (input->GetKeyState(Key::KEY_SPACE))
@@ -89,7 +84,11 @@ void Engine::updateWindow()
 	}
 
 	auto chunkPos = world->GetChunkPosition(camera.Position);
-	world->SetRenderedChunks(chunkPos);
+	
+	if(lastPosition - vec3(camera.Position) > vec3(8,8,0))
+		world->SetRenderedChunks(chunkPos);
+
+	lastPosition = camera.Position;
 
 	std::stringstream STRING;
 	STRING << "FPS: " << timer.FPS;
@@ -107,13 +106,13 @@ void Engine::updateWindow()
 	STRING << "On block position (X,Y,Z): " <<
 		std::fixed << std::setprecision(1) << onBlockPosition.x << ", " <<
 		std::fixed << std::setprecision(1) << onBlockPosition.y << ", " <<
-		std::fixed << std::setprecision(1) << onBlockPosition.z;
+		std::fixed << std::setprecision(1) << onBlockPosition.z << "  Standing on: " << (int)world->GetBlock(vec3(camera.Position) + vec3(0, -2, 0));
 	DebugData[3] = STRING.str();
 }
 
 void Engine::renderFrame()
 {
-	world->DrawChunks();
+	world->DrawChunks(world->GetChunkPosition(camera.Position));
 	
 	crossHair.Draw();
 	

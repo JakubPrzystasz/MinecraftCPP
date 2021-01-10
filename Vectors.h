@@ -31,6 +31,21 @@ struct vec3 {
 		z = static_cast<GLfloat>(in.z);
 	}
 
+	bool operator>(const vec3& other) const noexcept {
+		if (abs(this->x) > abs(other.x) && abs(this->y) > abs(other.y) && abs(this->z) > abs(other.z))
+			return true;
+		return false;
+	}
+
+	bool operator>=(const vec3& other) const noexcept {
+		if (abs(this->x) > abs(other.x) && abs(this->y) > abs(other.y) && abs(this->z) > abs(other.z))
+			return true;
+		if (this->x == other.x && other.y == this->y && this->z == other.z)
+			return true;
+		return false;
+	}
+
+
 	bool operator==(const vec3& other) const noexcept
 	{
 		return (other.x == this->x && other.y == this->y && other.z == this->z);
@@ -40,8 +55,16 @@ struct vec3 {
 		return vec3(this->x + other.x, this->y + other.y, this->z + other.z);
 	}
 
+	vec3 operator-(const vec3& other) const noexcept {
+		return vec3(this->x - other.x, this->y - other.y, this->z - other.z);
+	}
+
 	vec3 operator+(const glm::vec3& other) const noexcept {
 		return vec3(this->x + other.x, this->y + other.y, this->z + other.z);
+	}
+
+	vec3 operator-(const glm::vec3& other) const noexcept {
+		return vec3(this->x - other.x, this->y - other.y, this->z - other.z);
 	}
 
 	vec3& operator+=(const vec3& other) noexcept {

@@ -70,7 +70,7 @@ public:
 
 	static void SetCamera(Camera* camera);
 
-	static void DrawChunks();
+	static void DrawChunks(vec2 centerChunkPos);
 
 	static void SetBlock(glm::vec3 pos, BlockName block);
 
