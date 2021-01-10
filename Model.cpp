@@ -107,6 +107,12 @@ void Model::AddVertices(Vertex* vert, GLuint length)
 	}
 }
 
+void Model::ClearVertexData()
+{
+	indices.clear();
+	vertices.clear();
+}
+
 void Model::BindData()
 {
 	if (vertices.size() == 0)
@@ -141,6 +147,9 @@ void Model::Init()
 
 void Model::Draw()
 {
+	if (vertices.size() < 1 || VBO == 0)
+		return;
+
 	shadingProgram->Use();
 
 	GLuint i = 0;
@@ -148,14 +157,8 @@ void Model::Draw()
 		texture.second->Bind(i);
 		shadingProgram->SetData(texture.first.c_str(), i++);
 	}
-
-	if (vertices.size() < 1 || VBO == 0)
-		return;
-
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
 	glBindVertexArray(0);
-	for (auto& texture : Textures) {
-		texture.second->Unbind();
-	}
+
 }

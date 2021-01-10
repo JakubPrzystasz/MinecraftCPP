@@ -49,13 +49,7 @@ private:
 	/// </summary>
 	GLenum textureUnit;
 
-	//Initialize texture
-	void Init();
-
 	void InitImage();
-
-	void InitFont(const FT_Face glyphFace);
-	
 public:
 	/// <summary>
 	/// Construct Texture object of image
@@ -63,17 +57,15 @@ public:
 	/// <param name="fileNamePath">Texture file name path</param>
 	Texture(const std::string fileNamePath);
 
-	/// <summary>
-	/// Construct Texture object of glyph
-	/// </summary>
-	/// <param name="fileNamePath">Texture file name path</param>
-	Texture(const FT_Face glyphFace);
+	Texture();
 
 	/// <summary>
 	/// Destructor for Texture class
 	/// </summary>
 	~Texture();
 
+	//Initialize texture
+	void Init();
 
 	/// <summary>
 	/// Bind texture to GL context

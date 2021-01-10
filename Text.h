@@ -4,8 +4,8 @@
 #include "ResourceManager.h"
 
 
-struct Character {
-    Texture* texture; // ID handle of the glyph texture
+struct Character : public Model {
+    GLuint texture;
     glm::ivec2   Size;      // Size of glyph
     glm::ivec2   Bearing;   // Offset from baseline to left/top of glyph
     GLuint Advance;   // Horizontal offset to advance to next glyph
@@ -15,7 +15,7 @@ struct Character {
         Bearing = glm::ivec2(_tmp->Bearing);
         Advance = _tmp->Advance;
     }
-    Character(Texture* _texture, glm::ivec2 _Size, glm::ivec2 _Bearing, GLuint _Advance) {
+    Character(GLuint _texture, glm::ivec2 _Size, glm::ivec2 _Bearing, GLuint _Advance) {
         texture = _texture;
         Size = _Size;
         Bearing = _Bearing;
@@ -25,8 +25,7 @@ struct Character {
 };
 
 
-class Text : public Model {
-    std::map<GLchar, Character> Characters;
+class Text{
 public:
     Text() {};
     void Init();

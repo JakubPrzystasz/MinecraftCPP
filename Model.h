@@ -53,13 +53,15 @@ public:
 	void AddVertex(Vertex vert);
 	void AddVertices(Vertex* vert, GLuint length);
 
+	void ClearVertexData();
+
 	/// <summary>
 	/// Bind model data to GLContext
 	/// </summary>
 	void BindData();
 
 	/// <summary>
-	/// Initialize object's VAO,ABO,EBO
+	/// Initialize object's VAO,VBO,EBO
 	/// </summary>
 	void Init();
 

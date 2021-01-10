@@ -3,9 +3,7 @@
 void Text::Init() {
 
 	auto rs = ResourceManager::GetInstance();
-	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(800), 0.0f, static_cast<float>(600));
-	SetShadingProgram(rs->GetShadingProgram("text"));
-	shadingProgram->SetData("projection", projection);
+
 	// FreeType
 	// --------
 	FT_Library ft;
@@ -17,7 +15,7 @@ void Text::Init() {
 	}
 
 	// find path to font
-	std::string font_name = "Fonts/arial.ttf";
+	std::string font_name = "Fonts/Antonio-Bold.ttf";
 	if (font_name.empty())
 	{
 		std::cout << "ERROR::FREETYPE: Failed to load font_name" << std::endl;
@@ -34,69 +32,83 @@ void Text::Init() {
 	// set size to load glyphs as
 	FT_Set_Pixel_Sizes(face, 0, 48);
 
-	for (GLuint c = 0; c < 128; c++) {
-		if (!FT_Load_Char(face, c, FT_LOAD_RENDER))
+	for (unsigned char c = 0; c < 128; c++) {
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
 			break;
 
-		Characters.emplace(static_cast<char>(c), Character{
-			new Texture(face),
-			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
-			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-			static_cast<unsigned int>(face->glyph->advance.x)
-			});
+		Character *tmpCharacter = new Character();
+		tmpCharacter->Init();
+		tmpCharacter->Size = glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows);
+		tmpCharacter->Bearing = glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top);
+		tmpCharacter->Advance = static_cast<unsigned int>(face->glyph->advance.x);
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glActiveTexture(GL_TEXTURE0);
+		glGenTextures(1, &tmpCharacter->texture);
+		glBindTexture(GL_TEXTURE_2D, tmpCharacter->texture);
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RED,
+			face->glyph->bitmap.width,
+			face->glyph->bitmap.rows,
+			0,
+			GL_RED,
+			GL_UNSIGNED_BYTE,
+			face->glyph->bitmap.buffer
+		);
+		// set texture options
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		tmpCharacter->SetShadingProgram(rs->GetShadingProgram("text"));
+		rs->AddCharacter((char)c, tmpCharacter);
 	}
 
-
-
-
-
-	//glGenVertexArrays(1, &VAO);
-	//glGenBuffers(1, &VBO);
-	//glBindVertexArray(VAO);
-	//glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-	//glEnableVertexAttribArray(0);
-	//glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//glBindVertexArray(0);
 
 }
 
 void Text::RenderText(std::string text, float x, float y, float scale, glm::vec3 color)
 {
-	shadingProgram->Use();
-	shadingProgram->SetData("textColor", color.x, color.y, color.z);
-
-
-	// iterate through all characters
-	std::string::iterator c;
-	for (c = text.begin(); c != text.end(); c++)
+	auto rs = ResourceManager::GetInstance();
+	rs->GetShadingProgram("text")->Use();
+	rs->GetShadingProgram("text")->SetData("textColor", color);
+	rs->GetShadingProgram("text")->SetData("glyph", 0);
+	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(800), 0.0f, static_cast<float>(600));
+	glUniformMatrix4fv(glGetUniformLocation(rs->GetShadingProgram("text")->GetId(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+	
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glActiveTexture(GL_TEXTURE0);
+	
+	for (char const & c:text)
 	{
-		Character ch = Characters[*c];
+		Character *ch = rs->GetCharacter(c);
+		if (ch == nullptr)
+			continue;
 
-		float xpos = x + ch.Bearing.x * scale;
-		float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+		float xpos = x + ch->Bearing.x * scale;
+		float ypos = y - (ch->Size.y - ch->Bearing.y) * scale;
 
-		float w = ch.Size.x * scale;
-		float h = ch.Size.y * scale;
-		// update VBO for each character
-		float vertices[6][4] = {
-			{ xpos,     ypos + h,   0.0f, 0.0f },
-			{ xpos,     ypos,       0.0f, 1.0f },
-			{ xpos + w, ypos,       1.0f, 1.0f },
+		float w = ch->Size.x * scale;
+		float h = ch->Size.y * scale;
 
-			{ xpos,     ypos + h,   0.0f, 0.0f },
-			{ xpos + w, ypos,       1.0f, 1.0f },
-			{ xpos + w, ypos + h,   1.0f, 0.0f }
-		};
-		shadingProgram->SetData("text",0);
-		ch.texture->Bind(0);
+		GLuint indicies[6] = { 0,1,3,0,3,2 };
+		ch->ClearVertexData();
+		ch->AddIndices(indicies, 6);
 
+		ch->AddVertex(Vertex(glm::vec3(xpos, ypos + h, 0), glm::vec2(0, 0)));
+		ch->AddVertex(Vertex(glm::vec3(xpos, ypos, 0), glm::vec2(0, 1)));
+		ch->AddVertex(Vertex(glm::vec3(xpos + w, ypos + h, 0), glm::vec2(1, 0)));
+		ch->AddVertex(Vertex(glm::vec3(xpos + w, ypos, 0), glm::vec2(1, 1)));
 
+		ch->BindData();
+		ch->Draw();
 
-
-		// now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-		x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+		x += (ch->Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
 	}
 
 }

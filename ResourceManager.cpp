@@ -146,6 +146,5 @@ Character* ResourceManager::GetCharacter(GLchar character)
 void ResourceManager::AddCharacter(GLchar _char, Character* char_)
 {
     auto rs = ResourceManager::GetInstance();
-    Character *tmp = new Character(char_);
-    rs->Characters.insert(std::make_pair(_char,tmp));
+    rs->Characters.insert(std::make_pair(_char, char_));
 }

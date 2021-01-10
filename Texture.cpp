@@ -13,16 +13,14 @@ Texture::Texture(std::string fileNamePath)
 	InitImage();
 }
 
-Texture::Texture(FT_Face glyphFace)
+Texture::Texture()
 {
 	target = GL_TEXTURE_2D;
 	wrapS = GL_CLAMP_TO_EDGE;
 	wrapT = GL_CLAMP_TO_EDGE;
 	filterMin = GL_LINEAR;
 	filterMag = GL_LINEAR;
-	this->fileNamePath = fileNamePath;
-	Init();
-	InitFont(glyphFace);
+	fileNamePath = "";
 }
 
 Texture::~Texture()
@@ -93,28 +91,6 @@ void Texture::InitImage()
 	}
 
 	FreeResource();
-
-	Unbind();
-
-}
-
-void Texture::InitFont(FT_Face glyphFace)
-{
-
-	// disable byte-alignment restriction
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	glTexImage2D(
-		GL_TEXTURE_2D,
-		0,
-		GL_RED,
-		glyphFace->glyph->bitmap.width,
-		glyphFace->glyph->bitmap.rows,
-		0,
-		GL_RED,
-		GL_UNSIGNED_BYTE,
-		glyphFace->glyph->bitmap.buffer
-	);
 
 	Unbind();
 

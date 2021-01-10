@@ -65,7 +65,7 @@ void Engine::updateWindow()
 	auto chunkPos = world->GetChunkPosition(camera.Position);
 	world->SetRenderedChunks(chunkPos);
 
-	if (timer.printDebug()) {
+	/*if (timer.printDebug()) {
 		system("cls");
 		std::cout << "FPS: " << timer.FPS << std::endl <<
 			"x: " << camera.Position.x <<
@@ -78,15 +78,15 @@ void Engine::updateWindow()
 			"PITCH: " << camera.Pitch << std::endl <<
 			"Chunk: " << chunkPos.x << " " << chunkPos.y << std::endl <<
 			"Direction: " << static_cast<char>(camera.GetLookDirection()) << std::endl;
-	}
+	}*/
 
 }
 
 void Engine::renderFrame()
 {
-	world->DrawChunks();
-	crossHair.Draw();
-	text.RenderText("This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+	//world->DrawChunks();
+	//crossHair.Draw();
+	text.RenderText("HelloWorld!", 0.0f, 0.0f, 1.0f, glm::vec3(0.3, 0.2, .7));
 }
 
 void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
