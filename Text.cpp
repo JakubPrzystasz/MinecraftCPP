@@ -105,6 +105,8 @@ void Text::RenderText(std::string text, float x, float y, float scale, glm::vec3
 		ch->AddVertex(Vertex(glm::vec3(xpos + w, ypos + h, 0), glm::vec2(1, 0)));
 		ch->AddVertex(Vertex(glm::vec3(xpos + w, ypos, 0), glm::vec2(1, 1)));
 
+		glBindTexture(GL_TEXTURE_2D, ch->texture);
+
 		ch->BindData();
 		ch->Draw();
 
