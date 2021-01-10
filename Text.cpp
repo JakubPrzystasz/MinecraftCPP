@@ -113,4 +113,7 @@ void Text::RenderText(std::string text, float x, float y, float scale, glm::vec3
 		x += (ch->Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
 	}
 
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_BLEND);
+
 }

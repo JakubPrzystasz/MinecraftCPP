@@ -10,6 +10,11 @@ void Engine::updateWindow()
 
 	camera.ProcessMouseMovement(input->GetMouseOffset());
 
+	bool CAN_MOVE_DOWN = false;
+
+	if (world->GetBlock(vec3(camera.Position) + vec3(0, -2, 0)) == BlockName::Air)
+		CAN_MOVE_DOWN = true;
+
 	if (input->GetKeyState(Key::KEY_W))
 		camera.ProcessKeyboard(CameraMovement::FORWARD, (GLfloat)timer.deltaTime);
 
@@ -22,7 +27,7 @@ void Engine::updateWindow()
 	if (input->GetKeyState(Key::KEY_D))
 		camera.ProcessKeyboard(CameraMovement::RIGHT, (GLfloat)timer.deltaTime);
 
-	if (input->GetKeyState(Key::KEY_LEFT_SHIFT))
+	if (input->GetKeyState(Key::KEY_LEFT_SHIFT) && CAN_MOVE_DOWN)
 		camera.ProcessKeyboard(CameraMovement::DOWN, (GLfloat)timer.deltaTime);
 
 	if (input->GetKeyState(Key::KEY_SPACE))
@@ -84,9 +89,9 @@ void Engine::updateWindow()
 
 void Engine::renderFrame()
 {
-	//world->DrawChunks();
-	//crossHair.Draw();
-	text.RenderText("HelloWorld!", 0.0f, 0.0f, 1.0f, glm::vec3(0.3, 0.2, .7));
+	world->DrawChunks();
+	crossHair.Draw();
+	text.RenderText("HelloWorld!", 120.0f, 300.0f, 1.0f, glm::vec3(0.3, 0.2, .7));
 }
 
 void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
