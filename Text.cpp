@@ -1,8 +1,9 @@
 #include "Text.h"
 
-void Text::Init() {
+void Text::Init(glm::mat4 &ProjectionMatrix) {
 
 	auto rs = ResourceManager::GetInstance();
+	this->ProjectionMatrix = ProjectionMatrix;
 
 	// FreeType
 	// --------
@@ -76,8 +77,7 @@ void Text::RenderText(std::string text, float x, float y, float scale, glm::vec3
 	rs->GetShadingProgram("text")->Use();
 	rs->GetShadingProgram("text")->SetData("textColor", color);
 	rs->GetShadingProgram("text")->SetData("glyph", 0);
-	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(800), 0.0f, static_cast<float>(600));
-	glUniformMatrix4fv(glGetUniformLocation(rs->GetShadingProgram("text")->GetId(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+	rs->GetShadingProgram("text")->SetData("projection",ProjectionMatrix);
 	
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);

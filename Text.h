@@ -26,8 +26,10 @@ struct Character : public Model {
 
 
 class Text{
+private:
+    glm::mat4 ProjectionMatrix;
 public:
     Text() {};
-    void Init();
+    void Init(glm::mat4 &ProjectionMatrix);
     void RenderText(std::string text, float x, float y, float scale, glm::vec3 color);
 };

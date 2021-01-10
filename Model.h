@@ -17,6 +17,18 @@ struct Vertex {
 		Position = pos;
 		TexCoords = tex;
 	}
+	Vertex(vec3 pos, glm::vec2 tex) {
+		Position = glm::vec3(pos.x,pos.y,pos.z);
+		TexCoords = tex;
+	}
+	Vertex(vec3 pos, vec2 tex) {
+		Position = glm::vec3(pos.x, pos.y, pos.z);
+		TexCoords = glm::vec2(tex.x,tex.y);
+	}
+	Vertex(glm::vec3 pos, vec2 tex) {
+		Position = pos;
+		TexCoords = glm::vec2(tex.x, tex.y);
+	}
 	Vertex() {
 		Position = glm::vec3(0);
 		TexCoords = glm::vec2(0);

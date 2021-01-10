@@ -5,6 +5,7 @@
 #include <iostream>
 #include <iomanip>
 #include <algorithm> 
+#include <glm/glm.hpp>
 #include "ResourceManager.h"
 #include "Input.h"
 #include "Time.h"
@@ -59,15 +60,22 @@ protected:
 	static void windowSizeCallback(GLFWwindow* window, int width, int height);
 
 	World* world;
-	vec2 posDelta;
-
-	bool polygonRenderMode;
 
 	Model crossHair;
+
+	int crossHairSize;
 
 	Text text;
 
 	Camera camera;
+
+	glm::mat4 ProjectionMatrix;
+
+	vec2 posDelta;
+
+	bool polygonRenderMode;
+
+
 public:
 	Engine();
 

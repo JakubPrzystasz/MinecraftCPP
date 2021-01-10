@@ -105,7 +105,7 @@ Engine::Engine()
 	polygonRenderMode = true;
 	screenHeight = 600;
 	screenWidth = 800;
-	camera.SetScreenRatio(vec2(screenHeight, screenWidth));
+	crossHairSize = 8;
 }
 
 
@@ -121,6 +121,9 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	this->windowTitle = title;
 
 	camera.SetScreenRatio(vec2(screenHeight, screenWidth));
+
+	ProjectionMatrix = glm::ortho(0.0f, static_cast<float>(screenWidth), 0.0f, static_cast<float>(screenHeight));
+
 
 	//Make random seed 
 	srand((unsigned int)time(NULL));
@@ -172,23 +175,26 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	rs->GetBlock(BlockName::Cobble)->BindFaces();
 
 	//Text
-	text.Init();
+	text.Init(ProjectionMatrix);
 
 	//Crosshair
 	{
-		glEnable(GL_BLEND);
 		crossHair = Model();
 		crossHair.Init();
 		crossHair.SetShadingProgram(rs->GetShadingProgram("crossHair"));
 		crossHair.shadingProgram->Use();
+		crossHair.shadingProgram->SetData("projection", ProjectionMatrix);
 		crossHair.AddTexture("corssHairTexture", rs->GetTexture("Textures/crosshair.png"));
 		GLuint ind[6] = { 1, 2, 3, // right bottom -> left bottom -> left top 
 					  0, 1, 3 }; // right top -> right bottom -> left top};
 		crossHair.AddIndices(ind, 6);
-		crossHair.AddVertex(Vertex(glm::vec3(0.02, 0.03, 0), glm::vec2(1.0f, 1.0f))); //right top
-		crossHair.AddVertex(Vertex(glm::vec3(0.02, -0.03, 0), glm::vec2(1.0f, 0.0f)));//right bottom
-		crossHair.AddVertex(Vertex(glm::vec3(-0.02, -0.03, 0), glm::vec2(0.0f, 0.0f)));//left bottom
-		crossHair.AddVertex(Vertex(glm::vec3(-0.02, 0.03, 0), glm::vec2(0.0f, 1.0f)));//left top
+
+		//calculate pixels in center of screen
+		vec3 center = vec3(static_cast<GLfloat>(screenWidth) / 2, static_cast<GLfloat>(screenHeight) / 2, 0.f);
+		crossHair.AddVertex(Vertex((center + vec3(crossHairSize, crossHairSize, 0)), glm::vec2(1.0f, 1.0f))); //right top
+		crossHair.AddVertex(Vertex((center + vec3(crossHairSize, -crossHairSize, 0)), glm::vec2(1.0f, 0.0f)));//right bottom
+		crossHair.AddVertex(Vertex((center + vec3(-crossHairSize, -crossHairSize, 0)), glm::vec2(0.0f, 0.0f)));//left bottom
+		crossHair.AddVertex(Vertex((center + vec3(-crossHairSize, crossHairSize, 0)), glm::vec2(0.0f, 1.0f)));//left top
 		crossHair.BindData();
 	}
 	//Crosshair
