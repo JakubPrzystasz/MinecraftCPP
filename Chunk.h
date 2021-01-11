@@ -18,42 +18,31 @@ class Chunk
 {
 private:
 	
-	std::mutex Mutex;
-	std::atomic<bool> updateChunk;
-	
 	vec2 chunkPosition;
-	
+
 	std::unordered_map<vec3, BlockName> blocks;
 
 	GLuint faces;
 
-	Model* model;
-	std::vector<Vertex>* backVertices;
-	std::vector<GLuint>* backIndices;
-
-
-	void BuildMesh();
+	void BuildMesh(std::unique_ptr<Model> model);
 public:
 
-	Chunk(vec2 ChunkPos, Model* _model) {
+	Chunk(vec2 ChunkPos) {
 		chunkPosition = ChunkPos;
-		model = _model;
 		faces = static_cast<GLuint>(0); 
 		blocks = std::unordered_map<vec3, BlockName>();
-		backVertices = new std::vector<Vertex>;
-		backIndices = new std::vector<GLuint>;
 	};
 
 	~Chunk() {
-		delete backIndices;
-		delete backVertices;
 	}
 	
 	void PutBlock(BlockName blockName, vec3 pos);
+
 	void PutBlock(BlockName blockName, GLuint x, GLuint y, GLuint z);
 
 	BlockName GetBlock(vec3 position);
 
+	GLuint CountFaces();
 
 	Face AddPosToFace(vec3 pos, Face& face);
 

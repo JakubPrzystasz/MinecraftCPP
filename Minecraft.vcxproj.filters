@@ -164,6 +164,9 @@
     <ClInclude Include="Text.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
+    <ClInclude Include="Range.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\block.vert">

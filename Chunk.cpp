@@ -1,9 +1,8 @@
 #include "Chunk.h"
 
-void Chunk::BuildMesh()
+void Chunk::BuildMesh(std::unique_ptr<Model> model)
 {
-	if (!updateChunk)
-		return;
+
 	auto rs = ResourceManager::GetInstance();
 	auto world = World::GetInstance();
 	Face tmpFace;
@@ -130,19 +129,16 @@ void Chunk::BuildMesh()
 
 	}
 
-	updateChunk = false;
 }
 
 void Chunk::PutBlock(BlockName blockName, vec3 pos)
 {
 	blocks.emplace(pos, blockName);
-	updateChunk = true;
 }
 
 void Chunk::PutBlock(BlockName blockName, GLuint x, GLuint y, GLuint z)
 {
 	blocks.emplace(vec3(x,y,z), blockName);
-	updateChunk = true;
 }
 
 BlockName Chunk::GetBlock(vec3 position)
@@ -151,6 +147,11 @@ BlockName Chunk::GetBlock(vec3 position)
 	if (tmp != blocks.end())
 		return tmp->second;
 	return BlockName::Air;
+}
+
+GLuint Chunk::CountFaces()
+{
+	return this->faces;
 }
 
 Face Chunk::AddPosToFace(vec3 pos, Face& face)

@@ -46,8 +46,7 @@ struct vec3 {
 	}
 
 
-	bool operator==(const vec3& other) const noexcept
-	{
+	bool operator==(const vec3& other) const noexcept {
 		return (other.x == this->x && other.y == this->y && other.z == this->z);
 	}
 
