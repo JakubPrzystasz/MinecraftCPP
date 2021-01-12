@@ -80,9 +80,9 @@ protected:
 
 	std::array<std::string, 4> DebugData;
 
-	//collitions
+	//collisions
 	vec3 onBlockPosition;
-	vec3 lastPosition;
+	vec2 lastPosition;
 
 public:
 	Engine();

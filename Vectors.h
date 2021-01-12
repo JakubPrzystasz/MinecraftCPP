@@ -105,6 +105,12 @@ struct vec2 {
 		y = (int)in.y;
 	}
 
+	bool operator>(const vec2& other) const noexcept {
+		if (abs(this->x) > abs(other.x) && abs(this->y) > abs(other.y))
+			return true;
+		return false;
+	}
+
 	bool operator==(const vec2& other) const noexcept
 	{
 		return (other.x == this->x && other.y == this->y);

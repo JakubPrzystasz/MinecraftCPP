@@ -14,23 +14,39 @@ struct vec3;
 enum class BlockName;
 class Model;
 
-class Chunk
+enum class ChunkState {
+	NoData,
+	Generated,
+	HasMesh,
+	BuildPending
+};
+
+class Chunk : public Model
 {
 private:
 	
+	std::mutex Mutex;
+
+	ChunkState State;
+
 	vec2 chunkPosition;
 
 	std::unordered_map<vec3, BlockName> blocks;
 
 	GLuint faces;
 
-	void BuildMesh(std::unique_ptr<Model> model);
+	void BuildMesh();
 public:
+
+	std::vector<Vertex> vertices;
+
+	std::vector<GLuint> indices;
 
 	Chunk(vec2 ChunkPos) {
 		chunkPosition = ChunkPos;
 		faces = static_cast<GLuint>(0); 
 		blocks = std::unordered_map<vec3, BlockName>();
+		State = ChunkState::NoData;
 	};
 
 	~Chunk() {

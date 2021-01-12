@@ -41,6 +41,7 @@ public:
 
 	Model();
 	Model(Model* model);
+	~Model();
 
 	GLuint VBO, VAO, EBO;
 	std::vector<Vertex> vertices;

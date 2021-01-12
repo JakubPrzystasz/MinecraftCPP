@@ -1,16 +1,23 @@
 #include "Chunk.h"
 
-void Chunk::BuildMesh(std::unique_ptr<Model> model)
+void Chunk::BuildMesh()
 {
 
 	auto rs = ResourceManager::GetInstance();
+
 	auto world = World::GetInstance();
+
 	Face tmpFace;
+
 	Cube blockModel;
 
-	model->indices.clear();
-	model->vertices.clear();
+	Mutex.lock();
 
+	if (State == ChunkState::HasMesh)
+	{
+		Mutex.unlock();
+		return;
+	}
 
 	for (auto& chunkBlock : blocks)
 	{
@@ -27,15 +34,15 @@ void Chunk::BuildMesh(std::unique_ptr<Model> model)
 		if (GetBlock(chunkBlock.first + vec3(0, 1, 0)) == BlockName::Air) {
 			faces++;
 			tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Top]);
-			model->AddIndices(tmpFace.indices, 6);
-			model->AddVertices(tmpFace.vertices, 4);
+			AddIndices(tmpFace.indices, 6);
+			AddVertices(tmpFace.vertices, 4);
 		}
 		//Bottom
 		if (GetBlock(chunkBlock.first + vec3(0, -1, 0)) == BlockName::Air) {
 			faces++;
 			tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Bottom]);
-			model->AddIndices(tmpFace.indices, 6);
-			model->AddVertices(tmpFace.vertices, 4);
+			AddIndices(tmpFace.indices, 6);
+			AddVertices(tmpFace.vertices, 4);
 		}
 
 		//FRONT
@@ -48,16 +55,16 @@ void Chunk::BuildMesh(std::unique_ptr<Model> model)
 				if (foreginBlock == BlockName::Air) {
 					faces++;
 					tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Front]);
-					model->AddIndices(tmpFace.indices, 6);
-					model->AddVertices(tmpFace.vertices, 4);
+					AddIndices(tmpFace.indices, 6);
+					AddVertices(tmpFace.vertices, 4);
 				}
 			}
 		}
 		else if (GetBlock(chunkBlock.first + vec3(0, 0, 1)) == BlockName::Air) {
 			faces++;
 			tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Front]);
-			model->AddIndices(tmpFace.indices, 6);
-			model->AddVertices(tmpFace.vertices, 4);
+			AddIndices(tmpFace.indices, 6);
+			AddVertices(tmpFace.vertices, 4);
 		}
 
 
@@ -71,16 +78,16 @@ void Chunk::BuildMesh(std::unique_ptr<Model> model)
 				if (foreginBlock == BlockName::Air) {
 					faces++;
 					tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Back]);
-					model->AddIndices(tmpFace.indices, 6);
-					model->AddVertices(tmpFace.vertices, 4);
+					AddIndices(tmpFace.indices, 6);
+					AddVertices(tmpFace.vertices, 4);
 				}
 			}
 		}
 		else if (GetBlock(chunkBlock.first + vec3(0, 0, -1)) == BlockName::Air) {
 			faces++;
 			tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Back]);
-			model->AddIndices(tmpFace.indices, 6);
-			model->AddVertices(tmpFace.vertices, 4);
+			AddIndices(tmpFace.indices, 6);
+			AddVertices(tmpFace.vertices, 4);
 		}
 
 		//LEFT face
@@ -93,16 +100,16 @@ void Chunk::BuildMesh(std::unique_ptr<Model> model)
 				if (foreginBlock == BlockName::Air) {
 					faces++;
 					tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Left]);
-					model->AddIndices(tmpFace.indices, 6);
-					model->AddVertices(tmpFace.vertices, 4);
+					AddIndices(tmpFace.indices, 6);
+					AddVertices(tmpFace.vertices, 4);
 				}
 			}
 		}
 		else if (GetBlock(chunkBlock.first + vec3(-1, 0, 0)) == BlockName::Air) {
 			faces++;
 			tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Left]);
-			model->AddIndices(tmpFace.indices, 6);
-			model->AddVertices(tmpFace.vertices, 4);
+			AddIndices(tmpFace.indices, 6);
+			AddVertices(tmpFace.vertices, 4);
 		}
 
 		//RIGHT face
@@ -115,30 +122,37 @@ void Chunk::BuildMesh(std::unique_ptr<Model> model)
 				if (foreginBlock == BlockName::Air) {
 					faces++;
 					tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Right]);
-					model->AddIndices(tmpFace.indices, 6);
-					model->AddVertices(tmpFace.vertices, 4);
+					AddIndices(tmpFace.indices, 6);
+					AddVertices(tmpFace.vertices, 4);
 				}
 			}
 		}
 		else if (GetBlock(chunkBlock.first + vec3(1, 0, 0)) == BlockName::Air) {
 			faces++;
 			tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Right]);
-			model->AddIndices(tmpFace.indices, 6);
-			model->AddVertices(tmpFace.vertices, 4);
+			AddIndices(tmpFace.indices, 6);
+			AddVertices(tmpFace.vertices, 4);
 		}
 
 	}
 
+	State = ChunkState::BuildPending;
+
+	Mutex.unlock();
 }
 
 void Chunk::PutBlock(BlockName blockName, vec3 pos)
 {
+	Mutex.lock();
 	blocks.emplace(pos, blockName);
+	Mutex.unlock();
 }
 
 void Chunk::PutBlock(BlockName blockName, GLuint x, GLuint y, GLuint z)
 {
-	blocks.emplace(vec3(x,y,z), blockName);
+	Mutex.lock();
+	blocks.emplace(vec3(x, y, z), blockName);
+	Mutex.unlock();
 }
 
 BlockName Chunk::GetBlock(vec3 position)
@@ -159,7 +173,7 @@ Face Chunk::AddPosToFace(vec3 pos, Face& face)
 
 	Face tmp = Face(face);
 	for (auto& vert : tmp.vertices) {
-		vert.Position = ToWorldPosition(pos + vert.Position,chunkPosition);
+		vert.Position = ToWorldPosition(pos + vert.Position, chunkPosition);
 	}
 	return tmp;
 }

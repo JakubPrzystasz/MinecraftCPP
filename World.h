@@ -9,22 +9,23 @@
 #include <thread>
 #include <mutex>
 #include <chrono>
-#include <queue>
+#include <list>
 #include <memory>
 
 class Chunk;
 class Model;
-
-struct VisibleChunk {
-	std::unique_ptr<Chunk> Chunk;
-	std::unique_ptr<Model> Model;
-};
 
 class World
 {
 private:
 
 	World() {};
+
+	inline static int RoundInt(GLfloat x);
+
+	inline static int RoundInt(GLuint x);
+
+	static bool IsInQueue(const std::list<std::pair<Model*, Chunk*>> &queue, const std::pair<Model*,Chunk*> &pair);
 
 	static GLuint renderDistance;
 
@@ -34,21 +35,17 @@ private:
 
 	static std::unordered_map<vec2, Chunk*> Chunks;
 
-	static size_t RenderedChunksSize;
-
-	static std::unique_ptr<VisibleChunk[]> RenderedChunks;
-
-	inline static int RoundInt(GLfloat x);
-
-	inline static int RoundInt(GLuint x);
+	static std::unordered_map<vec2, std::pair<Model*,Chunk*>> RenderedChunks;
 
 	static Camera* camera;
 
 	static std::vector<std::thread> Threads;
-	
-	static std::queue<std::pair<vec2, Model*>> GenJobs;
-	
-	static std::mutex Mutex;
+
+	static std::list<std::pair<Model*, Chunk*>> Jobs;
+
+	static std::mutex JobsMutex;
+
+	static std::mutex ChunksMutex;
 
 	static std::atomic<bool> Run;
 
@@ -87,7 +84,7 @@ public:
 
 	static void SetBlock(glm::vec3 pos, BlockName block);
 
-	static Chunk* GenerateChunk(vec2 chunkPos);
+	static void GenerateChunk(Chunk* chunk);
 
 	//Takes in chunk coords as parameter
 	static BlockName GetBlock(Chunk* chunk, vec3 pos);
@@ -101,7 +98,7 @@ public:
 
 	static void UpdateMesh(Chunk* chunk);
 
-	static void RequestChunkGenerate(vec2 chunkPos);
+	static Chunk* RequestChunkGenerate(vec2 chunkPos);
 
 	static void SetRenderedChunks(vec2 centerChunkPos);
 
@@ -114,6 +111,10 @@ public:
 	inline static vec3 ToChunkPosition(glm::vec3 worldPos);
 
 	inline static vec3 ToChunkPosition(vec3 worldPos);
+	
+	static GLuint GetChunksCount();
+
+	static GLuint GetJobsCount();
 
 	static void StartThreads();
 

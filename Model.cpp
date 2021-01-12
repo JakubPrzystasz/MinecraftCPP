@@ -38,6 +38,16 @@ void Model::SetVertices(std::vector<glm::vec3>& vertices)
 	}
 }
 
+Model::~Model()
+{
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
+	Textures.clear();
+	indices.clear();
+	vertices.clear();
+}
+
 void Model::SetVertices(GLfloat* vertices, GLuint length)
 {
 	//Assume that every vertex has 3 values in array
