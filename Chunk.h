@@ -21,13 +21,11 @@ enum class ChunkState {
 	BuildPending
 };
 
-class Chunk : public Model
+class Chunk
 {
 private:
-	
-	std::mutex Mutex;
 
-	ChunkState State;
+	std::mutex Mutex;
 
 	vec2 chunkPosition;
 
@@ -35,8 +33,10 @@ private:
 
 	GLuint faces;
 
-	void BuildMesh();
+	void BuildMesh(Model* model);
 public:
+
+	ChunkState State;
 
 	std::vector<Vertex> vertices;
 
@@ -49,8 +49,7 @@ public:
 		State = ChunkState::NoData;
 	};
 
-	~Chunk() {
-	}
+	~Chunk() {}
 	
 	void PutBlock(BlockName blockName, vec3 pos);
 

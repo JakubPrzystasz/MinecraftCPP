@@ -12,17 +12,19 @@ Camera* World::camera = nullptr;
 
 std::unordered_map<vec2, Chunk*> World::Chunks;
 
-std::unordered_map<vec2, std::pair<Model*, Chunk*>> World::RenderedChunks;
+std::unordered_map<vec2, Model*> World::RenderedChunks;
 
 std::vector<std::thread> World::Threads;
 
-std::list<std::pair<Model*, Chunk*>> World::Jobs;
+std::list<Model*> World::Jobs;
 
 std::mutex World::JobsMutex;
 
 std::mutex World::ChunksMutex;
 
 std::atomic<bool> World::Run = true;
+
+std::atomic<GLuint> World::MeshCount = 0;
 
 
 int World::RoundInt(GLfloat x) {
@@ -60,7 +62,7 @@ void World::SetRenderDistance(GLuint distance)
 	renderDistance = distance;
 
 	for (auto& chunk : RenderedChunks) {
-		delete chunk.second.first;
+		delete chunk.second;
 	}
 	RenderedChunks.clear();
 
@@ -71,7 +73,7 @@ void World::SetRenderDistance(GLuint distance)
 			model->SetShadingProgram(shadingProgram);
 			model->AddTexture("blockTexture", texture);
 			model->Textures["blockTexture"]->Bind();
-			RenderedChunks.emplace(chunkPosition, std::make_pair(model, nullptr));
+			RenderedChunks.emplace(chunkPosition, model);
 		}
 	}
 
@@ -91,41 +93,28 @@ void World::DrawChunks(vec2 centerChunkPos)
 	shadingProgram->SetData("projection", camera->Projection);
 
 	for (auto& chunk : RenderedChunks) {
-		//May request to generate chunk ? 
-		if (chunk.second.second == nullptr)
+		if (chunk.second == nullptr)
 			continue;
 
-		chunk.second.second->Mutex.lock();
+		if (chunk.second->chunk == nullptr)
+			continue;
 
-	//	std::cout << (int)(chunk.second.second->State.load()) << std::endl;
+		std::unique_lock<std::mutex> lock(chunk.second->chunk->Mutex);
 
 		//No mesh - request mesh build
-		if (chunk.second.second->State == ChunkState::Generated) {
-			auto pair = std::make_pair(chunk.second.first, chunk.second.second);
-			chunk.second.second->Mutex.unlock();
-			UpdateMesh(chunk.second.second);
+		if (chunk.second->chunk->State == ChunkState::Generated) {
+			lock.unlock();
+			UpdateMesh(chunk.second);
 			continue;
 		}
 
 		//Just draw chunk
-		if (chunk.second.second->State == ChunkState::HasMesh) {
-			chunk.second.first->BindData();
-			chunk.second.first->Draw();
-			chunk.second.second->Mutex.unlock();
+		if (chunk.second->chunk->State == ChunkState::HasMesh) {
+			chunk.second->BindData();
+			chunk.second->Draw();
 			continue;
 		}
 
-		//Chunk has a new mesh, lets take it to the model
-		if (chunk.second.second->State == ChunkState::BuildPending) {
-			auto pair = std::make_pair(chunk.second.first, chunk.second.second);
-			chunk.second.second->Mutex.unlock();
-			JobsMutex.lock();
-			Jobs.push_back(pair);
-			JobsMutex.unlock();
-			continue;
-		}
-
-		chunk.second.second->Mutex.unlock();
 	}
 
 }
@@ -136,19 +125,20 @@ void World::SetBlock(glm::vec3 pos, BlockName _block)
 	if (chunk == nullptr)
 		return;
 	auto blockInChunkPos = ToChunkPosition(pos);
-	chunk->Mutex.lock();
+
+
 	auto block = chunk->blocks.find(blockInChunkPos);
 	if ((block != chunk->blocks.end()))
 		chunk->blocks.erase(block);
 	else if (_block != BlockName::Air)
 		chunk->PutBlock(_block, ToChunkPosition(pos));
 	else {
-		chunk->Mutex.unlock();
+
 		return;
 	}
-	chunk->Mutex.unlock();
 
-	UpdateMesh(chunk);
+
+	UpdateMesh(chunk->chunkPosition);
 	if (blockInChunkPos.x == 0)
 		UpdateMesh(chunk->chunkPosition + vec2(-1, 0));
 
@@ -167,7 +157,6 @@ void World::GenerateChunk(Chunk* chunk)
 	float grassHeight;
 	float dirtHeight;
 
-	chunk->Mutex.lock();
 	for (GLuint x : range(0, chunkSize)) {
 		for (GLuint z : range(0, chunkSize)) {
 			grassHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunk->chunkPosition.x + 2048)) / 16.f, 0.f, (float)(z + chunkSize * (chunk->chunkPosition.y + 2048)) / 16.f, 0, 0, 0, WorldSeed) * (-8) + 16;
@@ -188,7 +177,6 @@ void World::GenerateChunk(Chunk* chunk)
 	}
 
 	chunk->State = ChunkState::Generated;
-	chunk->Mutex.unlock();
 }
 
 BlockName World::GetBlock(Chunk* chunk, vec3 pos)
@@ -223,89 +211,99 @@ BlockName World::GetBlock(vec3 pos)
 	return GetBlock(chunk, _pos);
 }
 
-void World::UpdateMesh(vec2 ChunkPoition)
+void World::UpdateMesh(vec2 chunkPosition)
 {
-	auto chunk = GetChunk(ChunkPoition);
+	Model* chunk = nullptr;
+	for (auto& tmpChunk : RenderedChunks) {
+		if (tmpChunk.second->chunk == nullptr)
+			continue;
+
+		std::unique_lock<std::mutex> lock(tmpChunk.second->chunk->Mutex);
+
+		if (tmpChunk.second->chunk->chunkPosition == chunkPosition &&
+			tmpChunk.second->chunk->State != ChunkState::NoData) {
+			chunk = tmpChunk.second;
+			break;
+		}
+	}
+
 	if (chunk != nullptr)
 		UpdateMesh(chunk);
 }
 
-void World::UpdateMesh(Chunk* chunk)
+void World::UpdateMesh(Model* model)
 {
-	auto pair = std::make_pair(nullptr, chunk);
-	chunk->Mutex.lock();
-	if (chunk->State != ChunkState::HasMesh) {
-		chunk->Mutex.unlock();
-		JobsMutex.lock();
-		Jobs.push_back(pair);
-		JobsMutex.unlock();
-		return;
-	}
-	chunk->Mutex.unlock();
+	JobsMutex.lock();
+	Jobs.push_back(model);
+	JobsMutex.unlock();
+	return;
 }
 
 
-Chunk* World::RequestChunkGenerate(vec2 chunkPosition)
+void World::RequestChunkGenerate(vec2 chunkPosition, Model* model)
 {
 	if (GetChunk(chunkPosition) != nullptr)
-		return nullptr;
+		return;
 
 	auto chunk = new Chunk(chunkPosition);
-	auto pair = std::make_pair(nullptr, chunk);
+	model->chunk = chunk;
 	JobsMutex.lock();
-	Jobs.push_back(std::make_pair(nullptr, chunk));
+	Jobs.push_back(model);
 	JobsMutex.unlock();
-	return chunk;
+	return;
 }
 
 void World::SetRenderedChunks(vec2 centerChunkPos)
 {
 	vec2 position;
 
-	std::unordered_map<vec2, std::pair<Model*, Chunk*>> oldChunks;
-
 	for (auto& chunk : RenderedChunks) {
-		if (chunk.second.second == nullptr)
-			break;
-		oldChunks.emplace(chunk.second.second->chunkPosition, std::make_pair(chunk.second.first, chunk.second.second));
+		if (chunk.second->chunk == nullptr)
+			continue;
+		//Put data to chunk
+		chunk.second->chunk->vertices = std::move(chunk.second->vertices);
+		chunk.second->chunk->indices = std::move(chunk.second->indices);
+		chunk.second->chunk = nullptr;
 	}
 
 	for (auto& chunk : RenderedChunks) {
 		position = centerChunkPos + chunk.first;
 
-		//Scenario 1 - no chunks data
-		if (chunk.second.second == nullptr) {
-			chunk.second.second = RequestChunkGenerate(position);
-			continue;
-		}
+		auto tmpChunk = GetChunk(position);
+		if (tmpChunk != nullptr) {
+			chunk.second->chunk = tmpChunk;
 
-		{
-			auto tmpChunk = oldChunks.find(position);
+			if (tmpChunk->State == ChunkState::Generated ||
+				tmpChunk->State == ChunkState::BuildPending ||
+				tmpChunk->State == ChunkState::HasMesh)
+				UpdateMesh(position);
 
-			//Put existing chunk 
-			if (tmpChunk != oldChunks.end()) {
-				chunk.second.first = tmpChunk->second.first;
-				chunk.second.second = tmpChunk->second.second;
-				continue;
+			if (tmpChunk->State == ChunkState::NoData) {
+				RequestChunkGenerate(position, chunk.second);
+
+				UpdateMesh(chunk.second->chunk->chunkPosition + vec2(-1, 0));
+
+				UpdateMesh(chunk.second->chunk->chunkPosition + vec2(1, 0));
+
+				UpdateMesh(chunk.second->chunk->chunkPosition + vec2(0, -1));
+
+				UpdateMesh(chunk.second->chunk->chunkPosition + vec2(0, 1));
 			}
 		}
-		//No chunk found let's try in Chunk's map:
+		else {
+			RequestChunkGenerate(position, chunk.second);
 
-		{
-			auto tmpChunk = GetChunk(position);
-			if (tmpChunk != nullptr) {
-				//Put old mesh to chunk
-				chunk.second.second->vertices = std::move(chunk.second.first->vertices);
-				chunk.second.second->indices = std::move(chunk.second.first->indices);
-				//Put new chunk's mesh to model
-				chunk.second.second = tmpChunk;
-				chunk.second.first->vertices = std::move(tmpChunk->vertices);
-				chunk.second.first->indices = std::move(tmpChunk->indices);
-				continue;
-			}
+			UpdateMesh(chunk.second->chunk->chunkPosition + vec2(-1, 0));
+
+			UpdateMesh(chunk.second->chunk->chunkPosition + vec2(1, 0));
+
+			UpdateMesh(chunk.second->chunk->chunkPosition + vec2(0, -1));
+
+			UpdateMesh(chunk.second->chunk->chunkPosition + vec2(0, 1));
+
 		}
 
-		chunk.second.second = RequestChunkGenerate(position);
+		continue;
 	}
 }
 
@@ -375,6 +373,11 @@ GLuint World::GetJobsCount()
 	return num;
 }
 
+GLuint World::GetMeshCount()
+{
+	return MeshCount;
+}
+
 void World::StartThreads()
 {
 	Threads.push_back(std::thread(RunThreads));
@@ -396,67 +399,41 @@ void World::RunThreads() {
 			Jobs.pop_front();
 			JobsMutex.unlock();
 
-			if (job.second == nullptr)
+			if (job->chunk == nullptr)
 				continue;
 
-			job.second->Mutex.lock();
+			std::unique_lock<std::mutex> lock(job->chunk->Mutex);
+			if (job->chunk->State == ChunkState::NoData) {
+				GenerateChunk(job->chunk);
+				ChunksMutex.lock();
+				Chunks.emplace(job->chunk->chunkPosition, job->chunk);
+				ChunksMutex.unlock();
 
-			if (job.first == nullptr) {
-				//Generate CHUNK
-				if (job.second->State == ChunkState::NoData) {
-					job.second->Mutex.unlock();
-					GenerateChunk(job.second);
-					ChunksMutex.lock();
-					Chunks.emplace(job.second->chunkPosition, job.second);
-					ChunksMutex.unlock(); 
+				lock.unlock();
 
-					UpdateMesh(job.second->chunkPosition + vec2(-1, 0));
-					UpdateMesh(job.second->chunkPosition + vec2(1, 0));
-					UpdateMesh(job.second->chunkPosition + vec2(0, -1));
-					UpdateMesh(job.second->chunkPosition + vec2(0, 1));
-					
-					continue;
-				}
-				//Build mesh
-				if (job.second->State == ChunkState::Generated) {
-					job.second->Mutex.unlock();
-					job.second->BuildMesh();
-					continue;
-				}
+				continue;
 			}
-
-			//We have complete pair, what to do?
-			if (job.first != nullptr) {
-				//Lets update model's mesh
-				if (job.second->State == ChunkState::BuildPending) {
-					/*job.first->indices.clear();
-					job.first->vertices.clear();
-					job.first->vertices = std::move(job.second->vertices);
-					job.first->indices = std::move(job.second->indices);
-					job.second->State = ChunkState::HasMesh;
-					job.second->Mutex.unlock();*/
-					continue;
-				}
-				//Build chunk's mesh
-				if (job.second->State == ChunkState::Generated) {
-					job.second->Mutex.unlock();
-					job.second->BuildMesh();
-					job.second->Mutex.lock();
-					job.first->vertices = (job.second->vertices);
-					job.first->indices = (job.second->indices);
-					job.second->Mutex.unlock();
-					continue;
-				}
+			if (job->chunk->State == ChunkState::Generated) {
+				job->chunk->BuildMesh(job);
+				job->chunk->State = ChunkState::HasMesh;
+				MeshCount++;
+				continue;
 			}
-			
-			job.second->Mutex.unlock();
+			if (job->chunk->State == ChunkState::HasMesh) {
+				if (job->chunk->vertices.size() > 0) {
+					job->vertices = std::move(job->chunk->vertices);
+					job->indices = std::move(job->chunk->indices);
+				}
+				continue;
+			}
 		}
 		else
+		{
 			JobsMutex.unlock();
-
-		auto now = std::chrono::high_resolution_clock::now();
-		do {
-			std::this_thread::yield();
-		} while (std::chrono::high_resolution_clock::now() < now + std::chrono::microseconds(20));
+			auto now = std::chrono::high_resolution_clock::now();
+			do {
+				std::this_thread::yield();
+			} while (std::chrono::high_resolution_clock::now() < now + std::chrono::microseconds(25));
+		}
 	}
 }

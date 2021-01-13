@@ -25,8 +25,6 @@ private:
 
 	inline static int RoundInt(GLuint x);
 
-	static bool IsInQueue(const std::list<std::pair<Model*, Chunk*>> &queue, const std::pair<Model*,Chunk*> &pair);
-
 	static GLuint renderDistance;
 
 	static World* instance;
@@ -35,19 +33,21 @@ private:
 
 	static std::unordered_map<vec2, Chunk*> Chunks;
 
-	static std::unordered_map<vec2, std::pair<Model*,Chunk*>> RenderedChunks;
+	static std::unordered_map<vec2, Model*> RenderedChunks;
 
 	static Camera* camera;
 
 	static std::vector<std::thread> Threads;
 
-	static std::list<std::pair<Model*, Chunk*>> Jobs;
+	static std::list<Model*> Jobs;
 
 	static std::mutex JobsMutex;
 
 	static std::mutex ChunksMutex;
 
 	static std::atomic<bool> Run;
+
+	static std::atomic<GLuint> MeshCount;
 
 	static void RunThreads();
 
@@ -94,11 +94,11 @@ public:
 
 	static BlockName GetBlock(vec3 pos);
 
-	static void UpdateMesh(vec2 ChunkPoition);
+	static void UpdateMesh(vec2 chunkPosition);
 
-	static void UpdateMesh(Chunk* chunk);
+	static void UpdateMesh(Model* model);
 
-	static Chunk* RequestChunkGenerate(vec2 chunkPos);
+	static void RequestChunkGenerate(vec2 chunkPos, Model* model);
 
 	static void SetRenderedChunks(vec2 centerChunkPos);
 
@@ -115,6 +115,8 @@ public:
 	static GLuint GetChunksCount();
 
 	static GLuint GetJobsCount();
+
+	static GLuint GetMeshCount();
 
 	static void StartThreads();
 

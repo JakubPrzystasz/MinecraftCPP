@@ -1,23 +1,15 @@
 #include "Chunk.h"
 
-void Chunk::BuildMesh()
+void Chunk::BuildMesh(Model* model)
 {
+	if (State != ChunkState::BuildPending && State != ChunkState::Generated)
+		return;
 
 	auto rs = ResourceManager::GetInstance();
-
 	auto world = World::GetInstance();
 
 	Face tmpFace;
-
 	Cube blockModel;
-
-	Mutex.lock();
-
-	if (State == ChunkState::HasMesh)
-	{
-		Mutex.unlock();
-		return;
-	}
 
 	for (auto& chunkBlock : blocks)
 	{
@@ -34,15 +26,15 @@ void Chunk::BuildMesh()
 		if (GetBlock(chunkBlock.first + vec3(0, 1, 0)) == BlockName::Air) {
 			faces++;
 			tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Top]);
-			AddIndices(tmpFace.indices, 6);
-			AddVertices(tmpFace.vertices, 4);
+			model->AddIndices(tmpFace.indices, 6);
+			model->AddVertices(tmpFace.vertices, 4);
 		}
 		//Bottom
 		if (GetBlock(chunkBlock.first + vec3(0, -1, 0)) == BlockName::Air) {
 			faces++;
 			tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Bottom]);
-			AddIndices(tmpFace.indices, 6);
-			AddVertices(tmpFace.vertices, 4);
+			model->AddIndices(tmpFace.indices, 6);
+			model->AddVertices(tmpFace.vertices, 4);
 		}
 
 		//FRONT
@@ -55,16 +47,16 @@ void Chunk::BuildMesh()
 				if (foreginBlock == BlockName::Air) {
 					faces++;
 					tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Front]);
-					AddIndices(tmpFace.indices, 6);
-					AddVertices(tmpFace.vertices, 4);
+					model->AddIndices(tmpFace.indices, 6);
+					model->AddVertices(tmpFace.vertices, 4);
 				}
 			}
 		}
 		else if (GetBlock(chunkBlock.first + vec3(0, 0, 1)) == BlockName::Air) {
 			faces++;
 			tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Front]);
-			AddIndices(tmpFace.indices, 6);
-			AddVertices(tmpFace.vertices, 4);
+			model->AddIndices(tmpFace.indices, 6);
+			model->AddVertices(tmpFace.vertices, 4);
 		}
 
 
@@ -78,16 +70,16 @@ void Chunk::BuildMesh()
 				if (foreginBlock == BlockName::Air) {
 					faces++;
 					tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Back]);
-					AddIndices(tmpFace.indices, 6);
-					AddVertices(tmpFace.vertices, 4);
+					model->AddIndices(tmpFace.indices, 6);
+					model->AddVertices(tmpFace.vertices, 4);
 				}
 			}
 		}
 		else if (GetBlock(chunkBlock.first + vec3(0, 0, -1)) == BlockName::Air) {
 			faces++;
 			tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Back]);
-			AddIndices(tmpFace.indices, 6);
-			AddVertices(tmpFace.vertices, 4);
+			model->AddIndices(tmpFace.indices, 6);
+			model->AddVertices(tmpFace.vertices, 4);
 		}
 
 		//LEFT face
@@ -100,16 +92,16 @@ void Chunk::BuildMesh()
 				if (foreginBlock == BlockName::Air) {
 					faces++;
 					tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Left]);
-					AddIndices(tmpFace.indices, 6);
-					AddVertices(tmpFace.vertices, 4);
+					model->AddIndices(tmpFace.indices, 6);
+					model->AddVertices(tmpFace.vertices, 4);
 				}
 			}
 		}
 		else if (GetBlock(chunkBlock.first + vec3(-1, 0, 0)) == BlockName::Air) {
 			faces++;
 			tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Left]);
-			AddIndices(tmpFace.indices, 6);
-			AddVertices(tmpFace.vertices, 4);
+			model->AddIndices(tmpFace.indices, 6);
+			model->AddVertices(tmpFace.vertices, 4);
 		}
 
 		//RIGHT face
@@ -122,37 +114,31 @@ void Chunk::BuildMesh()
 				if (foreginBlock == BlockName::Air) {
 					faces++;
 					tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Right]);
-					AddIndices(tmpFace.indices, 6);
-					AddVertices(tmpFace.vertices, 4);
+					model->AddIndices(tmpFace.indices, 6);
+					model->AddVertices(tmpFace.vertices, 4);
 				}
 			}
 		}
 		else if (GetBlock(chunkBlock.first + vec3(1, 0, 0)) == BlockName::Air) {
 			faces++;
 			tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Right]);
-			AddIndices(tmpFace.indices, 6);
-			AddVertices(tmpFace.vertices, 4);
+			model->AddIndices(tmpFace.indices, 6);
+			model->AddVertices(tmpFace.vertices, 4);
 		}
 
 	}
 
-	State = ChunkState::BuildPending;
-
-	Mutex.unlock();
+	State = ChunkState::HasMesh;
 }
 
 void Chunk::PutBlock(BlockName blockName, vec3 pos)
 {
-	Mutex.lock();
 	blocks.emplace(pos, blockName);
-	Mutex.unlock();
 }
 
 void Chunk::PutBlock(BlockName blockName, GLuint x, GLuint y, GLuint z)
 {
-	Mutex.lock();
 	blocks.emplace(vec3(x, y, z), blockName);
-	Mutex.unlock();
 }
 
 BlockName Chunk::GetBlock(vec3 position)

@@ -10,6 +10,8 @@
 #include "ShadingProgram.h"
 #include "Camera.h"
 
+class Chunk;
+
 struct Vertex {
 	glm::vec3 Position;
 	glm::vec2 TexCoords;
@@ -44,6 +46,9 @@ public:
 	~Model();
 
 	GLuint VBO, VAO, EBO;
+
+	Chunk* chunk;
+
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
 

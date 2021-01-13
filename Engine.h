@@ -78,7 +78,7 @@ protected:
 
 	bool showDebugData;
 
-	std::array<std::string, 4> DebugData;
+	std::array<std::string, 5> DebugData;
 
 	//collisions
 	vec3 onBlockPosition;

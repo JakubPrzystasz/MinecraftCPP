@@ -100,7 +100,7 @@ void Engine::updateWindow()
 		std::fixed << std::setprecision(1) << camera.Position.z;
 	DebugData[1] = STRING.str();
 	std::stringstream().swap(STRING);
-	STRING << "Chunk (X,Y): " << chunkPos.x << ", " << chunkPos.y << "      " << "Generated chunks: " << world->GetChunksCount() << "   " << " Direction: " << static_cast<char>(camera.GetLookDirection());
+	STRING << "Chunk (X,Y): " << chunkPos.x << ", " << chunkPos.y << "      " << "Built meshes: " << world->GetMeshCount() << "      " << "Generated chunks: " << world->GetChunksCount() << "   " << " Direction: " << static_cast<char>(camera.GetLookDirection());
 	DebugData[2] = STRING.str();
 	std::stringstream().swap(STRING);
 	STRING << "On block position (X,Y,Z): " <<
@@ -108,20 +108,24 @@ void Engine::updateWindow()
 		std::fixed << std::setprecision(1) << onBlockPosition.y << ", " <<
 		std::fixed << std::setprecision(1) << onBlockPosition.z << "  Standing on: " << (int)world->GetBlock(vec3(camera.Position) + vec3(0, -2, 0));
 	DebugData[3] = STRING.str();
+	std::stringstream().swap(STRING);
+	auto chunk = world->GetChunk(chunkPos);
+	if (chunk != nullptr) {
+		STRING << "Actual chunk state: " << (int)chunk->State << "";
+	}
+	DebugData[4] = STRING.str();
 }
 
 void Engine::renderFrame()
 {
 	world->DrawChunks(world->GetChunkPosition(camera.Position));
-
+	crossHair.Draw();
 	if (showDebugData) {
 		int line = 0;
 		for (std::string& str : DebugData) {
 			text.RenderText(str, static_cast<float>(5), static_cast<float>(585-(line++*25)), 0.4f, glm::vec3(0.f, 0.f, 0.f));
 		}
 	}
-
-	crossHair.Draw();
 }
 
 void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
@@ -237,9 +241,9 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 
 	world = World::GetInstance();
 	world->SetCamera(&camera);
-	world->SetChunkSize(16);
+	world->SetChunkSize(8);
 	world->StartThreads();
-	world->SetRenderDistance(1);
+	world->SetRenderDistance(4);
 	world->SetRenderedChunks(vec2(0, 0));
 }
 
