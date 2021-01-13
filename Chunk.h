@@ -14,18 +14,12 @@ struct vec3;
 enum class BlockName;
 class Model;
 
-enum class ChunkState {
-	NoData,
-	Generated,
-	HasMesh,
-	BuildPending
-};
-
 class Chunk
 {
 private:
 
 	std::mutex Mutex;
+	std::atomic<bool> updateChunk;
 
 	vec2 chunkPosition;
 
@@ -33,37 +27,39 @@ private:
 
 	GLuint faces;
 
-	void BuildMesh(Model* model);
+	Model* model;
+	std::vector<Vertex>* backVertices;
+	std::vector<GLuint>* backIndices;
+
+
+	void BuildMesh();
 public:
 
-	ChunkState State;
-
-	std::vector<Vertex> vertices;
-
-	std::vector<GLuint> indices;
-
-	Chunk(vec2 ChunkPos) {
+	Chunk(vec2 ChunkPos, Model* _model) {
 		chunkPosition = ChunkPos;
-		faces = static_cast<GLuint>(0); 
+		model = _model;
+		faces = static_cast<GLuint>(0);
 		blocks = std::unordered_map<vec3, BlockName>();
-		State = ChunkState::NoData;
+		backVertices = new std::vector<Vertex>;
+		backIndices = new std::vector<GLuint>;
 	};
 
-	~Chunk() {}
-	
-	void PutBlock(BlockName blockName, vec3 pos);
+	~Chunk() {
+		delete backIndices;
+		delete backVertices;
+	}
 
+	void PutBlock(BlockName blockName, vec3 pos);
 	void PutBlock(BlockName blockName, GLuint x, GLuint y, GLuint z);
 
 	BlockName GetBlock(vec3 position);
 
-	GLuint CountFaces();
 
 	Face AddPosToFace(vec3 pos, Face& face);
 
 	glm::vec3 ToWorldPosition(vec3 pos);
 
-	static glm::vec3 ToWorldPosition(vec3 pos,vec2 chunkPos);
+	static glm::vec3 ToWorldPosition(vec3 pos, vec2 chunkPos);
 
 	friend World;
 };

@@ -1,15 +1,17 @@
 #include "Chunk.h"
 
-void Chunk::BuildMesh(Model* model)
+void Chunk::BuildMesh()
 {
-	if (State != ChunkState::BuildPending && State != ChunkState::Generated)
+	if (!updateChunk)
 		return;
-
 	auto rs = ResourceManager::GetInstance();
 	auto world = World::GetInstance();
-
 	Face tmpFace;
 	Cube blockModel;
+
+	model->indices.clear();
+	model->vertices.clear();
+
 
 	for (auto& chunkBlock : blocks)
 	{
@@ -128,17 +130,19 @@ void Chunk::BuildMesh(Model* model)
 
 	}
 
-	State = ChunkState::HasMesh;
+	updateChunk = false;
 }
 
 void Chunk::PutBlock(BlockName blockName, vec3 pos)
 {
 	blocks.emplace(pos, blockName);
+	updateChunk = true;
 }
 
 void Chunk::PutBlock(BlockName blockName, GLuint x, GLuint y, GLuint z)
 {
 	blocks.emplace(vec3(x, y, z), blockName);
+	updateChunk = true;
 }
 
 BlockName Chunk::GetBlock(vec3 position)
@@ -147,11 +151,6 @@ BlockName Chunk::GetBlock(vec3 position)
 	if (tmp != blocks.end())
 		return tmp->second;
 	return BlockName::Air;
-}
-
-GLuint Chunk::CountFaces()
-{
-	return this->faces;
 }
 
 Face Chunk::AddPosToFace(vec3 pos, Face& face)

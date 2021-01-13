@@ -91,7 +91,7 @@ void Engine::updateWindow()
 	lastPosition = chunkPos;
 
 	std::stringstream STRING;
-	STRING << "FPS: " << timer.FPS << "   Active jobs:" << world->GetJobsCount();
+	STRING << "FPS: " << timer.FPS << "   Active jobs:";// << world->GetJobsCount();
 	DebugData[0] = STRING.str();
 	std::stringstream().swap(STRING);
 	STRING << "Player position (X,Y,Z): " <<
@@ -100,7 +100,7 @@ void Engine::updateWindow()
 		std::fixed << std::setprecision(1) << camera.Position.z;
 	DebugData[1] = STRING.str();
 	std::stringstream().swap(STRING);
-	STRING << "Chunk (X,Y): " << chunkPos.x << ", " << chunkPos.y << "      " << "Built meshes: " << world->GetMeshCount() << "      " << "Generated chunks: " << world->GetChunksCount() << "   " << " Direction: " << static_cast<char>(camera.GetLookDirection());
+	/*STRING << "Chunk (X,Y): " << chunkPos.x << ", " << chunkPos.y << "      " << "Built meshes: " << world->GetMeshCount() << "      " << "Generated chunks: " << world->GetChunksCount() << "   " << " Direction: " << static_cast<char>(camera.GetLookDirection());
 	DebugData[2] = STRING.str();
 	std::stringstream().swap(STRING);
 	STRING << "On block position (X,Y,Z): " <<
@@ -113,12 +113,12 @@ void Engine::updateWindow()
 	if (chunk != nullptr) {
 		STRING << "Actual chunk state: " << (int)chunk->State << "";
 	}
-	DebugData[4] = STRING.str();
+	DebugData[4] = STRING.str();*/
 }
 
 void Engine::renderFrame()
 {
-	world->DrawChunks(world->GetChunkPosition(camera.Position));
+	world->DrawChunks(camera);
 	crossHair.Draw();
 	if (showDebugData) {
 		int line = 0;
@@ -186,6 +186,8 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 		return;
 	}
 
+	glEnable(GL_DEPTH_TEST);
+
 	///Window resize callback
 	glfwSetWindowSizeCallback(window, windowSizeCallback);
 
@@ -240,10 +242,10 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	//Crosshair
 
 	world = World::GetInstance();
-	world->SetCamera(&camera);
-	world->SetChunkSize(8);
+	//world->SetCamera(&camera);
+	world->SetChunkSize(16);
 	world->StartThreads();
-	world->SetRenderDistance(4);
+	//world->SetRenderDistance(4);
 	world->SetRenderedChunks(vec2(0, 0));
 }
 

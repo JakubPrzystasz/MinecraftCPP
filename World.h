@@ -3,13 +3,12 @@
 #include "Chunk.h"
 #include "Model.h"
 #include "Cube.h"
-#include "Range.h"
 #include "stb_perlin.h"
 #include <unordered_map>
 #include <thread>
 #include <mutex>
 #include <chrono>
-#include <list>
+#include <functional>
 #include <memory>
 
 class Chunk;
@@ -21,10 +20,6 @@ private:
 
 	World() {};
 
-	inline static int RoundInt(GLfloat x);
-
-	inline static int RoundInt(GLuint x);
-
 	static GLuint renderDistance;
 
 	static World* instance;
@@ -33,25 +28,20 @@ private:
 
 	static std::unordered_map<vec2, Chunk*> Chunks;
 
-	static std::unordered_map<vec2, Model*> RenderedChunks;
+	static std::vector<Chunk*> RenderedChunks;
 
-	static Camera* camera;
+	inline static int RoundInt(GLfloat x);
+
+	inline static int RoundInt(GLuint x);
 
 	static std::vector<std::thread> Threads;
-
-	static std::list<Model*> Jobs;
-
-	static std::mutex JobsMutex;
-
-	static std::mutex ChunksMutex;
-
+	static std::vector<std::pair<vec2, Model*>> GenJobs;
+	static std::vector<Chunk*> BuildJobs;
+	static std::mutex GenMutex;
+	static std::mutex BuildMutex;
 	static std::atomic<bool> Run;
-
-	static std::atomic<GLuint> MeshCount;
-
-	static void RunThreads();
-
-	static GLuint WorldSeed;
+	static void RunThreadsGen();
+	static void RunThreadsBuild();
 
 public:
 
@@ -76,50 +66,33 @@ public:
 
 	static void SetChunkSize(GLuint chunkSize);
 
-	static void SetRenderDistance(GLuint distance);
-
-	static void SetCamera(Camera* camera);
-
-	static void DrawChunks(vec2 centerChunkPos);
+	static void DrawChunks(Camera& camera);
 
 	static void SetBlock(glm::vec3 pos, BlockName block);
 
-	static void GenerateChunk(Chunk* chunk);
-
+	static Chunk* GenerateChunk(vec2 chunkPos, Model* model);
 	//Takes in chunk coords as parameter
 	static BlockName GetBlock(Chunk* chunk, vec3 pos);
-
 	//Takes world coords as parameter
 	static BlockName GetBlock(glm::vec3 pos);
-
 	static BlockName GetBlock(vec3 pos);
 
-	static void UpdateMesh(vec2 chunkPosition);
+	static void UpdateMesh(vec2 ChunkPoition);
+	static void UpdateMesh(Chunk* chunk);
 
-	static void UpdateMesh(Model* model);
-
-	static void RequestChunkGenerate(vec2 chunkPos, Model* model);
+	static void RequestChunkGenerate(vec2 chunkPos);
 
 	static void SetRenderedChunks(vec2 centerChunkPos);
 
 	inline static Chunk* GetChunk(vec2 chunkPos);
 
 	inline static vec2 GetChunkPosition(glm::vec3 pos);
-
 	inline static vec2 GetChunkPosition(vec3 pos);
 
 	inline static vec3 ToChunkPosition(glm::vec3 worldPos);
-
 	inline static vec3 ToChunkPosition(vec3 worldPos);
-	
-	static GLuint GetChunksCount();
-
-	static GLuint GetJobsCount();
-
-	static GLuint GetMeshCount();
 
 	static void StartThreads();
-
 	static void StopThreads();
 
 	friend Chunk;
