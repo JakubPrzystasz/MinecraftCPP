@@ -78,4 +78,6 @@ public:
 	Face GetFaceTexture(Face& face, FaceTexture fTex);
 	
 	void SetFaceTexture(Face& face, FaceTexture fTex);
+
+	static std::string GetBlockName(BlockName block);
 };

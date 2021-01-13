@@ -26,6 +26,8 @@ private:
 
 	static GLuint chunkSize;
 
+	static GLuint chunkOffset;
+
 	static std::unordered_map<vec2, Chunk*> Chunks;
 
 	static std::vector<Chunk*> RenderedChunks;
@@ -39,11 +41,14 @@ private:
 	static std::vector<Chunk*> BuildJobs;
 	static std::mutex GenMutex;
 	static std::mutex BuildMutex;
+	static std::atomic<GLuint> CountMeshes;
 	static std::atomic<bool> Run;
 	static void RunThreadsGen();
 	static void RunThreadsBuild();
 
 public:
+
+	static bool worldGenerated;
 
 	/// <summary>
 	/// Do not allow to copy an object
@@ -75,14 +80,36 @@ public:
 	static BlockName GetBlock(Chunk* chunk, vec3 pos);
 	//Takes world coords as parameter
 	static BlockName GetBlock(glm::vec3 pos);
+	
 	static BlockName GetBlock(vec3 pos);
 
+	static void BuildMesh();
+
 	static void UpdateMesh(vec2 ChunkPoition);
+
 	static void UpdateMesh(Chunk* chunk);
+
+	static void GenerateWorld();
 
 	static void RequestChunkGenerate(vec2 chunkPos);
 
 	static void SetRenderedChunks(vec2 centerChunkPos);
+
+	static GLuint GetPlatformSize(GLuint distnace);
+
+	static void SetRenderDistance(GLuint distance);
+
+	static void SetChunkOffset(GLuint offset);
+
+	static GLuint GetChunksCount();
+
+	static GLuint GetMeshCount();
+
+	static GLuint GetJobsCount();
+
+	static GLuint GetRenderDistance();
+
+	static GLuint GetChunkOffset();
 
 	inline static Chunk* GetChunk(vec2 chunkPos);
 

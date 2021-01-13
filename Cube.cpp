@@ -93,6 +93,22 @@ Face Cube::GetFaceTexture(Face& face, FaceTexture fTex)
 	return _face;
 }
 
+std::string Cube::GetBlockName(BlockName block)
+{
+	switch (block) {
+	case BlockName::Air:
+		return std::string("Air");
+	case BlockName::Cobble:
+		return std::string("Cobble");
+	case BlockName::Dirt:
+		return std::string("Dirt");
+	case BlockName::Grass:
+		return std::string("Grass");
+	case BlockName::Stone:
+		return std::string("Stone");
+	}
+}
+
 void Cube::SetFaceTexture(Face &face, FaceTexture fTex)
 {
 	GLfloat pixelSize = 1.f/ textureWidth;

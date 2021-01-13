@@ -2,6 +2,30 @@
 
 Engine* Engine::instance = nullptr;
 
+vec3 Engine::CalculateOnBlockPosition(vec3 pos)
+{
+	vec3 ret = vec3(0, 0, 0);
+
+	if (pos.x < 0)
+		ret.x = 1 + (static_cast<GLfloat>(pos.x) - static_cast<int>(pos.x));
+	else
+		ret.x = static_cast<GLfloat>(pos.x) - static_cast<int>(pos.x);
+
+
+	if (pos.y < 0)
+		ret.y = 1 + (static_cast<GLfloat>(pos.y) - static_cast<int>(pos.y));
+	else
+		ret.y = static_cast<GLfloat>(pos.y) - static_cast<int>(pos.y);
+
+
+	if (pos.z < 0)
+		ret.z = 1 + (static_cast<GLfloat>(pos.z) - static_cast<int>(pos.z));
+	else
+		ret.z = static_cast<GLfloat>(pos.z) - static_cast<int>(pos.z);
+
+	return ret;
+}
+
 void Engine::updateWindow()
 {
 
@@ -10,23 +34,7 @@ void Engine::updateWindow()
 
 	camera.ProcessMouseMovement(input->GetMouseOffset());
 
-	if (camera.Position.x < 0)
-		onBlockPosition.x = 1 + (static_cast<GLfloat>(camera.Position.x) - static_cast<int>(camera.Position.x));
-	else
-		onBlockPosition.x = static_cast<GLfloat>(camera.Position.x) - static_cast<int>(camera.Position.x);
-
-
-	if (camera.Position.y < 0)
-		onBlockPosition.y = 1 + (static_cast<GLfloat>(camera.Position.y) - static_cast<int>(camera.Position.y));
-	else
-		onBlockPosition.y = static_cast<GLfloat>(camera.Position.y) - static_cast<int>(camera.Position.y);
-
-
-	if (camera.Position.z < 0)
-		onBlockPosition.z = 1 + (static_cast<GLfloat>(camera.Position.z) - static_cast<int>(camera.Position.z));
-	else
-		onBlockPosition.z = static_cast<GLfloat>(camera.Position.z) - static_cast<int>(camera.Position.z);
-
+	auto lastPlayerPos = camera.Position;
 
 	if (input->GetKeyState(Key::KEY_W))
 		camera.ProcessKeyboard(CameraMovement::FORWARD, (GLfloat)timer.deltaTime);
@@ -73,6 +81,10 @@ void Engine::updateWindow()
 		}
 	}
 
+	if (!world->worldGenerated)
+		return;
+
+
 	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
 	{
 		world->SetBlock(camera.Position, BlockName::Cobble);
@@ -83,15 +95,69 @@ void Engine::updateWindow()
 		world->SetBlock(camera.Position, BlockName::Air);
 	}
 
+
+	//Calculate collisions
+	auto playerPosDelta = lastPlayerPos - camera.Position;
+	auto onBlockPos = CalculateOnBlockPosition(lastPlayerPos);
+	//Standing on block:
+	if (playerPosDelta.y > 0) {
+		auto blockPos = vec3(lastPlayerPos) + vec3(0, -2, 0);
+		if (world->GetBlock(blockPos) != BlockName::Air)
+			camera.Position.y = lastPlayerPos.y;
+	}
+	//Flying up:
+	if (playerPosDelta.y < 0) {
+		auto blockPos = vec3(lastPlayerPos) + vec3(0, 1, 0);
+		if (world->GetBlock(blockPos) != BlockName::Air)
+			camera.Position.y = lastPlayerPos.y;
+	}
+
+	//adjacent blocks:
+	if (playerPosDelta.z > 0) {
+		auto blockPos = vec3(lastPlayerPos) + vec3(0, 0, -1);
+		if (world->GetBlock(blockPos) != BlockName::Air)
+			camera.Position.z = lastPlayerPos.z;
+		blockPos = vec3(lastPlayerPos) + vec3(0, -1, -1);
+		if (world->GetBlock(blockPos) != BlockName::Air)
+			camera.Position.z = lastPlayerPos.z;
+	}
+	//Flying up:
+	if (playerPosDelta.z < 0) {
+		auto blockPos = vec3(lastPlayerPos) + vec3(0, 0, 1);
+		if (world->GetBlock(blockPos) != BlockName::Air)
+			camera.Position.z = lastPlayerPos.z;
+		blockPos = vec3(lastPlayerPos) + vec3(0,-1, 1);
+		if (world->GetBlock(blockPos) != BlockName::Air)
+			camera.Position.z = lastPlayerPos.z;
+	}
+
+	if (playerPosDelta.x > 0) {
+		auto blockPos = vec3(lastPlayerPos) + vec3(-1, 0, 0);
+		if (world->GetBlock(blockPos) != BlockName::Air)
+			camera.Position.x = lastPlayerPos.x;
+		blockPos = vec3(lastPlayerPos) + vec3(-1, -1, 0);
+		if (world->GetBlock(blockPos) != BlockName::Air)
+			camera.Position.x = lastPlayerPos.x;
+	}
+	//Flying up:
+	if (playerPosDelta.x < 0) {
+		auto blockPos = vec3(lastPlayerPos) + vec3(1, 0, 0);
+		if (world->GetBlock(blockPos) != BlockName::Air)
+			camera.Position.x = lastPlayerPos.x;
+		blockPos = vec3(lastPlayerPos) + vec3(1, -1, 0);
+		if (world->GetBlock(blockPos) != BlockName::Air)
+			camera.Position.x = lastPlayerPos.x;
+	}
+
 	auto chunkPos = world->GetChunkPosition(camera.Position);
-	
-	if((lastPosition - chunkPos) != vec2(0,0))
+
+	if ((lastPosition - chunkPos) != vec2(0, 0))
 		world->SetRenderedChunks(chunkPos);
 
 	lastPosition = chunkPos;
 
 	std::stringstream STRING;
-	STRING << "FPS: " << timer.FPS << "   Active jobs:";// << world->GetJobsCount();
+	STRING << "FPS: " << timer.FPS << "   Active jobs:" << world->GetJobsCount();
 	DebugData[0] = STRING.str();
 	std::stringstream().swap(STRING);
 	STRING << "Player position (X,Y,Z): " <<
@@ -100,30 +166,47 @@ void Engine::updateWindow()
 		std::fixed << std::setprecision(1) << camera.Position.z;
 	DebugData[1] = STRING.str();
 	std::stringstream().swap(STRING);
-	/*STRING << "Chunk (X,Y): " << chunkPos.x << ", " << chunkPos.y << "      " << "Built meshes: " << world->GetMeshCount() << "      " << "Generated chunks: " << world->GetChunksCount() << "   " << " Direction: " << static_cast<char>(camera.GetLookDirection());
+	STRING << "Chunk (X,Y): " << chunkPos.x << ", " << chunkPos.y << "   " << " Look Direction: " << static_cast<char>(camera.GetLookDirection());
 	DebugData[2] = STRING.str();
 	std::stringstream().swap(STRING);
 	STRING << "On block position (X,Y,Z): " <<
-		std::fixed << std::setprecision(1) << onBlockPosition.x << ", " <<
-		std::fixed << std::setprecision(1) << onBlockPosition.y << ", " <<
-		std::fixed << std::setprecision(1) << onBlockPosition.z << "  Standing on: " << (int)world->GetBlock(vec3(camera.Position) + vec3(0, -2, 0));
+		std::fixed << std::setprecision(2) << onBlockPos.x << ", " <<
+		std::fixed << std::setprecision(2) << onBlockPos.y << ", " <<
+		std::fixed << std::setprecision(2) << onBlockPos.z << "  Standing on: " << Cube::GetBlockName(world->GetBlock(vec3(camera.Position) + vec3(0, -2, 0)));
 	DebugData[3] = STRING.str();
 	std::stringstream().swap(STRING);
-	auto chunk = world->GetChunk(chunkPos);
-	if (chunk != nullptr) {
-		STRING << "Actual chunk state: " << (int)chunk->State << "";
-	}
-	DebugData[4] = STRING.str();*/
+	STRING << "Player pos delta: "
+		 << playerPosDelta.x << ", "
+		 << playerPosDelta.y << ", "
+		 << playerPosDelta.z;
+	DebugData[4] = STRING.str();
+	std::stringstream().swap(STRING);
+	STRING << "Generated chunks: " << world->GetChunksCount() << "    Built meshes: " << world->GetMeshCount();
+	DebugData[5] = STRING.str();
 }
 
 void Engine::renderFrame()
 {
+	if (!world->worldGenerated) {
+		text.RenderText("Generating world...", static_cast<float>(320), static_cast<float>(300), 0.4f, glm::vec3(0.f, 0.f, 0.f));
+		GLuint x = world->GetChunksCount();
+		if (world->GetChunksCount() >= world->GetPlatformSize(world->GetRenderDistance() + world->GetChunkOffset())) {
+			world->BuildMesh();
+			if (world->GetMeshCount() >= world->GetPlatformSize(world->GetRenderDistance() + world->GetChunkOffset())) {
+				world->SetRenderedChunks(vec2(0, 0));
+				world->worldGenerated = true;
+			} else
+				return;
+		}
+		return;
+	}
+
 	world->DrawChunks(camera);
 	crossHair.Draw();
 	if (showDebugData) {
 		int line = 0;
 		for (std::string& str : DebugData) {
-			text.RenderText(str, static_cast<float>(5), static_cast<float>(585-(line++*25)), 0.4f, glm::vec3(0.f, 0.f, 0.f));
+			text.RenderText(str, static_cast<float>(5), static_cast<float>(585 - (line++ * 25)), 0.4f, glm::vec3(0.f, 0.f, 0.f));
 		}
 	}
 }
@@ -141,7 +224,9 @@ Engine::Engine()
 	screenHeight = 600;
 	screenWidth = 800;
 	crossHairSize = 8;
-	onBlockPosition = vec3(0,0,0);
+	RenderDistance = 8;
+	ChunkSize = 4;
+	ChunkOffset = 10;
 }
 
 
@@ -213,7 +298,7 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	rs->AddBlock(BlockName::Stone, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 }, { 1,15 });
 	rs->GetBlock(BlockName::Stone)->BindFaces();
 	//Cobble
-	rs->AddBlock(BlockName::Cobble, { 0,2 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 1,10 });
+	rs->AddBlock(BlockName::Cobble, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 });
 	rs->GetBlock(BlockName::Cobble)->BindFaces();
 
 	//Text
@@ -242,11 +327,12 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	//Crosshair
 
 	world = World::GetInstance();
-	//world->SetCamera(&camera);
-	world->SetChunkSize(16);
+	world->SetChunkSize(ChunkSize);
+	world->SetChunkOffset(ChunkOffset);
+	world->SetRenderDistance(RenderDistance);
 	world->StartThreads();
-	//world->SetRenderDistance(4);
-	world->SetRenderedChunks(vec2(0, 0));
+	world->GenerateWorld();
+
 }
 
 

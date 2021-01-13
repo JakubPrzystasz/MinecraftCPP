@@ -23,6 +23,8 @@ private:
 	/// </summary>
 	static Engine* instance;
 
+	vec3 CalculateOnBlockPosition(vec3 position);
+
 protected:
 
 	/// <summary>
@@ -72,16 +74,14 @@ protected:
 
 	glm::mat4 ProjectionMatrix;
 
-	vec2 posDelta;
-
 	bool polygonRenderMode;
 
 	bool showDebugData;
 
-	std::array<std::string, 5> DebugData;
+	std::array<std::string, 6> DebugData;
 
-	//collisions
-	vec3 onBlockPosition;
+	GLuint RenderDistance, ChunkSize, ChunkOffset;
+
 	vec2 lastPosition;
 
 public:
