@@ -4,7 +4,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
-
 #include "Input.h"
 #include "Vectors.h"
 
@@ -32,7 +31,6 @@ private:
 public:
 
     Camera();
-
     glm::vec3 Position;
     glm::vec3 Front;
     glm::vec3 Up;
@@ -44,8 +42,13 @@ public:
     GLfloat MovementSpeed;
     GLfloat MouseSensitivity;
     glm::mat4 Projection;
+    glm::vec3 LastPosition;
+    bool isJumping;
+    GLfloat JumpStart;
 
     glm::mat4 GetViewMatrix();
+
+    glm::vec3 GetPositionDelta();
 
     void SetScreenRatio(vec2 ScreenResolution);
 

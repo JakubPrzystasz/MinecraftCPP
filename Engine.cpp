@@ -34,8 +34,6 @@ void Engine::updateWindow()
 
 	camera.ProcessMouseMovement(input->GetMouseOffset());
 
-	auto lastPlayerPos = camera.Position;
-
 	if (input->GetKeyState(Key::KEY_W))
 		camera.ProcessKeyboard(CameraMovement::FORWARD, (GLfloat)timer.deltaTime);
 
@@ -48,11 +46,10 @@ void Engine::updateWindow()
 	if (input->GetKeyState(Key::KEY_D))
 		camera.ProcessKeyboard(CameraMovement::RIGHT, (GLfloat)timer.deltaTime);
 
-	if (input->GetKeyState(Key::KEY_LEFT_SHIFT))
-		camera.ProcessKeyboard(CameraMovement::DOWN, (GLfloat)timer.deltaTime);
-
-	if (input->GetKeyState(Key::KEY_SPACE))
-		camera.ProcessKeyboard(CameraMovement::UP, (GLfloat)timer.deltaTime);
+	if (input->IsKeyDown(Key::KEY_SPACE)) {
+		if((static_cast<GLfloat>(timer.currentTime) - camera.JumpStart) > 0.2f && world->GetBlock(camera.Position + glm::vec3(0,-2,0)) != BlockName::Air) 
+			camera.JumpStart = static_cast<GLfloat>(timer.currentTime);
+	}
 
 	if (input->IsKeyDown(Key::KEY_ESCAPE))
 		glfwSetWindowShouldClose(window, true);
@@ -95,94 +92,48 @@ void Engine::updateWindow()
 		world->SetBlock(camera.Position, BlockName::Air);
 	}
 
+	ProcessMovement();
 
-	//Calculate collisions
-	auto playerPosDelta = lastPlayerPos - camera.Position;
-	auto onBlockPos = CalculateOnBlockPosition(lastPlayerPos);
-	//Standing on block:
-	if (playerPosDelta.y > 0) {
-		auto blockPos = vec3(lastPlayerPos) + vec3(0, -2, 0);
-		if (world->GetBlock(blockPos) != BlockName::Air)
-			camera.Position.y = lastPlayerPos.y;
-	}
-	//Flying up:
-	if (playerPosDelta.y < 0) {
-		auto blockPos = vec3(lastPlayerPos) + vec3(0, 1, 0);
-		if (world->GetBlock(blockPos) != BlockName::Air)
-			camera.Position.y = lastPlayerPos.y;
-	}
-
-	//adjacent blocks:
-	if (playerPosDelta.z > 0) {
-		auto blockPos = vec3(lastPlayerPos) + vec3(0, 0, -1);
-		if (world->GetBlock(blockPos) != BlockName::Air)
-			camera.Position.z = lastPlayerPos.z;
-		blockPos = vec3(lastPlayerPos) + vec3(0, -1, -1);
-		if (world->GetBlock(blockPos) != BlockName::Air)
-			camera.Position.z = lastPlayerPos.z;
-	}
-	//Flying up:
-	if (playerPosDelta.z < 0) {
-		auto blockPos = vec3(lastPlayerPos) + vec3(0, 0, 1);
-		if (world->GetBlock(blockPos) != BlockName::Air)
-			camera.Position.z = lastPlayerPos.z;
-		blockPos = vec3(lastPlayerPos) + vec3(0,-1, 1);
-		if (world->GetBlock(blockPos) != BlockName::Air)
-			camera.Position.z = lastPlayerPos.z;
-	}
-
-	if (playerPosDelta.x > 0) {
-		auto blockPos = vec3(lastPlayerPos) + vec3(-1, 0, 0);
-		if (world->GetBlock(blockPos) != BlockName::Air)
-			camera.Position.x = lastPlayerPos.x;
-		blockPos = vec3(lastPlayerPos) + vec3(-1, -1, 0);
-		if (world->GetBlock(blockPos) != BlockName::Air)
-			camera.Position.x = lastPlayerPos.x;
-	}
-	//Flying up:
-	if (playerPosDelta.x < 0) {
-		auto blockPos = vec3(lastPlayerPos) + vec3(1, 0, 0);
-		if (world->GetBlock(blockPos) != BlockName::Air)
-			camera.Position.x = lastPlayerPos.x;
-		blockPos = vec3(lastPlayerPos) + vec3(1, -1, 0);
-		if (world->GetBlock(blockPos) != BlockName::Air)
-			camera.Position.x = lastPlayerPos.x;
-	}
-
+	//Chunk render
 	auto chunkPos = world->GetChunkPosition(camera.Position);
-
 	if ((lastPosition - chunkPos) != vec2(0, 0))
 		world->SetRenderedChunks(chunkPos);
-
 	lastPosition = chunkPos;
 
+	//Debug data
+	auto onBlockPos = CalculateOnBlockPosition(camera.Position);
+	auto playerPosDelta = camera.GetPositionDelta();
+	DebugData.clear();
 	std::stringstream STRING;
 	STRING << "FPS: " << timer.FPS << "   Active jobs:" << world->GetJobsCount();
-	DebugData[0] = STRING.str();
+	DebugData.push_back(STRING.str());
 	std::stringstream().swap(STRING);
 	STRING << "Player position (X,Y,Z): " <<
 		std::fixed << std::setprecision(1) << camera.Position.x << ", " <<
 		std::fixed << std::setprecision(1) << camera.Position.y << ", " <<
 		std::fixed << std::setprecision(1) << camera.Position.z;
-	DebugData[1] = STRING.str();
+	DebugData.push_back(STRING.str());
 	std::stringstream().swap(STRING);
 	STRING << "Chunk (X,Y): " << chunkPos.x << ", " << chunkPos.y << "   " << " Look Direction: " << static_cast<char>(camera.GetLookDirection());
-	DebugData[2] = STRING.str();
+	DebugData.push_back(STRING.str());
 	std::stringstream().swap(STRING);
 	STRING << "On block position (X,Y,Z): " <<
 		std::fixed << std::setprecision(2) << onBlockPos.x << ", " <<
 		std::fixed << std::setprecision(2) << onBlockPos.y << ", " <<
 		std::fixed << std::setprecision(2) << onBlockPos.z << "  Standing on: " << Cube::GetBlockName(world->GetBlock(vec3(camera.Position) + vec3(0, -2, 0)));
-	DebugData[3] = STRING.str();
+	DebugData.push_back(STRING.str());
 	std::stringstream().swap(STRING);
 	STRING << "Player pos delta: "
 		 << playerPosDelta.x << ", "
 		 << playerPosDelta.y << ", "
 		 << playerPosDelta.z;
-	DebugData[4] = STRING.str();
+	DebugData.push_back(STRING.str());
 	std::stringstream().swap(STRING);
 	STRING << "Generated chunks: " << world->GetChunksCount() << "    Built meshes: " << world->GetMeshCount();
-	DebugData[5] = STRING.str();
+	DebugData.push_back(STRING.str());
+	std::stringstream().swap(STRING);
+	STRING << "Ray: ";
+	DebugData.push_back(STRING.str());
 }
 
 void Engine::renderFrame()
@@ -224,7 +175,7 @@ Engine::Engine()
 	screenHeight = 600;
 	screenWidth = 800;
 	crossHairSize = 8;
-	RenderDistance = 8;
+	RenderDistance = 10;
 	ChunkSize = 4;
 	ChunkOffset = 10;
 }
@@ -244,11 +195,6 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	camera.SetScreenRatio(vec2(screenHeight, screenWidth));
 
 	ProjectionMatrix = glm::ortho(0.0f, static_cast<float>(screenWidth), 0.0f, static_cast<float>(screenHeight));
-
-	DebugData[0] = std::string("");
-	DebugData[1] = std::string("");
-	DebugData[2] = std::string("");
-	DebugData[3] = std::string("");
 
 	//Make random seed 
 	srand((unsigned int)time(NULL));
@@ -346,7 +292,7 @@ void Engine::WindowLoop()
 		glfwSetTime(0.f);
 		timer.init(glfwGetTime());
 		SetFrameRate(60);
-		glClearColor(0.678f, 0.847f, 0.902f, 1.07f);
+		glClearColor(0.678f, 0.847f, 0.902f, 1.f);
 		glEnable(GL_DEPTH_TEST);
 
 		while (!glfwWindowShouldClose(window))
@@ -373,6 +319,69 @@ void Engine::WindowLoop()
 		}
 		world->StopThreads();
 	}
+}
+
+void Engine::ProcessMovement()
+{
+	if (world->GetBlock(camera.Position + glm::vec3(0, -2, 0)) == BlockName::Air)
+		camera.Position += glm::vec3(0, -7 * static_cast<GLfloat>(timer.deltaTime), 0);
+
+	if (timer.currentTime - camera.JumpStart < 0.2f) 
+		camera.Position += glm::vec3(0, 12 * static_cast<GLfloat>(timer.deltaTime), 0);
+
+	//Calculate collisions
+	auto playerPosDelta = camera.Position - camera.LastPosition;
+	//Standing on block:
+	if (playerPosDelta.y < 0) {
+		auto blockPos = vec3(camera.LastPosition) + vec3(0, -2, 0);
+		if (world->GetBlock(blockPos) != BlockName::Air)
+			camera.Position.y = camera.LastPosition.y;
+	}
+	//Flying up:
+	if (playerPosDelta.y > 0) {
+		auto blockPos = vec3(camera.LastPosition) + vec3(0, 1, 0);
+		if (world->GetBlock(blockPos) != BlockName::Air)
+			camera.Position.y = camera.LastPosition.y;
+	}
+
+	//adjacent blocks:
+	if (playerPosDelta.z < 0) {
+		auto blockPos = vec3(camera.LastPosition) + vec3(0, 0, -1);
+		if (world->GetBlock(blockPos) != BlockName::Air)
+			camera.Position.z = camera.LastPosition.z;
+		blockPos = vec3(camera.LastPosition) + vec3(0, -1, -1);
+		if (world->GetBlock(blockPos) != BlockName::Air)
+			camera.Position.z = camera.LastPosition.z;
+	}
+	//Flying up:
+	if (playerPosDelta.z > 0) {
+		auto blockPos = vec3(camera.LastPosition) + vec3(0, 0, 1);
+		if (world->GetBlock(blockPos) != BlockName::Air)
+			camera.Position.z = camera.LastPosition.z;
+		blockPos = vec3(camera.LastPosition) + vec3(0, -1, 1);
+		if (world->GetBlock(blockPos) != BlockName::Air)
+			camera.Position.z = camera.LastPosition.z;
+	}
+
+	if (playerPosDelta.x < 0) {
+		auto blockPos = vec3(camera.LastPosition) + vec3(-1, 0, 0);
+		if (world->GetBlock(blockPos) != BlockName::Air)
+			camera.Position.x = camera.LastPosition.x;
+		blockPos = vec3(camera.LastPosition) + vec3(-1, -1, 0);
+		if (world->GetBlock(blockPos) != BlockName::Air)
+			camera.Position.x = camera.LastPosition.x;
+	}
+	//Flying up:
+	if (playerPosDelta.x > 0) {
+		auto blockPos = vec3(camera.LastPosition) + vec3(1, 0, 0);
+		if (world->GetBlock(blockPos) != BlockName::Air)
+			camera.Position.x = camera.LastPosition.x;
+		blockPos = vec3(camera.LastPosition) + vec3(1, -1, 0);
+		if (world->GetBlock(blockPos) != BlockName::Air)
+			camera.Position.x = camera.LastPosition.x;
+	}
+
+	camera.LastPosition = camera.Position;
 }
 
 void Engine::SetFrameRate(GLuint fps)

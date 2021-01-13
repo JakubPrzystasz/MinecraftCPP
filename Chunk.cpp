@@ -1,9 +1,10 @@
 #include "Chunk.h"
 
-void Chunk::BuildMesh()
+bool Chunk::BuildMesh()
 {
 	if (!updateChunk)
-		return;
+		return false;
+
 	auto rs = ResourceManager::GetInstance();
 	auto world = World::GetInstance();
 	Face tmpFace;
@@ -131,6 +132,8 @@ void Chunk::BuildMesh()
 	}
 
 	updateChunk = false;
+	
+	return true;
 }
 
 void Chunk::PutBlock(BlockName blockName, vec3 pos)

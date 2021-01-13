@@ -3,6 +3,7 @@
 #include "Chunk.h"
 #include "Model.h"
 #include "Cube.h"
+#include "Ray.h"
 #include "stb_perlin.h"
 #include <unordered_map>
 #include <thread>

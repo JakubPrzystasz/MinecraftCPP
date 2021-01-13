@@ -32,7 +32,7 @@ private:
 	std::vector<GLuint>* backIndices;
 
 
-	void BuildMesh();
+	bool BuildMesh();
 public:
 
 	Chunk(vec2 ChunkPos, Model* _model) {

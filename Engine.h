@@ -78,7 +78,7 @@ protected:
 
 	bool showDebugData;
 
-	std::array<std::string, 6> DebugData;
+	std::vector<std::string> DebugData;
 
 	GLuint RenderDistance, ChunkSize, ChunkOffset;
 
@@ -117,6 +117,8 @@ public:
 	/// Set frame rate of window
 	/// </summary>
 	void SetFrameRate(GLuint fps);
+
+	void ProcessMovement();
 
 	/// Free all resources, and GL buffers
 	~Engine();

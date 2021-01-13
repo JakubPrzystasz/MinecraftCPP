@@ -417,11 +417,11 @@ void World::RunThreadsBuild() {
 	while (Run) {
 		BuildMutex.lock();
 		if (BuildJobs.size() > 0) {
-			CountMeshes++;
 			auto tmp = BuildJobs.back();
 			BuildJobs.pop_back();
 			BuildMutex.unlock();
-			tmp->BuildMesh();
+			if(tmp->BuildMesh())
+				CountMeshes++;
 			continue;
 		}
 		BuildMutex.unlock();

@@ -153,6 +153,7 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="DataCache.cpp" />
+    <ClCompile Include="Ray.cpp" />
     <ClCompile Include="stb_image.c" />
     <ClCompile Include="stb_perlin .c" />
     <ClCompile Include="Text.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="Range.h" />
+    <ClInclude Include="Ray.h" />
     <ClInclude Include="stb_perlin.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="Time.h" />

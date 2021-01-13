@@ -23,7 +23,7 @@ Camera::Camera()
     FOV = 45.0f;
     Yaw = -90.f;
     Pitch = 0.f;
-    MovementSpeed = 10;
+    MovementSpeed = 7;
     MouseSensitivity = 0.1f;
     Right = glm::vec3(0);
     Up = glm::vec3(0);
@@ -33,6 +33,11 @@ Camera::Camera()
 glm::mat4 Camera::GetViewMatrix()
 {
     return glm::lookAt(Position, Position + Front, Up);
+}
+
+glm::vec3 Camera::GetPositionDelta()
+{
+    return (Position - LastPosition);
 }
 
 void Camera::SetScreenRatio(vec2 ScreenResolution)
@@ -63,12 +68,6 @@ void Camera::ProcessKeyboard(CameraMovement direction, GLfloat deltaTime)
     case CameraMovement::RIGHT:
         PositionDelta += Right * velocity;
         PositionDelta.y = 0;
-        break;
-    case CameraMovement::UP:
-        PositionDelta += glm::vec3(0, 1 *velocity,0);
-        break;
-    case CameraMovement::DOWN:
-        PositionDelta -= glm::vec3(0, 1 * velocity, 0);
         break;
     };
     Position += PositionDelta;
