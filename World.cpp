@@ -100,9 +100,9 @@ void World::SetBlock(glm::vec3 pos, BlockName _block)
 	auto block = chunk->blocks.find(blockInChunkPos);
 	if ((block != chunk->blocks.end())) {
 		if (block->second == BlockName::TNT) {
-			for (int x : range(-4, 4)) {
-				for (int y : range(-5, 5)) {
-					for (int z : range(-4, 4)) {
+			for (int x : range((rand() % 10 - 10), (rand() % 10 ))) {
+				for (int y : range((rand() % 10 - 10), (rand() % 10 ))) {
+					for (int z : range((rand()%10 - 10), (rand() % 10 ))) {
 
 						auto tmpPos = vec3(x, y, z) + pos;
 						chunk = GetChunk(GetChunkPosition(tmpPos));
@@ -111,6 +111,24 @@ void World::SetBlock(glm::vec3 pos, BlockName _block)
 						blockInChunkPos = ToChunkPosition(tmpPos);
 						block = chunk->blocks.find(blockInChunkPos);
 						if((block != chunk->blocks.end())) {
+							chunk->updateChunk = true;
+							UpdateMesh(chunk);
+							chunk->blocks.erase(block);
+						}
+					}
+				}
+			}
+			for (int z : range((rand() % 10 - 10), (rand() % 10))) {
+				for (int y : range((rand() % 10 - 10), (rand() % 10))) {
+					for (int x : range((rand() % 10 - 10), (rand() % 10))) {
+
+						auto tmpPos = vec3(x, y, z) + pos;
+						chunk = GetChunk(GetChunkPosition(tmpPos));
+						if (chunk == nullptr)
+							continue;
+						blockInChunkPos = ToChunkPosition(tmpPos);
+						block = chunk->blocks.find(blockInChunkPos);
+						if ((block != chunk->blocks.end())) {
 							chunk->updateChunk = true;
 							UpdateMesh(chunk);
 							chunk->blocks.erase(block);
