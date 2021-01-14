@@ -244,7 +244,7 @@ Engine::Engine()
 	RenderDistance = 3;
 	ChunkSize = 8;
 	ChunkOffset = 2;
-	RayRange = 4;
+	RayRange = 5;
 	flyMode = false;
 }
 

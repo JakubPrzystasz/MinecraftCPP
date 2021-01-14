@@ -10,9 +10,7 @@ bool Chunk::BuildMesh()
 	Face tmpFace;
 	Cube blockModel;
 
-	model->indices.clear();
-	model->vertices.clear();
-
+	auto model = new Model();
 
 	for (auto& chunkBlock : blocks)
 	{
@@ -132,7 +130,11 @@ bool Chunk::BuildMesh()
 	}
 
 	updateChunk = false;
-	
+
+	this->model->vertices = std::move(model->vertices);
+	this->model->indices = std::move(model->indices);
+	delete model;
+
 	return true;
 }
 
