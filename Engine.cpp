@@ -98,6 +98,30 @@ void Engine::updateWindow()
 			camera.MovementSpeed = 7.f;
 	}
 
+	for (GLuint key : range(48, 57)) {
+		if (input->IsKeyDown((Key)key)) {
+			SelectedBlock = (BlockName)(key - 47);
+			break;
+		}
+	}
+
+
+	if (input->IsScrollUp())
+	{
+		GLuint i = static_cast<int>(SelectedBlock) + 1;
+		if (i > rs->GetBlocksCount())
+			i = 1;
+		SelectedBlock = (BlockName)i;
+	}
+	if (input->IsScrollDown())
+	{
+		GLuint i = static_cast<int>(SelectedBlock) - 1;
+		if (i < 1)
+			i = rs->GetBlocksCount();
+		SelectedBlock = (BlockName)i;
+	}
+
+
 	if (!world->worldGenerated)
 		return;
 
@@ -121,7 +145,7 @@ void Engine::updateWindow()
 		auto rayEnd = GetRayEnd();
 		for (auto it = rayEnd.rbegin(); it != rayEnd.rend(); ++it) {
 			if (world->GetBlock(*it) == BlockName::Air) {
-				world->SetBlock(*it, BlockName::Cobble);
+				world->SetBlock(*it, SelectedBlock);
 				break;
 			}
 		}
@@ -226,6 +250,9 @@ void Engine::renderFrame()
 		text.RenderText(STRING.str(), static_cast<float>(700), static_cast<float>(550), 0.4f, glm::vec3(0.f, 0.f, 0.f));
 	}
 
+	std::stringstream STRING;
+	STRING << "Selected block: " << Cube::GetBlockName(SelectedBlock);
+	text.RenderText(STRING.str(), static_cast<float>(10), static_cast<float>(10), 0.4f, glm::vec3(0.f, 0.f, 0.f));
 }
 
 void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
@@ -246,6 +273,7 @@ Engine::Engine()
 	ChunkOffset = 2;
 	RayRange = 5;
 	flyMode = false;
+	SelectedBlock = BlockName::Cobble;
 }
 
 
@@ -290,6 +318,8 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	///Window resize callback
 	glfwSetWindowSizeCallback(window, windowSizeCallback);
 
+	//Mouse wheel 
+	glfwSetScrollCallback(window, input->ScrollCallback);
 	///Mouse mode
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -320,6 +350,21 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	//Leave
 	rs->AddBlock(BlockName::Leave, { 4,12 }, { 4,12 }, { 5,12 }, { 5,12 }, { 4,12 }, { 4,12 });
 	rs->GetBlock(BlockName::Leave)->BindFaces();
+	//Sand
+	rs->AddBlock(BlockName::Sand, { 2,14 }, { 2,14 }, { 2,14 }, { 2,14 }, { 2,14 }, { 2,14 });
+	rs->GetBlock(BlockName::Sand)->BindFaces();
+	//Workbench
+	rs->AddBlock(BlockName::Workbench, { 11,12 }, { 11,12 }, { 11,13 }, { 4,15 }, { 12,12 }, { 12,12 });
+	rs->GetBlock(BlockName::Workbench)->BindFaces();
+	//Plank
+	rs->AddBlock(BlockName::Plank, { 4,15 }, { 4,15 }, { 4,15 }, { 4,15 }, { 4,15 }, { 4,15 });
+	rs->GetBlock(BlockName::Plank)->BindFaces();
+	//TNT
+	rs->AddBlock(BlockName::TNT, { 8,15 }, { 8,15 }, { 9,15 }, { 10,15 }, { 8,15 }, { 8,15 });
+	rs->GetBlock(BlockName::TNT)->BindFaces();
+	//Glass
+	rs->AddBlock(BlockName::Glass, { 1,12 }, { 1,12 }, { 1,12 }, { 1,12 }, { 1,12 }, { 1,12 });
+	rs->GetBlock(BlockName::Glass)->BindFaces();
 
 	//Text
 	text.Init(ProjectionMatrix);

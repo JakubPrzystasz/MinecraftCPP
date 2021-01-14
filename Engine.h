@@ -92,6 +92,7 @@ protected:
 
 	GLfloat RayRange;
 
+	BlockName SelectedBlock;
 
 public:
 	Engine();

@@ -45,7 +45,12 @@ enum class BlockName {
 	Cobble,
 	Stone,
 	Wood,
-	Leave
+	Leave,
+	Sand,
+	Workbench,
+	Plank,
+	TNT,
+	Glass
 };
 
 

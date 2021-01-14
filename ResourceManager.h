@@ -141,6 +141,8 @@ public:
     /// <returns></returns>
     static Cube* GetBlock(BlockName blockName);
 
+    static GLuint GetBlocksCount();
+
     static void AddCharacter(GLchar _char, Character* character);
 
     static Character* GetCharacter(GLchar character);

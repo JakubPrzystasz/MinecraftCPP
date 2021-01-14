@@ -98,14 +98,28 @@ std::string Cube::GetBlockName(BlockName block)
 	switch (block) {
 	case BlockName::Air:
 		return std::string("Air");
-	case BlockName::Cobble:
-		return std::string("Cobble");
-	case BlockName::Dirt:
-		return std::string("Dirt");
 	case BlockName::Grass:
 		return std::string("Grass");
+	case BlockName::Dirt:
+		return std::string("Dirt");
+	case BlockName::Cobble:
+		return std::string("Cobble");
 	case BlockName::Stone:
 		return std::string("Stone");
+	case BlockName::Wood:
+		return std::string("Wood");
+	case BlockName::Leave:
+		return std::string("Leaves");
+	case BlockName::Sand:
+		return std::string("Sand");
+	case BlockName::Workbench:
+		return std::string("Workbench");
+	case BlockName::Plank:
+		return std::string("Plank");
+	case BlockName::TNT:
+		return std::string("TNT");
+	case BlockName::Glass:
+		return std::string("Glass");
 	}
 	return std::string("");
 }

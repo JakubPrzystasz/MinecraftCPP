@@ -98,8 +98,29 @@ void World::SetBlock(glm::vec3 pos, BlockName _block)
 		return;
 	auto blockInChunkPos = ToChunkPosition(pos);
 	auto block = chunk->blocks.find(blockInChunkPos);
-	if ((block != chunk->blocks.end()))
-		chunk->blocks.erase(block);
+	if ((block != chunk->blocks.end())) {
+		if (block->second == BlockName::TNT) {
+			for (int x : range(-4, 4)) {
+				for (int y : range(-5, 5)) {
+					for (int z : range(-4, 4)) {
+
+						auto tmpPos = vec3(x, y, z) + pos;
+						chunk = GetChunk(GetChunkPosition(tmpPos));
+						if (chunk == nullptr)
+							continue;
+						blockInChunkPos = ToChunkPosition(tmpPos);
+						block = chunk->blocks.find(blockInChunkPos);
+						if((block != chunk->blocks.end())) {
+							chunk->updateChunk = true;
+							UpdateMesh(chunk);
+							chunk->blocks.erase(block);
+						}
+					}
+				}
+			}
+		}else
+			chunk->blocks.erase(block);
+	}
 	else if (_block != BlockName::Air)
 		chunk->PutBlock(_block, ToChunkPosition(pos));
 	else
@@ -148,7 +169,7 @@ Chunk* World::GenerateChunk(vec2 chunkPos, Model* model)
 			grassHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 16498)) / 20.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 16498)) / 18.f, 0, 0, 0, seed) * (-8) + 16;
 			dirtHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 16498)) / 16.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 16498)) / 16.f, 0, 0, 0, seed) * (-2) + 10;
 			tree = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 16498)) / 100.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 16498)) / 100.f, 0, 0, 0, seed) * (-8) + 2;
-			for (GLuint y : range(0, grassHeight)) {
+			for (GLuint y : range(0, static_cast<GLuint>(grassHeight))) {
 				if (y < dirtHeight) {
 					newChunk->PutBlock(BlockName::Stone, x, y, z);
 					continue;
@@ -161,8 +182,8 @@ Chunk* World::GenerateChunk(vec2 chunkPos, Model* model)
 			}
 
 			if (tree >3.7f && (rand() % 10000) > 9900) {
-				auto treeMaxH = grassHeight + 1 + (rand() % 4 + 2);
-				for (int treeH : range(grassHeight + 1, treeMaxH)) {
+				auto treeMaxH = static_cast<GLuint>(grassHeight + 1 + (rand() % 4 + 2));
+				for (int treeH : range(static_cast<GLuint>(grassHeight + 1), treeMaxH)) {
 					newChunk->PutBlock(BlockName::Wood, x, treeH, z);
 					if (treeH - (grassHeight + 1) > 1) {
 						newChunk->PutBlock(BlockName::Leave, x + 1, treeH, z);

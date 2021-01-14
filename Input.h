@@ -28,6 +28,7 @@ class Input
 private:
 	static std::map<Key, bool> keyState;
 	static std::map<Key, bool> previousState;
+	static int scrollOffset;
 	static MousePosition mousePos;
 	static MousePosition previousMousePos;
 	static MouseButtons buttonState;
@@ -51,6 +52,12 @@ public:
 	static bool IsKeyUp(Key key);
 
 	static bool IsButtonDown(int key);
+
+	static bool IsScrollDown();
+
+	static bool IsScrollUp();
+
+	static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
 	/// <summary>
 	/// Returns true when key is being held

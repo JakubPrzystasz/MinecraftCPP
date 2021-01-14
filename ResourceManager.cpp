@@ -136,6 +136,11 @@ void ResourceManager::FreeResources()
     }
 }
 
+GLuint ResourceManager::GetBlocksCount()
+{
+    return static_cast<GLuint>(Blocks.size());
+}
+
 Character* ResourceManager::GetCharacter(GLchar character)
 {
     if (!(Characters.count(character) <= 0))

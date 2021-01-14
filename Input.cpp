@@ -7,22 +7,23 @@ MousePosition Input::mousePos;
 MousePosition Input::previousMousePos;
 MouseButtons Input::buttonState;
 MouseButtons Input::previousButtonState;
+int Input::scrollOffset;
 
 Input* Input::GetInstance()
 {
-    if (instance == nullptr) {
-        instance = new Input();
-    }
-    return instance;
+	if (instance == nullptr) {
+		instance = new Input();
+	}
+	return instance;
 }
 
-void Input::Update(GLFWwindow *window)
+void Input::Update(GLFWwindow* window)
 {
 	Input::previousState = Input::keyState;
 	/// <summary>
 	/// Check if key has changed state
 	/// </summary>
-	
+
 	for (auto& key : Input::keyState)
 	{
 		key.second = glfwGetKey(window, (int)key.first) == GLFW_PRESS ? true : false;
@@ -33,9 +34,9 @@ void Input::Update(GLFWwindow *window)
 	previousButtonState = buttonState;
 	buttonState.left = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS ? true : false;
 	buttonState.right = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS ? true : false;
-	
+
 	previousMousePos = mousePos;
-	if(glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
+	if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
 		glfwGetCursorPos(window, &Input::mousePos.x, &Input::mousePos.y);
 }
 
@@ -54,6 +55,29 @@ bool Input::IsButtonDown(int key)
 	int preValue = key == GLFW_MOUSE_BUTTON_LEFT ? previousButtonState.left : previousButtonState.right;
 	int value = key == GLFW_MOUSE_BUTTON_LEFT ? buttonState.left : buttonState.right;
 	return preValue == GLFW_PRESS && value == GLFW_RELEASE ? true : false;
+}
+
+bool Input::IsScrollDown()
+{
+	if (scrollOffset < 0) {
+		scrollOffset = 0;
+		return true;
+	}
+	else return false;
+}
+
+bool Input::IsScrollUp()
+{
+	if (scrollOffset > 0) {
+		scrollOffset = 0;
+		return true;
+	}
+	else return false;
+}
+
+void Input::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	scrollOffset = static_cast<int>(yoffset);
 }
 
 bool Input::GetKeyState(Key key)
