@@ -144,7 +144,7 @@ void Engine::updateWindow()
 		}
 	}
 
-	vec3 pointVec = vec3(0, 0, 0);
+	vec3 pointVec;
 
 	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_RIGHT) && timer.click())
 	{
@@ -157,7 +157,7 @@ void Engine::updateWindow()
 			else
 				break;
 		}
-		if (pointVec != vec3(0, 0, 0)) {
+		if (pointVec != rayEnd.back()) {
 			world->SetBlock(pointVec, SelectedBlock);
 			rs->SoundEngine->play2D("Audio/place.mp3", false);
 		}
@@ -294,9 +294,10 @@ Engine::Engine()
 	RenderDistance = 3;
 	ChunkSize = 8;
 	ChunkOffset = 2;
-	RayRange = 5;
+	RayRange = 7;
 	flyMode = false;
 	SelectedBlock = BlockName::Cobble;
+	StartPosition = glm::vec3(0, 40, 0);
 }
 
 
@@ -421,6 +422,7 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	world->StartThreads();
 	SectionSize = world->GenerateWorld();
 
+	camera.Position = StartPosition;
 }
 
 
@@ -467,13 +469,15 @@ void Engine::ProcessMovement()
 {
 
 	if (!flyMode) {
-		if (world->GetBlock(camera.Position + glm::vec3(0, -2, 0)) == BlockName::Air)
+		auto block = world->GetBlock(camera.Position + glm::vec3(0, -2, 0));
+		if (block == BlockName::Air)
 			camera.Position += glm::vec3(0, -7 * static_cast<GLfloat>(timer.deltaTime), 0);
 
 		if (timer.currentTime - camera.JumpStart < 0.2f)
 			camera.Position += glm::vec3(0, 12 * static_cast<GLfloat>(timer.deltaTime), 0);
 		else
 			camera.isJumping = false;
+
 	}
 
 	//Calculate collisions

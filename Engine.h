@@ -92,6 +92,8 @@ protected:
 	
 	vec3 lastPlayerPosition;
 
+	glm::vec3 StartPosition;
+
 	GLfloat RayRange;
 
 	BlockName SelectedBlock;
