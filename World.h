@@ -4,6 +4,7 @@
 #include "Model.h"
 #include "Cube.h"
 #include "Ray.h"
+#include "Range.h"
 #include "stb_perlin.h"
 #include <unordered_map>
 #include <thread>
@@ -33,9 +34,9 @@ private:
 
 	static std::vector<Chunk*> RenderedChunks;
 
-	inline static int RoundInt(GLfloat x);
+	static int RoundInt(GLfloat x);
 
-	inline static int RoundInt(GLuint x);
+	static int RoundInt(GLuint x);
 
 	static std::vector<std::thread> Threads;
 	static std::vector<std::pair<vec2, Model*>> GenJobs;

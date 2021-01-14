@@ -72,6 +72,12 @@ void Camera::ProcessKeyboard(CameraMovement direction, GLfloat deltaTime)
         PositionDelta += Right * velocity;
         PositionDelta.y = 0;
         break;
+    case CameraMovement::UP:
+        PositionDelta.y += velocity;
+        break;
+    case CameraMovement::DOWN:
+        PositionDelta.y -= velocity;
+        break;
     };
     Position += PositionDelta;
 }

@@ -43,7 +43,9 @@ enum class BlockName {
 	Grass,
 	Dirt,
 	Cobble,
-	Stone
+	Stone,
+	Wood,
+	Leave
 };
 
 

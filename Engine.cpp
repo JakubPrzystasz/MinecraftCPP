@@ -48,7 +48,13 @@ void Engine::updateWindow()
 	if (input->GetKeyState(Key::KEY_D))
 		camera.ProcessKeyboard(CameraMovement::RIGHT, (GLfloat)timer.deltaTime);
 
-	if (input->IsKeyDown(Key::KEY_SPACE)) {
+	if (input->GetKeyState(Key::KEY_LEFT_SHIFT) && flyMode)
+		camera.ProcessKeyboard(CameraMovement::DOWN, (GLfloat)timer.deltaTime);
+
+	if (input->GetKeyState(Key::KEY_SPACE) && flyMode)
+		camera.ProcessKeyboard(CameraMovement::UP, (GLfloat)timer.deltaTime);
+
+	if (input->IsKeyDown(Key::KEY_SPACE) && !flyMode) {
 		if ((static_cast<GLfloat>(timer.currentTime) - camera.JumpStart) > 0.2f && world->GetBlock(camera.Position + glm::vec3(0, -2, 0)) != BlockName::Air)
 			camera.JumpStart = static_cast<GLfloat>(timer.currentTime);
 	}
@@ -80,6 +86,18 @@ void Engine::updateWindow()
 		}
 	}
 
+	if (input->IsKeyDown(Key::KEY_UP) && flyMode)
+		camera.MovementSpeed += 1.f;
+
+	if (input->IsKeyDown(Key::KEY_DOWN) && flyMode)
+		camera.MovementSpeed -= 1.f;
+
+	if (input->IsKeyDown(Key::KEY_F)) {
+		flyMode = !flyMode;
+		if (!flyMode)
+			camera.MovementSpeed = 7.f;
+	}
+
 	if (!world->worldGenerated)
 		return;
 
@@ -89,7 +107,7 @@ void Engine::updateWindow()
 	{
 		//Block breaking
 		auto rayEnd = GetRayEnd();
-		for (auto &it : rayEnd) {
+		for (auto& it : rayEnd) {
 			if (world->GetBlock(it) != BlockName::Air) {
 				world->SetBlock(it, BlockName::Air);
 				break;
@@ -109,6 +127,16 @@ void Engine::updateWindow()
 		}
 	}
 
+	auto rayEnd = GetRayEnd();
+	vec3 pointVec;
+	for (auto it = rayEnd.rbegin(); it != rayEnd.rend(); ++it) {
+		if (world->GetBlock(*it) != BlockName::Air) {
+			pointVec = *it;
+			break;
+		}
+	}
+
+
 	//Chunk render
 	auto chunkPos = world->GetChunkPosition(camera.Position);
 	if ((lastPosition - chunkPos) != vec2(0, 0))
@@ -117,7 +145,9 @@ void Engine::updateWindow()
 
 	//Debug data
 	auto onBlockPos = CalculateOnBlockPosition(camera.Position);
+	auto onChunkPos = world->ToChunkPosition(camera.Position);
 	auto playerPosDelta = camera.GetPositionDelta();
+	auto blockBelow = world->GetBlock(vec3(0,-2,0)+camera.Position);
 	DebugData.clear();
 	std::stringstream STRING;
 	STRING << "FPS: " << timer.FPS << "   Active jobs:" << world->GetJobsCount();
@@ -129,28 +159,37 @@ void Engine::updateWindow()
 		std::fixed << std::setprecision(1) << camera.Position.z;
 	DebugData.push_back(STRING.str());
 	std::stringstream().swap(STRING);
-	STRING << "Chunk (X,Y): " << chunkPos.x << ", " << chunkPos.y << "   " << " Look Direction: " << static_cast<char>(camera.GetLookDirection());
+	STRING << "Chunk (X,Y): " << chunkPos.x << ", " << chunkPos.y << "   " <<
+		" Look Direction: " << static_cast<char>(camera.GetLookDirection());
 	DebugData.push_back(STRING.str());
 	std::stringstream().swap(STRING);
 	STRING << "On block position (X,Y,Z): " <<
 		std::fixed << std::setprecision(2) << onBlockPos.x << ", " <<
 		std::fixed << std::setprecision(2) << onBlockPos.y << ", " <<
-		std::fixed << std::setprecision(2) << onBlockPos.z << "  Standing on: " << Cube::GetBlockName(world->GetBlock(vec3(camera.Position) + vec3(0, -2, 0)));
+		std::fixed << std::setprecision(2) << onBlockPos.z << "  " <<
+		"Standing on: " << Cube::GetBlockName(blockBelow);
 	DebugData.push_back(STRING.str());
 	std::stringstream().swap(STRING);
 	STRING << "Player pos delta: "
-		<< playerPosDelta.x << ", "
-		<< playerPosDelta.y << ", "
-		<< playerPosDelta.z;
+		<< std::fixed << std::setprecision(5) << playerPosDelta.x << ", "
+		<< std::fixed << std::setprecision(5) << playerPosDelta.y << ", "
+		<< std::fixed << std::setprecision(5) << playerPosDelta.z;
 	DebugData.push_back(STRING.str());
 	std::stringstream().swap(STRING);
-	STRING << "Generated chunks: " << world->GetChunksCount() << "    Built meshes: " << world->GetMeshCount();
+	STRING << "Generated chunks: " << world->GetChunksCount() <<
+		"    Built meshes: " << world->GetMeshCount();
 	DebugData.push_back(STRING.str());
 	std::stringstream().swap(STRING);
-	STRING << "Ray: " << 
-		std::fixed << std::setprecision(2) << glm::normalize(ForwardsVector()).x << "  " <<
-		std::fixed << std::setprecision(2) << glm::normalize(ForwardsVector()).y << "  " <<
-		std::fixed << std::setprecision(2) << glm::normalize(ForwardsVector()).z << "  "; //<< ray.getLength();
+	STRING << "Ray: " <<
+		std::fixed << std::setprecision(2) << pointVec.x << "  " <<
+		std::fixed << std::setprecision(2) << pointVec.y << "  " <<
+		std::fixed << std::setprecision(2) << pointVec.z << "  ";
+	DebugData.push_back(STRING.str());
+	std::stringstream().swap(STRING);
+	STRING << "On chunk pos: " <<
+		std::fixed << std::setprecision(0) << onChunkPos.x << ", " <<
+		std::fixed << std::setprecision(0) << onChunkPos.y << ", " <<
+		std::fixed << std::setprecision(0) << onChunkPos.z;
 	DebugData.push_back(STRING.str());
 }
 
@@ -179,6 +218,14 @@ void Engine::renderFrame()
 			text.RenderText(str, static_cast<float>(5), static_cast<float>(585 - (line++ * 25)), 0.4f, glm::vec3(0.f, 0.f, 0.f));
 		}
 	}
+
+	if (flyMode) {
+		std::stringstream STRING;
+		STRING << "Speed: " << camera.MovementSpeed;
+		text.RenderText("Fly mode", static_cast<float>(700), static_cast<float>(580), 0.4f, glm::vec3(0.f, 0.f, 0.f));
+		text.RenderText(STRING.str(), static_cast<float>(700), static_cast<float>(550), 0.4f, glm::vec3(0.f, 0.f, 0.f));
+	}
+
 }
 
 void Engine::windowSizeCallback(GLFWwindow* window, int width, int height)
@@ -194,9 +241,11 @@ Engine::Engine()
 	screenHeight = 600;
 	screenWidth = 800;
 	crossHairSize = 8;
-	RenderDistance = 8;
-	ChunkSize = 4;
+	RenderDistance = 3;
+	ChunkSize = 8;
 	ChunkOffset = 2;
+	RayRange = 4;
+	flyMode = false;
 }
 
 
@@ -265,6 +314,12 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	//Cobble
 	rs->AddBlock(BlockName::Cobble, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 }, { 0,14 });
 	rs->GetBlock(BlockName::Cobble)->BindFaces();
+	//Wood
+	rs->AddBlock(BlockName::Wood, { 4,14 }, { 4,14 }, { 5,14 }, { 5,14 }, { 4,14 }, { 4,14 });
+	rs->GetBlock(BlockName::Wood)->BindFaces();
+	//Leave
+	rs->AddBlock(BlockName::Leave, { 4,12 }, { 4,12 }, { 5,12 }, { 5,12 }, { 4,12 }, { 4,12 });
+	rs->GetBlock(BlockName::Leave)->BindFaces();
 
 	//Text
 	text.Init(ProjectionMatrix);
@@ -342,13 +397,16 @@ void Engine::WindowLoop()
 
 void Engine::ProcessMovement()
 {
-	if (world->GetBlock(camera.Position + glm::vec3(0, -2, 0)) == BlockName::Air)
-		camera.Position += glm::vec3(0, -7 * static_cast<GLfloat>(timer.deltaTime), 0);
 
-	if (timer.currentTime - camera.JumpStart < 0.2f)
-		camera.Position += glm::vec3(0, 12 * static_cast<GLfloat>(timer.deltaTime), 0);
-	else
-		camera.isJumping = false;
+	if (!flyMode) {
+		if (world->GetBlock(camera.Position + glm::vec3(0, -2, 0)) == BlockName::Air)
+			camera.Position += glm::vec3(0, -7 * static_cast<GLfloat>(timer.deltaTime), 0);
+
+		if (timer.currentTime - camera.JumpStart < 0.2f)
+			camera.Position += glm::vec3(0, 12 * static_cast<GLfloat>(timer.deltaTime), 0);
+		else
+			camera.isJumping = false;
+	}
 
 	//Calculate collisions
 	auto playerPosDelta = camera.Position - camera.LastPosition;
@@ -413,7 +471,7 @@ glm::vec3 Engine::ForwardsVector()
 std::vector<vec3> Engine::GetRayEnd()
 {
 	// Ensures passed direction is normalized
-	GLfloat range = 6;
+	GLfloat range = RayRange;
 	auto startPoint = camera.Position;
 	auto nDirection = glm::normalize(ForwardsVector());
 	auto endPoint = startPoint + nDirection * range;

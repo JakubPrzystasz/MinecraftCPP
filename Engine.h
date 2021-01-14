@@ -82,11 +82,16 @@ protected:
 
 	bool showDebugData;
 
+	bool flyMode;
+
 	std::vector<std::string> DebugData;
 
 	GLuint RenderDistance, ChunkSize, ChunkOffset, SectionSize;
 
 	vec2 lastPosition;
+
+	GLfloat RayRange;
+
 
 public:
 	Engine();
