@@ -40,3 +40,12 @@ bool Time::click()
 	}
 	return false;
 }
+
+bool Time::footstep()
+{
+	if ((currentTime - lastFootstepSound) >= 0.4f) {
+		lastFootstepSound = currentTime;
+		return true;
+	}
+	return false;
+}

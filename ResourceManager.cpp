@@ -8,6 +8,8 @@ std::map<std::string, Model*> ResourceManager::Models;
 std::map<BlockName, Cube*> ResourceManager::Blocks;
 std::map<GLchar, Character*> ResourceManager::Characters;
 
+irrklang::ISoundEngine* ResourceManager::SoundEngine = irrklang::createIrrKlangDevice();
+
 void ResourceManager::LoadTexture(std::string TextureName)
 {
     ResourceManager* RS = ResourceManager::GetInstance();

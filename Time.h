@@ -12,8 +12,10 @@ public:
 	GLdouble frameTime;
 	GLdouble lastFrame;
 	GLdouble lastClick;
+	GLdouble lastFootstepSound;
 	void init(GLdouble time);
 	void update(GLdouble time);
 	bool renderFrame();
 	bool click();
+	bool footstep();
 };

@@ -132,46 +132,69 @@ void Engine::updateWindow()
 		//Block breaking
 		auto rayEnd = GetRayEnd();
 		for (auto& it : rayEnd) {
-			if (world->GetBlock(it) != BlockName::Air) {
+			auto block = world->GetBlock(it);
+			if (block != BlockName::Air) {
+				if (block != BlockName::TNT)
+					rs->SoundEngine->play2D("Audio/break.mp3", false);
+				else
+					rs->SoundEngine->play2D("Audio/tnt.mp3", false);
 				world->SetBlock(it, BlockName::Air);
 				break;
 			}
 		}
 	}
 
+	vec3 pointVec = vec3(0, 0, 0);
+
 	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_RIGHT) && timer.click())
 	{
 		//Block placing
 		auto rayEnd = GetRayEnd();
-		for (auto it = rayEnd.rbegin(); it != rayEnd.rend(); ++it) {
-			if (world->GetBlock(*it) == BlockName::Air) {
-				world->SetBlock(*it, SelectedBlock);
+		for (auto& it : rayEnd) {
+			auto block = world->GetBlock(it);
+			if (block == BlockName::Air)
+				pointVec = it;
+			else
 				break;
-			}
+		}
+		if (pointVec != vec3(0, 0, 0)) {
+			world->SetBlock(pointVec, SelectedBlock);
+			rs->SoundEngine->play2D("Audio/place.mp3", false);
 		}
 	}
 
-	auto rayEnd = GetRayEnd();
-	vec3 pointVec;
-	for (auto it = rayEnd.rbegin(); it != rayEnd.rend(); ++it) {
-		if (world->GetBlock(*it) != BlockName::Air) {
-			pointVec = *it;
-			break;
+	//Calculate position delta
+	vec3 positionDelta;
+	auto blockBelow = world->GetBlock(vec3(0, -2, 0) + camera.Position);
+	{
+		vec3 acutalPos = {
+				static_cast<int>(camera.Position.x),
+				static_cast<int>(camera.Position.y),
+				static_cast<int>(camera.Position.z)
+		};
+		if (acutalPos != lastPlayerPosition)
+		{
+			positionDelta = acutalPos - lastPlayerPosition;
+			lastPlayerPosition = acutalPos;
 		}
 	}
+
+	//Player moved to another block - play footstep
+	if (positionDelta != vec3(0, 0, 0) && blockBelow != BlockName::Air && timer.footstep())
+		rs->SoundEngine->play2D("Audio/footStep.mp3", false);
 
 
 	//Chunk render
 	auto chunkPos = world->GetChunkPosition(camera.Position);
-	if ((lastPosition - chunkPos) != vec2(0, 0))
+	if ((lastChunk - chunkPos) != vec2(0, 0))
 		world->SetRenderedChunks(chunkPos);
-	lastPosition = chunkPos;
+	lastChunk = chunkPos;
 
 	//Debug data
+	auto rayEnd = GetRayEnd();
 	auto onBlockPos = CalculateOnBlockPosition(camera.Position);
 	auto onChunkPos = world->ToChunkPosition(camera.Position);
 	auto playerPosDelta = camera.GetPositionDelta();
-	auto blockBelow = world->GetBlock(vec3(0,-2,0)+camera.Position);
 	DebugData.clear();
 	std::stringstream STRING;
 	STRING << "FPS: " << timer.FPS << "   Active jobs:" << world->GetJobsCount();

@@ -8,6 +8,7 @@
 #include "Model.h"
 #include "Cube.h"
 #include "Text.h"
+#include <irrKlang/irrKlang.h>
 
 struct Character;
 
@@ -84,6 +85,8 @@ public:
     /// </summary>
     /// <returns>Pointer to Singleton instance of ResourceManager</returns>
     static ResourceManager* GetInstance();
+
+    static irrklang::ISoundEngine* SoundEngine;
 
     /// <summary>
     /// Loads texture from file to program memory, ready to use in GL context

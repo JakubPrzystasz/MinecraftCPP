@@ -88,7 +88,9 @@ protected:
 
 	GLuint RenderDistance, ChunkSize, ChunkOffset, SectionSize;
 
-	vec2 lastPosition;
+	vec2 lastChunk;
+	
+	vec3 lastPlayerPosition;
 
 	GLfloat RayRange;
 
