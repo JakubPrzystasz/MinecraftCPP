@@ -243,7 +243,7 @@ void Engine::updateWindow()
 void Engine::renderFrame()
 {
 	if (!world->worldGenerated) {
-		text.RenderText("Generating world...", static_cast<float>(320), static_cast<float>(300), 0.4f, glm::vec3(0.f, 0.f, 0.f));
+		text.RenderText("Generating world...", static_cast<float>((screenWidth/2) - 80), static_cast<float>(screenHeight/2), 0.4f, glm::vec3(0.f, 0.f, 0.f));
 		GLuint x = world->GetChunksCount();
 		if (world->GetChunksCount() >= SectionSize) {
 			world->BuildMesh();
@@ -262,15 +262,15 @@ void Engine::renderFrame()
 	if (showDebugData) {
 		int line = 0;
 		for (std::string& str : DebugData) {
-			text.RenderText(str, static_cast<float>(5), static_cast<float>(585 - (line++ * 25)), 0.4f, glm::vec3(0.f, 0.f, 0.f));
+			text.RenderText(str, static_cast<float>(5), static_cast<float>(screenHeight - 15 - (line++ * 25)), 0.4f, glm::vec3(0.f, 0.f, 0.f));
 		}
 	}
 
 	if (flyMode) {
 		std::stringstream STRING;
 		STRING << "Speed: " << camera.MovementSpeed;
-		text.RenderText("Fly mode", static_cast<float>(700), static_cast<float>(580), 0.4f, glm::vec3(0.f, 0.f, 0.f));
-		text.RenderText(STRING.str(), static_cast<float>(700), static_cast<float>(550), 0.4f, glm::vec3(0.f, 0.f, 0.f));
+		text.RenderText("Fly mode", static_cast<float>(screenWidth-100), static_cast<float>(screenHeight-20), 0.4f, glm::vec3(0.f, 0.f, 0.f));
+		text.RenderText(STRING.str(), static_cast<float>(screenWidth - 100), static_cast<float>(screenHeight - 40), 0.4f, glm::vec3(0.f, 0.f, 0.f));
 	}
 
 	std::stringstream STRING;
@@ -291,7 +291,7 @@ Engine::Engine()
 	screenHeight = 600;
 	screenWidth = 800;
 	crossHairSize = 8;
-	RenderDistance = 3;
+	RenderDistance = 8;
 	ChunkSize = 8;
 	ChunkOffset = 2;
 	RayRange = 7;
