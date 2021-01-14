@@ -87,10 +87,11 @@ void Engine::updateWindow()
 
 	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT) && timer.click())
 	{
+		//Block breaking
 		auto rayEnd = GetRayEnd();
-		for (int i = 0; i > rayEnd.size(); i++) {
-			if (world->GetBlock(rayEnd[i]) == BlockName::Air) {
-				world->SetBlock(rayEnd[i], BlockName::Cobble);
+		for (auto &it : rayEnd) {
+			if (world->GetBlock(it) != BlockName::Air) {
+				world->SetBlock(it, BlockName::Air);
 				break;
 			}
 		}
@@ -98,10 +99,11 @@ void Engine::updateWindow()
 
 	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_RIGHT) && timer.click())
 	{
+		//Block placing
 		auto rayEnd = GetRayEnd();
-		for (int i = rayEnd.size() - 1; i >= 0; i--) {
-			if (world->GetBlock(rayEnd[i]) != BlockName::Air) {
-				world->SetBlock(rayEnd[i], BlockName::Air);
+		for (auto it = rayEnd.rbegin(); it != rayEnd.rend(); ++it) {
+			if (world->GetBlock(*it) == BlockName::Air) {
+				world->SetBlock(*it, BlockName::Cobble);
 				break;
 			}
 		}
@@ -145,7 +147,10 @@ void Engine::updateWindow()
 	STRING << "Generated chunks: " << world->GetChunksCount() << "    Built meshes: " << world->GetMeshCount();
 	DebugData.push_back(STRING.str());
 	std::stringstream().swap(STRING);
-	//STRING << "Ray: " << ray.getEnd().x << "  " << ray.getEnd().y << "   " << ray.getEnd().z << "   " << ray.getLength();
+	STRING << "Ray: " << 
+		std::fixed << std::setprecision(2) << glm::normalize(ForwardsVector()).x << "  " <<
+		std::fixed << std::setprecision(2) << glm::normalize(ForwardsVector()).y << "  " <<
+		std::fixed << std::setprecision(2) << glm::normalize(ForwardsVector()).z << "  "; //<< ray.getLength();
 	DebugData.push_back(STRING.str());
 }
 
@@ -401,11 +406,8 @@ void Engine::ProcessMovement()
 
 glm::vec3 Engine::ForwardsVector()
 {
-	float x = glm::cos(camera.Yaw) * glm::cos(camera.Pitch);
-	float y = glm::sin(camera.Pitch);
-	float z = glm::cos(camera.Pitch) * glm::sin(camera.Yaw);
-
-	return { -x, -y, -z };
+	glm::vec3 forward = glm::normalize(camera.Front);
+	return forward;
 }
 
 std::vector<vec3> Engine::GetRayEnd()
