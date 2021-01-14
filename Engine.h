@@ -62,6 +62,10 @@ protected:
 	/// </summary>
 	static void windowSizeCallback(GLFWwindow* window, int width, int height);
 
+	glm::vec3 ForwardsVector();
+
+	std::vector<vec3> GetRayEnd();
+
 	World* world;
 
 	Model crossHair;
@@ -80,7 +84,7 @@ protected:
 
 	std::vector<std::string> DebugData;
 
-	GLuint RenderDistance, ChunkSize, ChunkOffset;
+	GLuint RenderDistance, ChunkSize, ChunkOffset, SectionSize;
 
 	vec2 lastPosition;
 

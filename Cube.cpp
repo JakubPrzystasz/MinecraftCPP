@@ -107,6 +107,7 @@ std::string Cube::GetBlockName(BlockName block)
 	case BlockName::Stone:
 		return std::string("Stone");
 	}
+	return std::string("");
 }
 
 void Cube::SetFaceTexture(Face &face, FaceTexture fTex)

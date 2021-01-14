@@ -76,6 +76,8 @@ public:
 
 	static void SetBlock(glm::vec3 pos, BlockName block);
 
+	static void SetBlock(vec3 pos, BlockName block);
+
 	static Chunk* GenerateChunk(vec2 chunkPos, Model* model);
 	//Takes in chunk coords as parameter
 	static BlockName GetBlock(Chunk* chunk, vec3 pos);
@@ -90,7 +92,7 @@ public:
 
 	static void UpdateMesh(Chunk* chunk);
 
-	static void GenerateWorld();
+	static GLuint GenerateWorld();
 
 	static void RequestChunkGenerate(vec2 chunkPos);
 

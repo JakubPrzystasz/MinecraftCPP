@@ -75,13 +75,20 @@ void World::DrawChunks(Camera& camera)
 
 }
 
-void World::GenerateWorld() {
-	int _renderDistance = static_cast<int>(renderDistance) + static_cast<int>(chunkOffset);
-	for (int y = -_renderDistance; y <= _renderDistance; y++) {
-		for (int x = - _renderDistance; x <= _renderDistance; x++) {
+GLuint World::GenerateWorld() {
+	GLuint count = 0;
+	int GenDist = static_cast<int>(renderDistance) + static_cast<int>(chunkOffset);
+	for (int y = -GenDist; y <= GenDist; y++) {
+		for (int x = -GenDist; x <= GenDist; x++) {
 			RequestChunkGenerate(vec2(x, y));
+			count++;
 		}
 	}
+	return count;
+}
+
+void World::SetBlock(vec3 pos,BlockName _block) {
+	SetBlock(glm::vec3(pos.x, pos.y, pos.z), _block);
 }
 
 void World::SetBlock(glm::vec3 pos, BlockName _block)
@@ -132,8 +139,8 @@ Chunk* World::GenerateChunk(vec2 chunkPos, Model* model)
 
 	for (GLuint x = 0; x < chunkSize; x++) {
 		for (GLuint z = 0; z < chunkSize; z++) {
-			grassHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 2048)) / 16.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 2048)) / 16.f, 0, 0, 0, seed) * (-8) + 16;
-			dirtHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 2048)) / 16.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 2048)) / 16.f, 0, 0, 0, seed) * (-2) + 10;
+			grassHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 16498)) / 20.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 16498)) / 18.f, 0, 0, 0, seed) * (-8) + 16;
+			dirtHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 16498)) / 16.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 16498)) / 16.f, 0, 0, 0, seed) * (-2) + 10;
 			for (int y = 0; y < grassHeight; y++) {
 				if (y < dirtHeight) {
 					newChunk->PutBlock(BlockName::Stone, x, y, z);
@@ -251,7 +258,7 @@ void World::SetRenderedChunks(vec2 centerChunkPos)
 			chunk = GetChunk(tmp);
 			if (chunk != nullptr)
 			{
-				if (y > -_renderDistance && y < _renderDistance&&
+				if (y > -_renderDistance && y < _renderDistance &&
 					x > -_renderDistance && x < _renderDistance) {
 					RenderedChunks.push_back(chunk);
 				}
@@ -263,25 +270,35 @@ void World::SetRenderedChunks(vec2 centerChunkPos)
 }
 
 void World::BuildMesh() {
-
-	for (auto& chunk : Chunks) {
-		GenMutex.lock();
-		if (chunk.second->model == nullptr) {
-			auto RS = ResourceManager::GetInstance();
-			Model* newModel = new Model();
-			newModel->Init();
-			newModel->SetShadingProgram(RS->GetShadingProgram("block"));
-			newModel->AddTexture("blockTexture", RS->GetTexture("Textures/terrain.png"));
-			newModel->shadingProgram->Use();
-			newModel->Textures["blockTexture"]->Bind();
-			newModel->shadingProgram->SetData("blockTexture", newModel->Textures["blockTexture"]->GetId());
-			chunk.second->model = newModel;
+	Chunk* chunk;
+	int _renderDistance = static_cast<int>(renderDistance);
+	for (int y = -_renderDistance; y <= _renderDistance; y++) {
+		for (int x = -_renderDistance; x <= _renderDistance; x++) {
+			chunk = GetChunk(vec2(x, y));
+			if (chunk == nullptr) {
+				RequestChunkGenerate(vec2(x, y));
+				while ((GetChunk(vec2(x, y)) == nullptr)) { ; }
+				chunk = GetChunk(vec2(x, y));
+			}
+			GenMutex.lock();
+			if (chunk->model == nullptr) {
+				auto RS = ResourceManager::GetInstance();
+				Model* newModel = new Model();
+				newModel->Init();
+				newModel->SetShadingProgram(RS->GetShadingProgram("block"));
+				newModel->AddTexture("blockTexture", RS->GetTexture("Textures/terrain.png"));
+				newModel->shadingProgram->Use();
+				newModel->Textures["blockTexture"]->Bind();
+				newModel->shadingProgram->SetData("blockTexture", newModel->Textures["blockTexture"]->GetId());
+				chunk->model = newModel;
+			}
+			if (chunk->model->vertices.size() < 1) {
+				GenMutex.unlock();
+				UpdateMesh(chunk);
+			}
+			else
+				GenMutex.unlock();
 		}
-		if (chunk.second->model->vertices.size() < 1) {
-			GenMutex.unlock();
-			UpdateMesh(chunk.second);
-		}else
-			GenMutex.unlock();
 	}
 }
 
@@ -420,7 +437,7 @@ void World::RunThreadsBuild() {
 			auto tmp = BuildJobs.back();
 			BuildJobs.pop_back();
 			BuildMutex.unlock();
-			if(tmp->BuildMesh())
+			if (tmp->BuildMesh())
 				CountMeshes++;
 			continue;
 		}

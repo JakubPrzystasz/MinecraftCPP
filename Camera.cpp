@@ -17,7 +17,7 @@ void Camera::updateCameraVectors()
 
 Camera::Camera()
 {
-    Position = glm::vec3({ 0,25,0 });
+    Position = glm::vec3({ 0,30,0 });
     WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
     Front = glm::vec3({ 0.f,0.f,-1.f });
     FOV = 45.0f;
@@ -28,6 +28,9 @@ Camera::Camera()
     Right = glm::vec3(0);
     Up = glm::vec3(0);
     Projection = glm::mat4(0);
+    isJumping = false;
+    LastPosition = glm::vec3(0, 0, 0);
+    JumpStart = 0.f;
 }
 
 glm::mat4 Camera::GetViewMatrix()
@@ -124,4 +127,23 @@ WorldDirection Camera::GetLookDirection()
 
     return WorldDirection::Unknown;
 
+}
+
+void Camera::Ray::Step(GLfloat Scale)
+{
+    auto& p = RayEnd;
+
+    p.x -= glm::cos(Yaw) * Scale;
+    p.z -= glm::sin(Yaw) * Scale;
+    p.y -= glm::tan(Pitch) * Scale;
+}
+
+const glm::vec3& Camera::Ray::GetEnd() const
+{
+    return RayEnd;
+}
+
+float Camera::Ray::GetLength() const
+{
+    return glm::distance(RayStart,RayEnd);
 }

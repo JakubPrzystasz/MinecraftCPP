@@ -29,6 +29,23 @@ class Camera
 private:
     void updateCameraVectors();
 public:
+    class Ray {
+    private:
+        glm::vec3 RayStart;
+        glm::vec3 RayEnd;
+        GLfloat Yaw;
+        GLfloat Pitch;
+    public:
+        Ray(Camera camera) {
+            RayStart = camera.Position;
+            RayEnd = camera.Position;
+            Yaw = camera.Yaw;
+            Pitch = camera.Pitch;
+        };
+        void Step(GLfloat Scale);
+        const glm::vec3& GetEnd() const;
+        float GetLength() const;
+    };
 
     Camera();
     glm::vec3 Position;

@@ -6,7 +6,7 @@ void Time::init(GLdouble time)
 	currentTime = time;
 	lastSecond = time;
 	lastFrame = time;
-	lastPrint = time;
+	lastClick = time;
 }
 
 void Time::update(GLdouble time)
@@ -32,10 +32,10 @@ bool Time::renderFrame()
 }
 
 
-bool Time::printDebug()
+bool Time::click()
 {
-	if ((currentTime - lastPrint) >= 0.5f) {
-		lastPrint = currentTime;
+	if ((currentTime - lastClick) >= 0.2f) {
+		lastClick = currentTime;
 		return true;
 	}
 	return false;

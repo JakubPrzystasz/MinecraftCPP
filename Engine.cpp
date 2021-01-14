@@ -34,6 +34,8 @@ void Engine::updateWindow()
 
 	camera.ProcessMouseMovement(input->GetMouseOffset());
 
+	camera.LastPosition = camera.Position;
+
 	if (input->GetKeyState(Key::KEY_W))
 		camera.ProcessKeyboard(CameraMovement::FORWARD, (GLfloat)timer.deltaTime);
 
@@ -47,7 +49,7 @@ void Engine::updateWindow()
 		camera.ProcessKeyboard(CameraMovement::RIGHT, (GLfloat)timer.deltaTime);
 
 	if (input->IsKeyDown(Key::KEY_SPACE)) {
-		if((static_cast<GLfloat>(timer.currentTime) - camera.JumpStart) > 0.2f && world->GetBlock(camera.Position + glm::vec3(0,-2,0)) != BlockName::Air) 
+		if ((static_cast<GLfloat>(timer.currentTime) - camera.JumpStart) > 0.2f && world->GetBlock(camera.Position + glm::vec3(0, -2, 0)) != BlockName::Air)
 			camera.JumpStart = static_cast<GLfloat>(timer.currentTime);
 	}
 
@@ -81,18 +83,29 @@ void Engine::updateWindow()
 	if (!world->worldGenerated)
 		return;
 
-
-	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT))
-	{
-		world->SetBlock(camera.Position, BlockName::Cobble);
-	}
-
-	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_RIGHT))
-	{
-		world->SetBlock(camera.Position, BlockName::Air);
-	}
-
 	ProcessMovement();
+
+	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT) && timer.click())
+	{
+		auto rayEnd = GetRayEnd();
+		for (int i = 0; i > rayEnd.size(); i++) {
+			if (world->GetBlock(rayEnd[i]) == BlockName::Air) {
+				world->SetBlock(rayEnd[i], BlockName::Cobble);
+				break;
+			}
+		}
+	}
+
+	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_RIGHT) && timer.click())
+	{
+		auto rayEnd = GetRayEnd();
+		for (int i = rayEnd.size() - 1; i >= 0; i--) {
+			if (world->GetBlock(rayEnd[i]) != BlockName::Air) {
+				world->SetBlock(rayEnd[i], BlockName::Air);
+				break;
+			}
+		}
+	}
 
 	//Chunk render
 	auto chunkPos = world->GetChunkPosition(camera.Position);
@@ -124,15 +137,15 @@ void Engine::updateWindow()
 	DebugData.push_back(STRING.str());
 	std::stringstream().swap(STRING);
 	STRING << "Player pos delta: "
-		 << playerPosDelta.x << ", "
-		 << playerPosDelta.y << ", "
-		 << playerPosDelta.z;
+		<< playerPosDelta.x << ", "
+		<< playerPosDelta.y << ", "
+		<< playerPosDelta.z;
 	DebugData.push_back(STRING.str());
 	std::stringstream().swap(STRING);
 	STRING << "Generated chunks: " << world->GetChunksCount() << "    Built meshes: " << world->GetMeshCount();
 	DebugData.push_back(STRING.str());
 	std::stringstream().swap(STRING);
-	STRING << "Ray: ";
+	//STRING << "Ray: " << ray.getEnd().x << "  " << ray.getEnd().y << "   " << ray.getEnd().z << "   " << ray.getLength();
 	DebugData.push_back(STRING.str());
 }
 
@@ -141,12 +154,13 @@ void Engine::renderFrame()
 	if (!world->worldGenerated) {
 		text.RenderText("Generating world...", static_cast<float>(320), static_cast<float>(300), 0.4f, glm::vec3(0.f, 0.f, 0.f));
 		GLuint x = world->GetChunksCount();
-		if (world->GetChunksCount() >= world->GetPlatformSize(world->GetRenderDistance() + world->GetChunkOffset())) {
+		if (world->GetChunksCount() >= SectionSize) {
 			world->BuildMesh();
-			if (world->GetMeshCount() >= world->GetPlatformSize(world->GetRenderDistance() + world->GetChunkOffset())) {
+			if (world->GetMeshCount() >= world->GetPlatformSize(world->GetRenderDistance())) {
 				world->SetRenderedChunks(vec2(0, 0));
 				world->worldGenerated = true;
-			} else
+			}
+			else
 				return;
 		}
 		return;
@@ -175,9 +189,9 @@ Engine::Engine()
 	screenHeight = 600;
 	screenWidth = 800;
 	crossHairSize = 8;
-	RenderDistance = 10;
+	RenderDistance = 8;
 	ChunkSize = 4;
-	ChunkOffset = 10;
+	ChunkOffset = 2;
 }
 
 
@@ -277,7 +291,7 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	world->SetChunkOffset(ChunkOffset);
 	world->SetRenderDistance(RenderDistance);
 	world->StartThreads();
-	world->GenerateWorld();
+	SectionSize = world->GenerateWorld();
 
 }
 
@@ -326,8 +340,10 @@ void Engine::ProcessMovement()
 	if (world->GetBlock(camera.Position + glm::vec3(0, -2, 0)) == BlockName::Air)
 		camera.Position += glm::vec3(0, -7 * static_cast<GLfloat>(timer.deltaTime), 0);
 
-	if (timer.currentTime - camera.JumpStart < 0.2f) 
+	if (timer.currentTime - camera.JumpStart < 0.2f)
 		camera.Position += glm::vec3(0, 12 * static_cast<GLfloat>(timer.deltaTime), 0);
+	else
+		camera.isJumping = false;
 
 	//Calculate collisions
 	auto playerPosDelta = camera.Position - camera.LastPosition;
@@ -381,8 +397,79 @@ void Engine::ProcessMovement()
 			camera.Position.x = camera.LastPosition.x;
 	}
 
-	camera.LastPosition = camera.Position;
 }
+
+glm::vec3 Engine::ForwardsVector()
+{
+	float x = glm::cos(camera.Yaw) * glm::cos(camera.Pitch);
+	float y = glm::sin(camera.Pitch);
+	float z = glm::cos(camera.Pitch) * glm::sin(camera.Yaw);
+
+	return { -x, -y, -z };
+}
+
+std::vector<vec3> Engine::GetRayEnd()
+{
+	// Ensures passed direction is normalized
+	GLfloat range = 6;
+	auto startPoint = camera.Position;
+	auto nDirection = glm::normalize(ForwardsVector());
+	auto endPoint = startPoint + nDirection * range;
+	auto startVoxel = vec3(static_cast<int>(std::floor(camera.Position.x)), static_cast<int>(std::floor(camera.Position.y)), static_cast<int>(std::floor(camera.Position.z)));
+
+	// +1, -1, or 0
+	int stepX = (nDirection.x > 0) ? 1 : ((nDirection.x < 0) ? -1 : 0);
+	int stepY = (nDirection.y > 0) ? 1 : ((nDirection.y < 0) ? -1 : 0);
+	int stepZ = (nDirection.z > 0) ? 1 : ((nDirection.z < 0) ? -1 : 0);
+
+	float tDeltaX =
+		(stepX != 0) ? fmin(stepX / (endPoint.x - startPoint.x), FLT_MAX) : FLT_MAX;
+	float tDeltaY =
+		(stepY != 0) ? fmin(stepY / (endPoint.y - startPoint.y), FLT_MAX) : FLT_MAX;
+	float tDeltaZ =
+		(stepZ != 0) ? fmin(stepZ / (endPoint.z - startPoint.z), FLT_MAX) : FLT_MAX;
+
+	float tMaxX = (stepX > 0.0f) ? tDeltaX * (1.0f - startPoint.x + startVoxel.x)
+		: tDeltaX * (startPoint.x - startVoxel.x);
+	float tMaxY = (stepY > 0.0f) ? tDeltaY * (1.0f - startPoint.y + startVoxel.y)
+		: tDeltaY * (startPoint.y - startVoxel.y);
+	float tMaxZ = (stepZ > 0.0f) ? tDeltaZ * (1.0f - startPoint.z + startVoxel.z)
+		: tDeltaZ * (startPoint.z - startVoxel.z);
+
+	auto currentVoxel = startVoxel;
+	std::vector<vec3> intersected;
+	intersected.push_back(startVoxel);
+
+	// sanity check to prevent leak
+	while (intersected.size() < range * 3) {
+		if (tMaxX < tMaxY) {
+			if (tMaxX < tMaxZ) {
+				currentVoxel.x += stepX;
+				tMaxX += tDeltaX;
+			}
+			else {
+				currentVoxel.z += stepZ;
+				tMaxZ += tDeltaZ;
+			}
+		}
+		else {
+			if (tMaxY < tMaxZ) {
+				currentVoxel.y += stepY;
+				tMaxY += tDeltaY;
+			}
+			else {
+				currentVoxel.z += stepZ;
+				tMaxZ += tDeltaZ;
+			}
+		}
+		if (tMaxX > 1 && tMaxY > 1 && tMaxZ > 1)
+			break;
+		intersected.push_back(currentVoxel);
+	}
+
+	return intersected;
+}
+
 
 void Engine::SetFrameRate(GLuint fps)
 {
