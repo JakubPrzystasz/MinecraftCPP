@@ -291,10 +291,10 @@ Engine::Engine()
 	screenHeight = 600;
 	screenWidth = 800;
 	crossHairSize = 8;
-	RenderDistance = 8;
-	ChunkSize = 8;
+	RenderDistance = 6;
+	ChunkSize = 6;
 	ChunkOffset = 2;
-	RayRange = 7;
+	RayRange = 6;
 	flyMode = false;
 	SelectedBlock = BlockName::Cobble;
 	StartPosition = glm::vec3(0, 40, 0);

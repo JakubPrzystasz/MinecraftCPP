@@ -167,8 +167,9 @@ void Model::Draw()
 		texture.second->Bind(i);
 		shadingProgram->SetData(texture.first.c_str(), i++);
 	}
+	
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
 	glBindVertexArray(0);
-
+	
 }

@@ -65,6 +65,9 @@ void World::DrawChunks(Camera& camera)
 			chunk->model->shadingProgram->SetData("projection", camera.Projection);
 			chunk->model->shadingProgram->SetData("view", camera.GetViewMatrix());
 			chunk->model->shadingProgram->SetData("model", glm::mat4(1.0f));
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_BACK);
+			glFrontFace(GL_CW);
 			chunk->model->Draw();
 		}
 		else {

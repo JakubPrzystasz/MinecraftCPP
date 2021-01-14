@@ -108,6 +108,9 @@ void Text::RenderText(std::string text, float x, float y, float scale, glm::vec3
 		glBindTexture(GL_TEXTURE_2D, ch->texture);
 
 		ch->BindData();
+
+		glDisable(GL_CULL_FACE);
+
 		ch->Draw();
 
 		x += (ch->Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
