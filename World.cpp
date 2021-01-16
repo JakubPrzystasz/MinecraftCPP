@@ -78,12 +78,13 @@ void World::DrawChunks(Camera& camera)
 
 }
 
-GLuint World::GenerateWorld() {
+GLuint World::GenerateWorld(vec2 startPos) {
+
 	GLuint count = 0;
 	int GenDist = static_cast<int>(renderDistance) + static_cast<int>(chunkOffset);
 	for (int y = -GenDist; y <= GenDist; y++) {
 		for (int x = -GenDist; x <= GenDist; x++) {
-			RequestChunkGenerate(vec2(x, y));
+			RequestChunkGenerate(vec2(x, y) + startPos);
 			count++;
 		}
 	}
@@ -99,13 +100,13 @@ void World::SetBlock(glm::vec3 pos, BlockName _block)
 	auto chunk = GetChunk(GetChunkPosition(pos));
 	if (chunk == nullptr)
 		return;
-	auto blockInChunkPos = ToChunkPosition(pos);
+	auto blockInChunkPos = ToChunkPositionTEST(pos);
 	auto block = chunk->blocks.find(blockInChunkPos);
 	if ((block != chunk->blocks.end())) {
 		if (block->second == BlockName::TNT) {
-			for (int x : range((rand() % 10 - 10), (rand() % 10 ))) {
-				for (int y : range((rand() % 10 - 10), (rand() % 10 ))) {
-					for (int z : range((rand()%10 - 10), (rand() % 10 ))) {
+			for (int x : range((rand() % 10 - 10), (rand() % 10))) {
+				for (int y : range((rand() % 10 - 10), (rand() % 10))) {
+					for (int z : range((rand() % 10 - 10), (rand() % 10))) {
 
 						auto tmpPos = vec3(x, y, z) + pos;
 						chunk = GetChunk(GetChunkPosition(tmpPos));
@@ -113,7 +114,7 @@ void World::SetBlock(glm::vec3 pos, BlockName _block)
 							continue;
 						blockInChunkPos = ToChunkPosition(tmpPos);
 						block = chunk->blocks.find(blockInChunkPos);
-						if((block != chunk->blocks.end())) {
+						if ((block != chunk->blocks.end())) {
 							chunk->updateChunk = true;
 							UpdateMesh(chunk);
 							chunk->blocks.erase(block);
@@ -139,7 +140,8 @@ void World::SetBlock(glm::vec3 pos, BlockName _block)
 					}
 				}
 			}
-		}else
+		}
+		else
 			chunk->blocks.erase(block);
 	}
 	else if (_block != BlockName::Air)
@@ -202,7 +204,7 @@ Chunk* World::GenerateChunk(vec2 chunkPos, Model* model)
 				newChunk->PutBlock(BlockName::Grass, x, y, z);
 			}
 
-			if (tree >3.7f && (rand() % 10000) > 9900) {
+			if (tree > 3.7f && (rand() % 10000) > 9900) {
 				auto treeMaxH = static_cast<GLuint>(grassHeight + 1 + (rand() % 4 + 2));
 				for (int treeH : range(static_cast<GLuint>(grassHeight + 1), treeMaxH)) {
 					newChunk->PutBlock(BlockName::Wood, x, treeH, z);
@@ -217,11 +219,11 @@ Chunk* World::GenerateChunk(vec2 chunkPos, Model* model)
 						newChunk->PutBlock(BlockName::Leave, x - 1, treeH, z + 1);
 					}
 				}
-				newChunk->PutBlock(BlockName::Leave, x, treeMaxH+1, z);
-				newChunk->PutBlock(BlockName::Leave, x+1, treeMaxH+1, z);
-				newChunk->PutBlock(BlockName::Leave, x-1, treeMaxH+1, z);
-				newChunk->PutBlock(BlockName::Leave, x, treeMaxH+1, z+1);
-				newChunk->PutBlock(BlockName::Leave, x, treeMaxH+1, z-1);
+				newChunk->PutBlock(BlockName::Leave, x, treeMaxH + 1, z);
+				newChunk->PutBlock(BlockName::Leave, x + 1, treeMaxH + 1, z);
+				newChunk->PutBlock(BlockName::Leave, x - 1, treeMaxH + 1, z);
+				newChunk->PutBlock(BlockName::Leave, x, treeMaxH + 1, z + 1);
+				newChunk->PutBlock(BlockName::Leave, x, treeMaxH + 1, z - 1);
 
 			}
 
@@ -336,16 +338,16 @@ void World::SetRenderedChunks(vec2 centerChunkPos)
 	}
 }
 
-void World::BuildMesh() {
+void World::BuildMesh(vec2 startPos) {
 	Chunk* chunk;
 	int _renderDistance = static_cast<int>(renderDistance);
-	for (int y : range(-_renderDistance,_renderDistance)) {
-		for (int x : range(-_renderDistance,_renderDistance)) {
-			chunk = GetChunk(vec2(x, y));
+	for (int y : range(-_renderDistance, _renderDistance)) {
+		for (int x : range(-_renderDistance, _renderDistance)) {
+			chunk = GetChunk(vec2(x, y) + startPos);
 			if (chunk == nullptr) {
-				RequestChunkGenerate(vec2(x, y));
-				while ((GetChunk(vec2(x, y)) == nullptr)) { ; }
-				chunk = GetChunk(vec2(x, y));
+				RequestChunkGenerate(vec2(x, y) + startPos);
+				while ((GetChunk(vec2(x, y) + startPos) == nullptr)) { ; }
+				chunk = GetChunk(vec2(x, y) + startPos);
 			}
 			GenMutex.lock();
 			if (chunk->model == nullptr) {
@@ -429,11 +431,35 @@ vec3 World::ToChunkPosition(vec3 worldPos)
 
 	y = static_cast<GLfloat>((static_cast<int>(std::floor(worldPos.y))));
 
-	x = worldPos.x >= 0 ? worldPos.x : chunkSize - (-std::floor(worldPos.x));
+	x = worldPos.x >= 0 ? worldPos.x : -1 * (std::floor(worldPos.x));
 	x = static_cast<GLfloat>((static_cast<int>(x) % chunkSize));
+	if (worldPos.x < 0)
+		x = (chunkSize + 1) - static_cast<int>(x) % chunkSize;
 
-	z = worldPos.z >= 0 ? worldPos.z : chunkSize - (-std::floor(worldPos.z));
+	z = worldPos.z >= 0 ? worldPos.z : -1 * (std::floor(worldPos.z));
 	z = static_cast<GLfloat>((static_cast<int>(z) % chunkSize));
+	if (worldPos.z < 0)
+		z = (chunkSize + 1) - static_cast<int>(z) % chunkSize;
+
+	return vec3(x, y, z);
+}
+
+
+vec3 World::ToChunkPositionTEST(vec3 worldPos)
+{
+	GLfloat x, y, z;
+
+	y = static_cast<GLfloat>((static_cast<int>(std::floor(worldPos.y))));
+
+	x = worldPos.x >= 0 ? worldPos.x : -1 * (std::floor(worldPos.x));
+	x = static_cast<GLfloat>((static_cast<int>(x) % chunkSize));
+	if (worldPos.x < 0)
+		x = chunkSize - static_cast<int>(x) % chunkSize;
+
+	z = worldPos.z >= 0 ? worldPos.z : -1 * (std::floor(worldPos.z));
+	z = static_cast<GLfloat>((static_cast<int>(z) % chunkSize));
+	if (worldPos.z < 0)
+		z = chunkSize - static_cast<int>(z) % chunkSize;
 
 	return vec3(x, y, z);
 }

@@ -40,9 +40,12 @@ void Model::SetVertices(std::vector<glm::vec3>& vertices)
 
 Model::~Model()
 {
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
+	if(VAO != 0)
+		glDeleteVertexArrays(1, &VAO);
+	if(VBO != 0)
+		glDeleteBuffers(1, &VBO);
+	if(EBO != 0)
+		glDeleteBuffers(1, &EBO);	
 	Textures.clear();
 	indices.clear();
 	vertices.clear();

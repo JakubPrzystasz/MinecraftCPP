@@ -7,11 +7,11 @@ int Shader::CheckCompileError()
 	GLchar infoLog[1024];
 	int result;
 	glGetProgramiv(id, GL_LINK_STATUS, &result);
-	if (!result)
-	{
-		glGetProgramInfoLog(id, 1024, NULL, infoLog);
-		std::cout << "ERROR::SHADER::COMPILATION FAILED: " << infoLog << std::endl;
-	}
+	//if (!result)
+	//{
+	//	glGetProgramInfoLog(id, 1024, NULL, infoLog);
+	//	std::cout << "ERROR::SHADER::COMPILATION FAILED: " << infoLog << std::endl;
+	//}
 	return 0;
 }
 

@@ -246,9 +246,9 @@ void Engine::renderFrame()
 		text.RenderText("Generating world...", static_cast<float>((screenWidth/2) - 80), static_cast<float>(screenHeight/2), 0.4f, glm::vec3(0.f, 0.f, 0.f));
 		GLuint x = world->GetChunksCount();
 		if (world->GetChunksCount() >= SectionSize) {
-			world->BuildMesh();
+			world->BuildMesh(world->GetChunkPosition(camera.Position));
 			if (world->GetMeshCount() >= world->GetPlatformSize(world->GetRenderDistance())) {
-				world->SetRenderedChunks(vec2(0, 0));
+				world->SetRenderedChunks(world->GetChunkPosition(camera.Position));
 				world->worldGenerated = true;
 			}
 			else
@@ -297,7 +297,7 @@ Engine::Engine()
 	RayRange = 6;
 	flyMode = false;
 	SelectedBlock = BlockName::Cobble;
-	StartPosition = glm::vec3(0, 40, 0);
+	StartPosition = glm::vec3(1024, 40, 1024);
 }
 
 
@@ -415,14 +415,15 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	}
 	//Crosshair
 
+	camera.Position = StartPosition;
+
 	world = World::GetInstance();
 	world->SetChunkSize(ChunkSize);
 	world->SetChunkOffset(ChunkOffset);
 	world->SetRenderDistance(RenderDistance);
 	world->StartThreads();
-	SectionSize = world->GenerateWorld();
-
-	camera.Position = StartPosition;
+	SectionSize = world->GenerateWorld(world->GetChunkPosition(camera.Position));
+	
 }
 
 
@@ -542,7 +543,7 @@ glm::vec3 Engine::ForwardsVector()
 
 std::vector<vec3> Engine::GetRayEnd()
 {
-	// Ensures passed direction is normalized
+
 	GLfloat range = RayRange;
 	auto startPoint = camera.Position;
 	auto nDirection = glm::normalize(ForwardsVector());

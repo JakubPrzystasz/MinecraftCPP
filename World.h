@@ -87,13 +87,13 @@ public:
 	
 	static BlockName GetBlock(vec3 pos);
 
-	static void BuildMesh();
+	static void BuildMesh(vec2 startPos);
 
 	static void UpdateMesh(vec2 ChunkPoition);
 
 	static void UpdateMesh(Chunk* chunk);
 
-	static GLuint GenerateWorld();
+	static GLuint GenerateWorld(vec2 startPos);
 
 	static void RequestChunkGenerate(vec2 chunkPos);
 
@@ -115,13 +115,17 @@ public:
 
 	static GLuint GetChunkOffset();
 
-	inline static Chunk* GetChunk(vec2 chunkPos);
+	static Chunk* GetChunk(vec2 chunkPos);
 
-	inline static vec2 GetChunkPosition(glm::vec3 pos);
-	inline static vec2 GetChunkPosition(vec3 pos);
+	static vec2 GetChunkPosition(glm::vec3 pos);
 
-	inline static vec3 ToChunkPosition(glm::vec3 worldPos);
-	inline static vec3 ToChunkPosition(vec3 worldPos);
+	static vec2 GetChunkPosition(vec3 pos);
+
+	static vec3 ToChunkPosition(glm::vec3 worldPos);
+
+	static vec3 ToChunkPosition(vec3 worldPos);
+
+	static vec3 ToChunkPositionTEST(vec3 worldPos);
 
 	static void StartThreads();
 	static void StopThreads();

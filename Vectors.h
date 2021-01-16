@@ -50,6 +50,10 @@ struct vec3 {
 		return (other.x == this->x && other.y == this->y && other.z == this->z);
 	}
 
+	bool operator!=(const vec3& other) const noexcept {
+		return (other.x != this->x || other.y != this->y || other.z != this->z);
+	}
+
 	vec3 operator+(const vec3& other) const noexcept {
 		return vec3(this->x + other.x, this->y + other.y, this->z + other.z);
 	}
@@ -114,6 +118,11 @@ struct vec2 {
 	bool operator==(const vec2& other) const noexcept
 	{
 		return (other.x == this->x && other.y == this->y);
+	}
+
+	bool operator!=(const vec2& other) const noexcept
+	{
+		return (other.x != this->x || other.y != this->y);
 	}
 
 	vec2 operator+(const vec2& other) const noexcept {
