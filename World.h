@@ -18,7 +18,7 @@ class Model;
 
 class World
 {
-private:
+public:
 
 	World() {};
 
@@ -47,8 +47,6 @@ private:
 	static std::atomic<bool> Run;
 	static void RunThreadsGen();
 	static void RunThreadsBuild();
-
-public:
 
 	static bool worldGenerated;
 
@@ -124,8 +122,6 @@ public:
 	static vec3 ToChunkPosition(glm::vec3 worldPos);
 
 	static vec3 ToChunkPosition(vec3 worldPos);
-
-	static vec3 ToChunkPositionTEST(vec3 worldPos);
 
 	static void StartThreads();
 	static void StopThreads();

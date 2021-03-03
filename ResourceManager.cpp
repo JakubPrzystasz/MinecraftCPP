@@ -93,8 +93,9 @@ void ResourceManager::AddBlock(BlockName blockName, FaceTexture front, FaceTextu
     RS->Blocks.insert(std::pair<BlockName, Cube*>(blockName, block));
     RS->Blocks[blockName]->Init();
     RS->Blocks[blockName]->SetShadingProgram(RS->GetShadingProgram("block"));
-    RS->Blocks[blockName]->AddTexture("blockTexture", RS->GetTexture("Textures/terrain.png"));
+    RS->Blocks[blockName]->AddTexture("material.diffuse", RS->GetTexture("Textures/terrain.png"));
     RS->Blocks[blockName]->shadingProgram->Use();
+    RS->Blocks[blockName]->shadingProgram->SetData("material.diffuse", 0);
     RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Faces[FaceName::Front], front);
     RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Faces[FaceName::Back], back);
     RS->Blocks[blockName]->SetFaceTexture(RS->Blocks[blockName]->Faces[FaceName::Top], top);

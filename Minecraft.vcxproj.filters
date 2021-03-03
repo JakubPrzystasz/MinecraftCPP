@@ -193,5 +193,17 @@
     <None Include="Shaders\text.vert">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="Shaders\simpleShading.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\simpleShading.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\test.frag">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\test.vert">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

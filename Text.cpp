@@ -101,10 +101,10 @@ void Text::RenderText(std::string text, float x, float y, float scale, glm::vec3
 		ch->ClearVertexData();
 		ch->AddIndices(indicies, 6);
 
-		ch->AddVertex(Vertex(glm::vec3(xpos, ypos + h, 0), glm::vec2(0, 0)));
-		ch->AddVertex(Vertex(glm::vec3(xpos, ypos, 0), glm::vec2(0, 1)));
-		ch->AddVertex(Vertex(glm::vec3(xpos + w, ypos + h, 0), glm::vec2(1, 0)));
-		ch->AddVertex(Vertex(glm::vec3(xpos + w, ypos, 0), glm::vec2(1, 1)));
+		ch->AddVertex(Vertex(glm::vec3(xpos, ypos + h, 0), glm::vec2(0, 0),glm::vec3(0)));
+		ch->AddVertex(Vertex(glm::vec3(xpos, ypos, 0), glm::vec2(0, 1), glm::vec3(0)));
+		ch->AddVertex(Vertex(glm::vec3(xpos + w, ypos + h, 0), glm::vec2(1, 0), glm::vec3(0)));
+		ch->AddVertex(Vertex(glm::vec3(xpos + w, ypos, 0), glm::vec2(1, 1), glm::vec3(0)));
 
 		glBindTexture(GL_TEXTURE_2D, ch->texture);
 

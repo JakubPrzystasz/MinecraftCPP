@@ -2,6 +2,15 @@
 
 Engine* Engine::instance = nullptr;
 
+const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+unsigned int depthMap;
+unsigned int depthMapFBO;
+GLfloat sunDist = 128.f;
+GLfloat sunDenom = 4.0f;
+
+
+Cube testCube;
+
 vec3 Engine::CalculateOnBlockPosition(vec3 pos)
 {
 	vec3 ret = vec3(0, 0, 0);
@@ -125,7 +134,28 @@ void Engine::updateWindow()
 	if (!world->worldGenerated)
 		return;
 
+	GLfloat sunTime = glfwGetTime() / sunDenom;
+	Sun.Position = camera.Position + glm::vec3(8,2,0);
+	//Sun.Position = camera.Position + glm::vec3(sunDist * sin(sunTime), sunDist * cos(sunTime), 0);
+	
+	rs->GetShadingProgram("block")->Use();
+
+	rs->GetShadingProgram("block")->SetData("light.position", Sun.Position);
+	rs->GetShadingProgram("block")->SetData("viewPos", camera.Position);
+
+	// light properties
+	rs->GetShadingProgram("block")->SetData("light.ambient", 0.5f, 0.5f, 0.5f);
+	rs->GetShadingProgram("block")->SetData("light.diffuse", .8f, .8f, .8f);
+	rs->GetShadingProgram("block")->SetData("light.specular", 0.001f, .001f, .001f);
+	rs->GetShadingProgram("block")->SetData("light.constant", 1.0f);
+	rs->GetShadingProgram("block")->SetData("light.linear", 0.0000000001f);
+	rs->GetShadingProgram("block")->SetData("light.quadratic", 0.0000000001f);
+	// material properties
+	rs->GetShadingProgram("block")->SetData("material.shininess", 64.0f);
+	rs->GetShadingProgram("block")->SetData("viewPos", camera.Position);
+
 	ProcessMovement();
+
 
 	if (input->IsButtonDown(GLFW_MOUSE_BUTTON_LEFT) && timer.click())
 	{
@@ -233,17 +263,17 @@ void Engine::updateWindow()
 		std::fixed << std::setprecision(2) << pointVec.z << "  ";
 	DebugData.push_back(STRING.str());
 	std::stringstream().swap(STRING);
-	STRING << "On chunk pos: " <<
-		std::fixed << std::setprecision(0) << onChunkPos.x << ", " <<
-		std::fixed << std::setprecision(0) << onChunkPos.y << ", " <<
-		std::fixed << std::setprecision(0) << onChunkPos.z;
+	STRING << "Sun position: " <<
+		std::fixed << std::setprecision(0) << Sun.Position.x << ", " <<
+		std::fixed << std::setprecision(0) << Sun.Position.y << ", " <<
+		std::fixed << std::setprecision(0) << Sun.Position.z;
 	DebugData.push_back(STRING.str());
 }
 
 void Engine::renderFrame()
 {
 	if (!world->worldGenerated) {
-		text.RenderText("Generating world...", static_cast<float>((screenWidth/2) - 80), static_cast<float>(screenHeight/2), 0.4f, glm::vec3(0.f, 0.f, 0.f));
+		text.RenderText("Generating world...", static_cast<float>((screenWidth / 2) - 80), static_cast<float>(screenHeight / 2), 0.4f, glm::vec3(0.f, 0.f, 0.f));
 		GLuint x = world->GetChunksCount();
 		if (world->GetChunksCount() >= SectionSize) {
 			world->BuildMesh(world->GetChunkPosition(camera.Position));
@@ -269,7 +299,7 @@ void Engine::renderFrame()
 	if (flyMode) {
 		std::stringstream STRING;
 		STRING << "Speed: " << camera.MovementSpeed;
-		text.RenderText("Fly mode", static_cast<float>(screenWidth-100), static_cast<float>(screenHeight-20), 0.4f, glm::vec3(0.f, 0.f, 0.f));
+		text.RenderText("Fly mode", static_cast<float>(screenWidth - 100), static_cast<float>(screenHeight - 20), 0.4f, glm::vec3(0.f, 0.f, 0.f));
 		text.RenderText(STRING.str(), static_cast<float>(screenWidth - 100), static_cast<float>(screenHeight - 40), 0.4f, glm::vec3(0.f, 0.f, 0.f));
 	}
 
@@ -292,12 +322,12 @@ Engine::Engine()
 	screenWidth = 800;
 	crossHairSize = 8;
 	RenderDistance = 6;
-	ChunkSize = 6;
+	ChunkSize = 4;
 	ChunkOffset = 2;
 	RayRange = 6;
 	flyMode = false;
 	SelectedBlock = BlockName::Cobble;
-	StartPosition = glm::vec3(1024, 40, 1024);
+	StartPosition = glm::vec3(1024, 35, 1024);
 }
 
 
@@ -354,6 +384,10 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	rs->AddShadingProgram("block", "Shaders/block.vert", "Shaders/block.frag");
 	rs->AddShadingProgram("text", "Shaders/text.vert", "Shaders/text.frag");
 	rs->AddShadingProgram("crossHair", "Shaders/crosshair.vert", "Shaders/crosshair.frag");
+	rs->AddShadingProgram("simpleShading", "Shaders/simpleShading.vert", "Shaders/simpleShading.frag");
+	rs->AddShadingProgram("test", "Shaders/test.vert", "Shaders/test.frag");
+
+	rs->GetShadingProgram("block")->SetData("depthMap", 7);
 
 	//Add blocks
 	//Grass
@@ -407,10 +441,10 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 
 		//calculate pixels in center of screen
 		vec3 center = vec3(static_cast<GLfloat>(screenWidth) / 2, static_cast<GLfloat>(screenHeight) / 2, 0.f);
-		crossHair.AddVertex(Vertex((center + vec3(crossHairSize, crossHairSize, 0)), glm::vec2(1.0f, 1.0f))); //right top
-		crossHair.AddVertex(Vertex((center + vec3(crossHairSize, -crossHairSize, 0)), glm::vec2(1.0f, 0.0f)));//right bottom
-		crossHair.AddVertex(Vertex((center + vec3(-crossHairSize, -crossHairSize, 0)), glm::vec2(0.0f, 0.0f)));//left bottom
-		crossHair.AddVertex(Vertex((center + vec3(-crossHairSize, crossHairSize, 0)), glm::vec2(0.0f, 1.0f)));//left top
+		crossHair.AddVertex(Vertex((center + vec3(crossHairSize, crossHairSize, 0)), glm::vec2(1.0f, 1.0f), glm::vec3(0))); //right top
+		crossHair.AddVertex(Vertex((center + vec3(crossHairSize, -crossHairSize, 0)), glm::vec2(1.0f, 0.0f), glm::vec3(0)));//right bottom
+		crossHair.AddVertex(Vertex((center + vec3(-crossHairSize, -crossHairSize, 0)), glm::vec2(0.0f, 0.0f), glm::vec3(0)));//left bottom
+		crossHair.AddVertex(Vertex((center + vec3(-crossHairSize, crossHairSize, 0)), glm::vec2(0.0f, 1.0f), glm::vec3(0)));//left top
 		crossHair.BindData();
 	}
 	//Crosshair
@@ -423,7 +457,31 @@ void Engine::InitializeWindow(GLuint width, GLuint height, const std::string tit
 	world->SetRenderDistance(RenderDistance);
 	world->StartThreads();
 	SectionSize = world->GenerateWorld(world->GetChunkPosition(camera.Position));
-	
+
+
+	//Shadows
+	glGenFramebuffers(1, &depthMapFBO);
+	// create depth texture
+
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// attach depth texture as FBO's depth buffer
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	testCube = Cube();
+	testCube.Init();
+	testCube.BindFaces();
+	testCube.BindData();
+	testCube.SetShadingProgram(rs->GetShadingProgram("test"));
 }
 
 
@@ -452,8 +510,75 @@ void Engine::WindowLoop()
 			/// </summary>
 			if (timer.renderFrame())
 			{
+				glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+				glm::vec3 cameraDirection = glm::normalize((camera.Position - Sun.Position));
+				glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+
+				glm::mat4 lightProjection, lightView;
+				glm::mat4 lightSpaceMatrix;
+				lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 2.0f, sunDist);
+				///    return glm::lookAt(Position, Position + Front, Up);
+				lightView = glm::lookAt(Sun.Position, camera.Position, up);
+
+				lightSpaceMatrix = lightProjection * lightView;
+
+
+				glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+				glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+				glDisable(GL_CULL_FACE);
+
+				{
+					auto sp = rs->GetShadingProgram("simpleShading");
+					sp->Use();
+					sp->SetData("lightSpaceMatrix", lightSpaceMatrix);
+					sp->SetData("model", glm::mat4(1.0f));
+
+					if (world->worldGenerated) {
+						for (auto* chunk : world->RenderedChunks) {
+							if (chunk != nullptr && chunk->model != nullptr) {
+								chunk->model->SetShadingProgram(sp);
+								chunk->model->Draw();
+							}
+						}
+					}
+				}
+
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+				glViewport(0, 0, screenWidth, screenHeight);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				glActiveTexture(GL_TEXTURE7);
+				glBindTexture(GL_TEXTURE_2D, depthMap);
+
+				testCube.shadingProgram->Use();
+				testCube.shadingProgram->SetData("texture1", 7);
+				glDisable(GL_CULL_FACE);
+				//testCube.Draw();
+				
+				
+				glActiveTexture(GL_TEXTURE7);
+				glBindTexture(GL_TEXTURE_2D, depthMap);
+				{
+					auto sp = rs->GetShadingProgram("block");
+					sp->Use();
+					sp->SetData("projection", camera.Projection);
+					sp->SetData("view", camera.GetViewMatrix());
+					sp->SetData("model", glm::mat4(1.0f));
+					sp->SetData("depthMap", 7);
+					sp->SetData("lightSpaceMatrix", lightSpaceMatrix);
+					if (world->worldGenerated) {
+						for (auto* chunk : world->RenderedChunks) {
+							if (chunk != nullptr && chunk->model != nullptr) {
+								chunk->model->SetShadingProgram(sp);
+							}
+						}
+					}
+				}
+
 				renderFrame();
+
 				/// Draw recently rendered frame on window,
 				glfwSwapBuffers(window);
 			}

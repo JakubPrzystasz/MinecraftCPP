@@ -24,18 +24,25 @@ bool Chunk::BuildMesh()
 		blockModel = *rs->GetBlock(chunkBlock.second);
 
 		//Top
-		if (GetBlock(chunkBlock.first + vec3(0, 1, 0)) == BlockName::Air) {
-			faces++;
-			tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Top]);
-			model->AddIndices(tmpFace.indices, 6);
-			model->AddVertices(tmpFace.vertices, 4);
+		{
+			auto tmpBlock = GetBlock(chunkBlock.first + vec3(0, 1, 0));
+			if (Cube::IsTransparent(tmpBlock)) {
+				faces++;
+				tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Top]);
+				model->AddIndices(tmpFace.indices, 6);
+				model->AddVertices(tmpFace.vertices, 4);
+			}
 		}
+
 		//Bottom
-		if (GetBlock(chunkBlock.first + vec3(0, -1, 0)) == BlockName::Air) {
-			faces++;
-			tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Bottom]);
-			model->AddIndices(tmpFace.indices, 6);
-			model->AddVertices(tmpFace.vertices, 4);
+		{
+			auto tmpBlock = GetBlock(chunkBlock.first + vec3(0, -1, 0));
+			if (Cube::IsTransparent(tmpBlock)) {
+				faces++;
+				tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Bottom]);
+				model->AddIndices(tmpFace.indices, 6);
+				model->AddVertices(tmpFace.vertices, 4);
+			}
 		}
 
 		//FRONT
@@ -45,7 +52,7 @@ bool Chunk::BuildMesh()
 			auto foreginChunk = world->GetChunk(chunkPosition + vec2(0, 1));
 			if (foreginChunk != nullptr) {
 				auto foreginBlock = foreginChunk->GetBlock(foreginBlockPos);
-				if (foreginBlock == BlockName::Air) {
+				if (Cube::IsTransparent(foreginBlock)) {
 					faces++;
 					tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Front]);
 					model->AddIndices(tmpFace.indices, 6);
@@ -53,13 +60,15 @@ bool Chunk::BuildMesh()
 				}
 			}
 		}
-		else if (GetBlock(chunkBlock.first + vec3(0, 0, 1)) == BlockName::Air) {
-			faces++;
-			tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Front]);
-			model->AddIndices(tmpFace.indices, 6);
-			model->AddVertices(tmpFace.vertices, 4);
-		}
+		else {
+			if (Cube::IsTransparent(GetBlock(chunkBlock.first + vec3(0, 0, 1)))){
+				faces++;
+				tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Front]);
+				model->AddIndices(tmpFace.indices, 6);
+				model->AddVertices(tmpFace.vertices, 4);
+			}
 
+		}
 
 		//BACK
 		if (chunkBlock.first.z == 0) {
@@ -68,7 +77,7 @@ bool Chunk::BuildMesh()
 			auto foreginChunk = world->GetChunk(chunkPosition + vec2(0, -1));
 			if (foreginChunk != nullptr) {
 				auto foreginBlock = foreginChunk->GetBlock(foreginBlockPos);
-				if (foreginBlock == BlockName::Air) {
+				if (Cube::IsTransparent(foreginBlock)) {
 					faces++;
 					tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Back]);
 					model->AddIndices(tmpFace.indices, 6);
@@ -76,7 +85,7 @@ bool Chunk::BuildMesh()
 				}
 			}
 		}
-		else if (GetBlock(chunkBlock.first + vec3(0, 0, -1)) == BlockName::Air) {
+		else if (Cube::IsTransparent(GetBlock(chunkBlock.first + vec3(0, 0, -1)))) {
 			faces++;
 			tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Back]);
 			model->AddIndices(tmpFace.indices, 6);
@@ -90,7 +99,7 @@ bool Chunk::BuildMesh()
 			auto foreginChunk = world->GetChunk(chunkPosition + vec2(-1, 0));
 			if (foreginChunk != nullptr) {
 				auto foreginBlock = foreginChunk->GetBlock(foreginBlockPos);
-				if (foreginBlock == BlockName::Air) {
+				if (Cube::IsTransparent(foreginBlock)) {
 					faces++;
 					tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Left]);
 					model->AddIndices(tmpFace.indices, 6);
@@ -98,7 +107,7 @@ bool Chunk::BuildMesh()
 				}
 			}
 		}
-		else if (GetBlock(chunkBlock.first + vec3(-1, 0, 0)) == BlockName::Air) {
+		else if (Cube::IsTransparent(GetBlock(chunkBlock.first + vec3(-1, 0, 0)))) {
 			faces++;
 			tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Left]);
 			model->AddIndices(tmpFace.indices, 6);
@@ -112,7 +121,7 @@ bool Chunk::BuildMesh()
 			auto foreginChunk = world->GetChunk(chunkPosition + vec2(1, 0));
 			if (foreginChunk != nullptr) {
 				auto foreginBlock = foreginChunk->GetBlock(foreginBlockPos);
-				if (foreginBlock == BlockName::Air) {
+				if (Cube::IsTransparent(foreginBlock)) {
 					faces++;
 					tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Right]);
 					model->AddIndices(tmpFace.indices, 6);
@@ -120,7 +129,7 @@ bool Chunk::BuildMesh()
 				}
 			}
 		}
-		else if (GetBlock(chunkBlock.first + vec3(1, 0, 0)) == BlockName::Air) {
+		else if (Cube::IsTransparent(GetBlock(chunkBlock.first + vec3(1, 0, 0)))) {
 			faces++;
 			tmpFace = AddPosToFace(chunkBlock.first, blockModel.Faces[FaceName::Right]);
 			model->AddIndices(tmpFace.indices, 6);

@@ -16,7 +16,7 @@ class Model;
 
 class Chunk
 {
-private:
+public:
 
 	std::mutex Mutex;
 	std::atomic<bool> updateChunk;
@@ -33,7 +33,6 @@ private:
 
 
 	bool BuildMesh();
-public:
 
 	Chunk(vec2 ChunkPos, Model* _model) {
 		chunkPosition = ChunkPos;

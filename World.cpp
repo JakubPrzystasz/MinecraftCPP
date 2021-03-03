@@ -61,10 +61,6 @@ void World::DrawChunks(Camera& camera)
 				continue;
 			}
 			chunk->model->BindData();
-			chunk->model->shadingProgram->Use();
-			chunk->model->shadingProgram->SetData("projection", camera.Projection);
-			chunk->model->shadingProgram->SetData("view", camera.GetViewMatrix());
-			chunk->model->shadingProgram->SetData("model", glm::mat4(1.0f));
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_BACK);
 			glFrontFace(GL_CW);
@@ -100,7 +96,7 @@ void World::SetBlock(glm::vec3 pos, BlockName _block)
 	auto chunk = GetChunk(GetChunkPosition(pos));
 	if (chunk == nullptr)
 		return;
-	auto blockInChunkPos = ToChunkPositionTEST(pos);
+	auto blockInChunkPos = ToChunkPosition(pos);
 	auto block = chunk->blocks.find(blockInChunkPos);
 	if ((block != chunk->blocks.end())) {
 		if (block->second == BlockName::TNT) {
@@ -181,14 +177,19 @@ Chunk* World::GenerateChunk(vec2 chunkPos, Model* model)
 {
 	Chunk* newChunk = new Chunk(chunkPos, model);
 
-	float grassHeight;
-	float dirtHeight;
-	float tree;
+	float grassHeight,dirtHeight,tree,stoneHeight;
 
 	GLuint seed = (GLuint)time(NULL);
 
 	for (GLuint x : range(0, chunkSize - 1)) {
 		for (GLuint z : range(0, chunkSize - 1)) {
+			/*newChunk->PutBlock(BlockName::Grass, x, 0, z);
+			newChunk->PutBlock(BlockName::Grass, x, 1, z);
+			newChunk->PutBlock(BlockName::Grass, x, 2, z);
+			newChunk->PutBlock(BlockName::Grass, x, 3, z);
+			continue;*/
+
+			stoneHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 16498)) / 20.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 16498)) / 18.f, 0, 0, 0, seed) * (-4) + 10;
 			grassHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 16498)) / 20.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 16498)) / 18.f, 0, 0, 0, seed) * (-8) + 16;
 			dirtHeight = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 16498)) / 16.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 16498)) / 16.f, 0, 0, 0, seed) * (-2) + 10;
 			tree = stb_perlin_noise3_seed((float)(x + chunkSize * (chunkPos.x + 16498)) / 100.f, 0.f, (float)(z + chunkSize * (chunkPos.y + 16498)) / 100.f, 0, 0, 0, seed) * (-8) + 2;
@@ -444,25 +445,6 @@ vec3 World::ToChunkPosition(vec3 worldPos)
 	return vec3(x, y, z);
 }
 
-
-vec3 World::ToChunkPositionTEST(vec3 worldPos)
-{
-	GLfloat x, y, z;
-
-	y = static_cast<GLfloat>((static_cast<int>(std::floor(worldPos.y))));
-
-	x = worldPos.x >= 0 ? worldPos.x : -1 * (std::floor(worldPos.x));
-	x = static_cast<GLfloat>((static_cast<int>(x) % chunkSize));
-	if (worldPos.x < 0)
-		x = chunkSize - static_cast<int>(x) % chunkSize;
-
-	z = worldPos.z >= 0 ? worldPos.z : -1 * (std::floor(worldPos.z));
-	z = static_cast<GLfloat>((static_cast<int>(z) % chunkSize));
-	if (worldPos.z < 0)
-		z = chunkSize - static_cast<int>(z) % chunkSize;
-
-	return vec3(x, y, z);
-}
 
 GLuint World::GetRenderDistance() {
 	return renderDistance;

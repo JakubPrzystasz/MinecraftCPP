@@ -70,7 +70,7 @@ public:
 
 	std::map<FaceName, Face> Faces;
 	std::map<FaceName, FaceTexture> FaceTexturesIndex;
-	
+
 	/// <summary>
 	/// Bind desired face
 	/// </summary>
@@ -87,4 +87,6 @@ public:
 	void SetFaceTexture(Face& face, FaceTexture fTex);
 
 	static std::string GetBlockName(BlockName block);
+
+	static bool IsTransparent(BlockName block);
 };

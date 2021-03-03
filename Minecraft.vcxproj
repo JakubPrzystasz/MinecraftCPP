@@ -204,6 +204,10 @@
     <None Include="Shaders\block.vert" />
     <None Include="Shaders\crosshair.frag" />
     <None Include="Shaders\crosshair.vert" />
+    <None Include="Shaders\simpleShading.frag" />
+    <None Include="Shaders\simpleShading.vert" />
+    <None Include="Shaders\test.frag" />
+    <None Include="Shaders\test.vert" />
     <None Include="Shaders\text.frag" />
     <None Include="Shaders\text.vert" />
   </ItemGroup>

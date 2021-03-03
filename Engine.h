@@ -75,6 +75,7 @@ protected:
 	Text text;
 
 	Camera camera;
+	Camera Sun;
 
 	glm::mat4 ProjectionMatrix;
 

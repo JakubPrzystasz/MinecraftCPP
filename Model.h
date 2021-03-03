@@ -15,25 +15,21 @@ class Chunk;
 struct Vertex {
 	glm::vec3 Position;
 	glm::vec2 TexCoords;
-	Vertex(glm::vec3 pos, glm::vec2 tex) {
+	glm::vec3 Normal;
+	Vertex(glm::vec3 pos, glm::vec2 tex, glm::vec3 normal) {
 		Position = pos;
 		TexCoords = tex;
+		Normal = normal;
 	}
-	Vertex(vec3 pos, glm::vec2 tex) {
-		Position = glm::vec3(pos.x,pos.y,pos.z);
-		TexCoords = tex;
-	}
-	Vertex(vec3 pos, vec2 tex) {
+	Vertex(vec3 pos, vec2 tex, vec3 normal) {
 		Position = glm::vec3(pos.x, pos.y, pos.z);
 		TexCoords = glm::vec2(tex.x,tex.y);
-	}
-	Vertex(glm::vec3 pos, vec2 tex) {
-		Position = pos;
-		TexCoords = glm::vec2(tex.x, tex.y);
+		Normal = glm::vec3(normal.x, normal.y, normal.z);
 	}
 	Vertex() {
 		Position = glm::vec3(0);
 		TexCoords = glm::vec2(0);
+		Normal = glm::vec3(0);
 	};
 };
 
