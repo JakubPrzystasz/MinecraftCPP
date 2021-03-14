@@ -140,8 +140,6 @@ public:
     /// <summary>
     /// Loads block
     /// </summary>
-    /// <param name="ShaderName">Name of shader file</param>
-    /// <returns></returns>
     static Cube* GetBlock(BlockName blockName);
 
     static GLuint GetBlocksCount();
